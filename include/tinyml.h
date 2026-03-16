@@ -27,19 +27,48 @@ typedef enum {
     TINYML_ACT_RELU = 1
 } TinyML_Activation;
 
+typedef struct {
+    TinyML_DenseLayer dense;
+    TinyML_Activation activation;
+} TinyML_Model;
+
 /* matrix */
 TinyML_Matrix tinyml_matrix_create(size_t rows, size_t cols);
 void tinyml_matrix_free(TinyML_Matrix *matrix);
 float tinyml_matrix_get(const TinyML_Matrix *matrix, size_t row, size_t col);
 void tinyml_matrix_set(TinyML_Matrix *matrix, size_t row, size_t col, float value);
+void tinyml_matrix_fill(TinyML_Matrix *matrix, float value);
+TinyML_Matrix tinyml_matrix_copy(const TinyML_Matrix *matrix);
+TinyML_Matrix tinyml_matrix_subtract(const TinyML_Matrix *a, const TinyML_Matrix *b);
+TinyML_Matrix tinyml_matrix_transpose(const TinyML_Matrix *matrix);
+TinyML_Matrix tinyml_matrix_multiply(const TinyML_Matrix *a, const TinyML_Matrix *b);
+void tinyml_matrix_scale_inplace(TinyML_Matrix *matrix, float scalar);
 
 /* dense layer */
 TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim);
 void tinyml_dense_free(TinyML_DenseLayer *layer);
 TinyML_Matrix tinyml_dense_forward(const TinyML_DenseLayer *layer, const TinyML_Matrix *input);
+TinyML_Matrix tinyml_dense_backward(
+    TinyML_DenseLayer *layer,
+    const TinyML_Matrix *input,
+    const TinyML_Matrix *grad_output,
+    float learning_rate
+);
 
 /* activations */
 float tinyml_relu(float x);
+float tinyml_relu_derivative(float x);
+void tinyml_matrix_apply_relu(TinyML_Matrix *matrix);
+void tinyml_matrix_apply_relu_derivative_inplace(TinyML_Matrix *matrix);
+
+/* loss */
+float tinyml_mse_loss(const TinyML_Matrix *y_true, const TinyML_Matrix *y_pred);
+TinyML_Matrix tinyml_mse_loss_gradient(const TinyML_Matrix *y_true, const TinyML_Matrix *y_pred);
+
+/* model */
+TinyML_Model tinyml_model_create(size_t input_dim, size_t output_dim, TinyML_Activation activation);
+void tinyml_model_free(TinyML_Model *model);
+TinyML_Matrix tinyml_model_forward(const TinyML_Model *model, const TinyML_Matrix *input);
 
 #ifdef __cplusplus
 }
