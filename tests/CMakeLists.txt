@@ -45,3 +45,10 @@ add_executable(test_linear_fit
 )
 target_link_libraries(test_linear_fit PRIVATE tinyml_core)
 add_test(NAME linear_fit_test COMMAND test_linear_fit)
+
+add_executable(test_dataset
+    unit/test_dataset.c
+)
+target_link_libraries(test_dataset PRIVATE tinyml_core)
+target_compile_definitions(test_dataset PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+add_test(NAME dataset_test COMMAND test_dataset)

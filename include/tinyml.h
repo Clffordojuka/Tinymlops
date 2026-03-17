@@ -32,6 +32,13 @@ typedef struct {
     TinyML_Activation activation;
 } TinyML_Model;
 
+typedef struct {
+    size_t sample_count;
+    size_t feature_count;
+    TinyML_Matrix features;
+    TinyML_Matrix targets;
+} TinyML_Dataset;
+
 /* matrix */
 TinyML_Matrix tinyml_matrix_create(size_t rows, size_t cols);
 void tinyml_matrix_free(TinyML_Matrix *matrix);
@@ -43,6 +50,11 @@ TinyML_Matrix tinyml_matrix_subtract(const TinyML_Matrix *a, const TinyML_Matrix
 TinyML_Matrix tinyml_matrix_transpose(const TinyML_Matrix *matrix);
 TinyML_Matrix tinyml_matrix_multiply(const TinyML_Matrix *a, const TinyML_Matrix *b);
 void tinyml_matrix_scale_inplace(TinyML_Matrix *matrix, float scalar);
+
+/* dataset */
+TinyML_Dataset tinyml_dataset_create(size_t sample_count, size_t feature_count);
+void tinyml_dataset_free(TinyML_Dataset *dataset);
+TinyML_Dataset tinyml_dataset_load_csv(const char *path);
 
 /* dense layer */
 TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim);
@@ -79,6 +91,16 @@ float tinyml_train_epoch_dense(
     const TinyML_Matrix *targets,
     size_t sample_count,
     float learning_rate
+);
+
+/* metrics */
+int tinyml_write_training_metrics_json(
+    const char *path,
+    int epochs,
+    float learning_rate,
+    float final_loss,
+    float weight,
+    float bias
 );
 
 /* model */

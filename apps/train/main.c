@@ -2,39 +2,37 @@
 #include "tinyml.h"
 
 int main(void) {
+    TinyML_Dataset dataset = tinyml_dataset_load_csv("data/samples/linear.csv");
     TinyML_DenseLayer layer = tinyml_dense_create(1, 1);
 
-    TinyML_Matrix inputs[3];
-    TinyML_Matrix targets[3];
-
-    for (int i = 0; i < 3; ++i) {
-        inputs[i] = tinyml_matrix_create(1, 1);
-        targets[i] = tinyml_matrix_create(1, 1);
+    if (dataset.sample_count == 0) {
+        fprintf(stderr, "Failed to load dataset.\n");
+        tinyml_dense_free(&layer);
+        return 1;
     }
-
-    tinyml_matrix_set(&inputs[0], 0, 0, 1.0f);
-    tinyml_matrix_set(&targets[0], 0, 0, 2.0f);
-
-    tinyml_matrix_set(&inputs[1], 0, 0, 2.0f);
-    tinyml_matrix_set(&targets[1], 0, 0, 4.0f);
-
-    tinyml_matrix_set(&inputs[2], 0, 0, 3.0f);
-    tinyml_matrix_set(&targets[2], 0, 0, 6.0f);
 
     tinyml_matrix_set(&layer.weights, 0, 0, 0.0f);
     tinyml_matrix_set(&layer.bias, 0, 0, 0.0f);
 
     const float learning_rate = 0.01f;
     const int epochs = 200;
+    float final_loss = 0.0f;
+
+    TinyML_Matrix input = tinyml_matrix_create(1, 1);
+    TinyML_Matrix target = tinyml_matrix_create(1, 1);
 
     for (int epoch = 0; epoch < epochs; ++epoch) {
-        float epoch_loss = tinyml_train_epoch_dense(
-            &layer,
-            inputs,
-            targets,
-            3,
-            learning_rate
-        );
+        float epoch_loss = 0.0f;
+
+        for (size_t i = 0; i < dataset.sample_count; ++i) {
+            tinyml_matrix_set(&input, 0, 0, tinyml_matrix_get(&dataset.features, i, 0));
+            tinyml_matrix_set(&target, 0, 0, tinyml_matrix_get(&dataset.targets, i, 0));
+
+            epoch_loss += tinyml_train_step_dense(&layer, &input, &target, learning_rate);
+        }
+
+        epoch_loss /= (float)dataset.sample_count;
+        final_loss = epoch_loss;
 
         if ((epoch + 1) % 20 == 0 || epoch == 0) {
             printf("Epoch %d/%d - Loss: %.6f\n", epoch + 1, epochs, epoch_loss);
@@ -50,14 +48,21 @@ int main(void) {
     printf("Learned weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
     printf("Learned bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
 
-    tinyml_matrix_free(&prediction);
-    tinyml_matrix_free(&test_input);
-
-    for (int i = 0; i < 3; ++i) {
-        tinyml_matrix_free(&inputs[i]);
-        tinyml_matrix_free(&targets[i]);
+    if (!tinyml_write_training_metrics_json(
+            "metrics/train_metrics.json",
+            epochs,
+            learning_rate,
+            final_loss,
+            tinyml_matrix_get(&layer.weights, 0, 0),
+            tinyml_matrix_get(&layer.bias, 0, 0))) {
+        fprintf(stderr, "Warning: failed to write metrics file.\n");
     }
 
+    tinyml_matrix_free(&prediction);
+    tinyml_matrix_free(&test_input);
+    tinyml_matrix_free(&input);
+    tinyml_matrix_free(&target);
+    tinyml_dataset_free(&dataset);
     tinyml_dense_free(&layer);
 
     return 0;

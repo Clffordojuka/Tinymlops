@@ -4,6 +4,9 @@ add_library(tinyml_core
     core/model.c
     core/loss.c
     core/train.c
+    data/dataset.c
+    io/csv.c
+    io/metrics.c
     layers/dense.c
     utils/activation.c
 )
