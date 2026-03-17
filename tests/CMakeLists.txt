@@ -59,3 +59,16 @@ add_executable(test_config
 target_link_libraries(test_config PRIVATE tinyml_core)
 target_compile_definitions(test_config PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 add_test(NAME config_test COMMAND test_config)
+
+add_executable(test_checkpoint
+    unit/test_checkpoint.c
+)
+target_link_libraries(test_checkpoint PRIVATE tinyml_core)
+add_test(NAME checkpoint_test COMMAND test_checkpoint)
+
+add_executable(test_evaluate
+    integration/test_evaluate.c
+)
+target_link_libraries(test_evaluate PRIVATE tinyml_core)
+target_compile_definitions(test_evaluate PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+add_test(NAME evaluate_test COMMAND test_evaluate)

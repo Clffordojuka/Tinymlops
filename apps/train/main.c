@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
     tinyml_matrix_set(&layer.bias, 0, 0, 0.0f);
 
     float final_loss = 0.0f;
-
     TinyML_Matrix input = tinyml_matrix_create(1, 1);
     TinyML_Matrix target = tinyml_matrix_create(1, 1);
 
@@ -51,7 +50,6 @@ int main(int argc, char **argv) {
 
     TinyML_Matrix test_input = tinyml_matrix_create(1, 1);
     tinyml_matrix_set(&test_input, 0, 0, 4.0f);
-
     TinyML_Matrix prediction = tinyml_dense_forward(&layer, &test_input);
 
     printf("Config: %s\n", config_path);
@@ -68,6 +66,10 @@ int main(int argc, char **argv) {
             tinyml_matrix_get(&layer.weights, 0, 0),
             tinyml_matrix_get(&layer.bias, 0, 0))) {
         fprintf(stderr, "Warning: failed to write metrics file: %s\n", config.metrics_path);
+    }
+
+    if (!tinyml_save_dense_checkpoint(config.checkpoint_path, &layer)) {
+        fprintf(stderr, "Warning: failed to write checkpoint: %s\n", config.checkpoint_path);
     }
 
     tinyml_matrix_free(&prediction);

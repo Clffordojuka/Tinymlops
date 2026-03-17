@@ -44,6 +44,7 @@ typedef struct {
     int epochs;
     float learning_rate;
     char metrics_path[256];
+    char checkpoint_path[256];
 } TinyML_TrainConfig;
 
 /* matrix */
@@ -112,6 +113,16 @@ int tinyml_write_training_metrics_json(
     float final_loss,
     float weight,
     float bias
+);
+
+/* checkpoint */
+int tinyml_save_dense_checkpoint(const char *path, const TinyML_DenseLayer *layer);
+int tinyml_load_dense_checkpoint(const char *path, TinyML_DenseLayer *layer);
+
+/* evaluation */
+float tinyml_evaluate_dense(
+    const TinyML_DenseLayer *layer,
+    const TinyML_Dataset *dataset
 );
 
 /* model */
