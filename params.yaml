@@ -1,0 +1,5 @@
+train:
+  config_path: configs/base/train_linear.cfg
+
+evaluate:
+  config_path: configs/base/train_linear.cfg
