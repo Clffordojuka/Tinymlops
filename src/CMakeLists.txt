@@ -3,6 +3,7 @@ add_library(tinyml_core
     core/matrix.c
     core/model.c
     core/loss.c
+    core/train.c
     layers/dense.c
     utils/activation.c
 )

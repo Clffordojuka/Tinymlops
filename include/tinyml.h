@@ -65,6 +65,22 @@ void tinyml_matrix_apply_relu_derivative_inplace(TinyML_Matrix *matrix);
 float tinyml_mse_loss(const TinyML_Matrix *y_true, const TinyML_Matrix *y_pred);
 TinyML_Matrix tinyml_mse_loss_gradient(const TinyML_Matrix *y_true, const TinyML_Matrix *y_pred);
 
+/* training helpers */
+float tinyml_train_step_dense(
+    TinyML_DenseLayer *layer,
+    const TinyML_Matrix *input,
+    const TinyML_Matrix *target,
+    float learning_rate
+);
+
+float tinyml_train_epoch_dense(
+    TinyML_DenseLayer *layer,
+    const TinyML_Matrix *inputs,
+    const TinyML_Matrix *targets,
+    size_t sample_count,
+    float learning_rate
+);
+
 /* model */
 TinyML_Model tinyml_model_create(size_t input_dim, size_t output_dim, TinyML_Activation activation);
 void tinyml_model_free(TinyML_Model *model);

@@ -39,3 +39,9 @@ add_executable(test_training_step
 )
 target_link_libraries(test_training_step PRIVATE tinyml_core)
 add_test(NAME training_step_test COMMAND test_training_step)
+
+add_executable(test_linear_fit
+    integration/test_linear_fit.c
+)
+target_link_libraries(test_linear_fit PRIVATE tinyml_core)
+add_test(NAME linear_fit_test COMMAND test_linear_fit)
