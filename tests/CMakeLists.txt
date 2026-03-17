@@ -52,3 +52,10 @@ add_executable(test_dataset
 target_link_libraries(test_dataset PRIVATE tinyml_core)
 target_compile_definitions(test_dataset PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 add_test(NAME dataset_test COMMAND test_dataset)
+
+add_executable(test_config
+    unit/test_config.c
+)
+target_link_libraries(test_config PRIVATE tinyml_core)
+target_compile_definitions(test_config PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+add_test(NAME config_test COMMAND test_config)

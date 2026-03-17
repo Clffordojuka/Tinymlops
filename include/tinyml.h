@@ -39,6 +39,13 @@ typedef struct {
     TinyML_Matrix targets;
 } TinyML_Dataset;
 
+typedef struct {
+    char data_path[256];
+    int epochs;
+    float learning_rate;
+    char metrics_path[256];
+} TinyML_TrainConfig;
+
 /* matrix */
 TinyML_Matrix tinyml_matrix_create(size_t rows, size_t cols);
 void tinyml_matrix_free(TinyML_Matrix *matrix);
@@ -55,6 +62,10 @@ void tinyml_matrix_scale_inplace(TinyML_Matrix *matrix, float scalar);
 TinyML_Dataset tinyml_dataset_create(size_t sample_count, size_t feature_count);
 void tinyml_dataset_free(TinyML_Dataset *dataset);
 TinyML_Dataset tinyml_dataset_load_csv(const char *path);
+
+/* config */
+TinyML_TrainConfig tinyml_default_train_config(void);
+int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config);
 
 /* dense layer */
 TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim);
