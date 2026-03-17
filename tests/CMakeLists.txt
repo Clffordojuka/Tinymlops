@@ -72,3 +72,10 @@ add_executable(test_evaluate
 target_link_libraries(test_evaluate PRIVATE tinyml_core)
 target_compile_definitions(test_evaluate PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 add_test(NAME evaluate_test COMMAND test_evaluate)
+
+add_executable(test_predict
+    integration/test_predict.c
+)
+target_link_libraries(test_predict PRIVATE tinyml_core)
+target_compile_definitions(test_predict PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+add_test(NAME predict_test COMMAND test_predict)

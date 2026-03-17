@@ -26,3 +26,16 @@ float tinyml_evaluate_dense(
 
     return total_loss / (float)dataset->sample_count;
 }
+
+float tinyml_predict_dense_single(const TinyML_DenseLayer *layer, float x) {
+    TinyML_Matrix input = tinyml_matrix_create(1, 1);
+    tinyml_matrix_set(&input, 0, 0, x);
+
+    TinyML_Matrix pred = tinyml_dense_forward(layer, &input);
+    float y = tinyml_matrix_get(&pred, 0, 0);
+
+    tinyml_matrix_free(&pred);
+    tinyml_matrix_free(&input);
+
+    return y;
+}

@@ -124,6 +124,7 @@ float tinyml_evaluate_dense(
     const TinyML_DenseLayer *layer,
     const TinyML_Dataset *dataset
 );
+float tinyml_predict_dense_single(const TinyML_DenseLayer *layer, float x);
 
 /* model */
 TinyML_Model tinyml_model_create(size_t input_dim, size_t output_dim, TinyML_Activation activation);
