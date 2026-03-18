@@ -1,0 +1,13 @@
+.git
+.github
+build
+mlruns
+mlruns_old
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv
+dist
+out

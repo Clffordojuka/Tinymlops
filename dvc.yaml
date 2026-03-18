@@ -1,8 +1,8 @@
 stages:
   train:
-    cmd: .\build\apps\train_app.exe ${train.config_path}
+    cmd: ./build/apps/train_app ${train.config_path}
     deps:
-      - build/apps/train_app.exe
+      - build/apps/train_app
       - data/samples/linear.csv
       - configs/base/train_linear.cfg
       - configs/experiments/linear_fast.cfg
@@ -15,9 +15,9 @@ stages:
       - metrics/train_metrics.json
 
   evaluate:
-    cmd: .\build\apps\evaluate_app.exe ${evaluate.config_path}
+    cmd: ./build/apps/evaluate_app ${evaluate.config_path}
     deps:
-      - build/apps/evaluate_app.exe
+      - build/apps/evaluate_app
       - data/samples/linear.csv
       - configs/base/train_linear.cfg
       - configs/experiments/linear_fast.cfg

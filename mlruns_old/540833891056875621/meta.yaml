@@ -1,0 +1,7 @@
+artifact_location: file:///C:/Users/USER/Tinyml-mlops-blueprint/tinyml-ops/mlruns/540833891056875621
+creation_time: 1773841645616
+experiment_id: '540833891056875621'
+last_update_time: 1773841645616
+lifecycle_stage: active
+name: tinyml-ops
+workspace: default

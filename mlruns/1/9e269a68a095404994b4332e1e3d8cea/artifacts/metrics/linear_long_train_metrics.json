@@ -1,0 +1,7 @@
+{
+  "epochs": 500,
+  "learning_rate": 0.005000,
+  "final_loss": 0.000147,
+  "weight": 1.990599,
+  "bias": 0.028867
+}

@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/USER/Tinyml-mlops-blueprint/tinyml-ops/mlruns/540833891056875621/39132cfd1ec347668a34cda23ced661e/artifacts
+end_time: 1773841746540
+entry_point_name: ''
+experiment_id: '540833891056875621'
+lifecycle_stage: active
+run_id: 39132cfd1ec347668a34cda23ced661e
+run_name: linear_long
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1773841746314
+status: 3
+tags: []
+user_id: USER
