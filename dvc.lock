@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   train:
-    cmd: .\build\apps\train_app.exe configs/experiments/linear_fast.cfg
+    cmd: .\build\apps\train_app.exe configs/experiments/linear_long.cfg
     deps:
     - path: build/apps/train_app.exe
       hash: md5
@@ -26,18 +26,18 @@ stages:
       size: 23
     params:
       params.yaml:
-        train.config_path: configs/experiments/linear_fast.cfg
+        train.config_path: configs/experiments/linear_long.cfg
     outs:
     - path: metrics/train_metrics.json
       hash: md5
-      md5: af8f605a0e2ce0ac322310904b0a6416
-      size: 123
+      md5: 99cf3527c75acc99103e6f5186a66945
+      size: 124
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: abe82faf0cb19d3af19b4ea9e9292c17
+      md5: 5e4260634f8aa735f1bdf1e83c3eb70d
       size: 59
   evaluate:
-    cmd: .\build\apps\evaluate_app.exe configs/experiments/linear_fast.cfg
+    cmd: .\build\apps\evaluate_app.exe configs/experiments/linear_long.cfg
     deps:
     - path: build/apps/evaluate_app.exe
       hash: md5
@@ -62,13 +62,13 @@ stages:
       size: 23
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: abe82faf0cb19d3af19b4ea9e9292c17
+      md5: 5e4260634f8aa735f1bdf1e83c3eb70d
       size: 59
     params:
       params.yaml:
-        evaluate.config_path: configs/experiments/linear_fast.cfg
+        evaluate.config_path: configs/experiments/linear_long.cfg
     outs:
     - path: metrics/eval_metrics.json
       hash: md5
-      md5: 1fc19a3908d18e62ce671d60764f198f
+      md5: a56064608f0c56ea1577dbe72e6bcc63
       size: 105
