@@ -1,0 +1,52 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: .\build\apps\train_app.exe configs\base\train_linear.cfg
+    deps:
+    - path: build/apps/train_app.exe
+      hash: md5
+      md5: 3d7f788dfa14f0c853b085f8f23ef5f6
+      size: 72631
+      isexec: true
+    - path: configs/base/train_linear.cfg
+      hash: md5
+      md5: 2fdc6266056aec93367e520148d6d577
+      size: 159
+    - path: data/samples/linear.csv
+      hash: md5
+      md5: 833399145fa214b9cb7953715f315245
+      size: 23
+    outs:
+    - path: metrics/train_metrics.json
+      hash: md5
+      md5: 4915e4ccdbdff43661872e486198e5fa
+      size: 124
+    - path: models/checkpoints/linear_model.txt
+      hash: md5
+      md5: 2b4be09d084b96627b1794dfa288a494
+      size: 59
+  evaluate:
+    cmd: .\build\apps\evaluate_app.exe configs\base\train_linear.cfg
+    deps:
+    - path: build/apps/evaluate_app.exe
+      hash: md5
+      md5: 74863d11081f364cc7c42b6652762f59
+      size: 72120
+      isexec: true
+    - path: configs/base/train_linear.cfg
+      hash: md5
+      md5: 2fdc6266056aec93367e520148d6d577
+      size: 159
+    - path: data/samples/linear.csv
+      hash: md5
+      md5: 833399145fa214b9cb7953715f315245
+      size: 23
+    - path: models/checkpoints/linear_model.txt
+      hash: md5
+      md5: 2b4be09d084b96627b1794dfa288a494
+      size: 59
+    outs:
+    - path: metrics/eval_metrics.json
+      hash: md5
+      md5: 7c8ab5cc090026b99f97daf42d82ab60
+      size: 105
