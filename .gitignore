@@ -16,7 +16,9 @@
 /data/processed/
 /models/checkpoints/
 /models/exported/
-/metrics/*.json
+/metrics/train_metrics.json/
+/metrics/eval_metrics.json/
+/models/checkpoints/linear_model.txt/
 /logs/
 /.venv/
 /venv/

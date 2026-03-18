@@ -29,21 +29,25 @@ int main(int argc, char **argv) {
     }
 
     float eval_loss = tinyml_evaluate_dense(&layer, &dataset);
-
-    TinyML_Matrix test_input = tinyml_matrix_create(1, 1);
-    tinyml_matrix_set(&test_input, 0, 0, 4.0f);
-    TinyML_Matrix prediction = tinyml_dense_forward(&layer, &test_input);
+    float prediction_x4 = tinyml_predict_dense_single(&layer, 4.0f);
 
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
     printf("Checkpoint: %s\n", config.checkpoint_path);
     printf("Evaluation loss: %.6f\n", eval_loss);
-    printf("Prediction for x=4.0: %.6f\n", tinyml_matrix_get(&prediction, 0, 0));
+    printf("Prediction for x=4.0: %.6f\n", prediction_x4);
     printf("Loaded weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
     printf("Loaded bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
 
-    tinyml_matrix_free(&prediction);
-    tinyml_matrix_free(&test_input);
+    if (!tinyml_write_eval_metrics_json(
+            "metrics/eval_metrics.json",
+            eval_loss,
+            prediction_x4,
+            tinyml_matrix_get(&layer.weights, 0, 0),
+            tinyml_matrix_get(&layer.bias, 0, 0))) {
+        fprintf(stderr, "Warning: failed to write eval metrics file.\n");
+    }
+
     tinyml_dataset_free(&dataset);
     tinyml_dense_free(&layer);
 

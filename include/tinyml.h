@@ -115,6 +115,14 @@ int tinyml_write_training_metrics_json(
     float bias
 );
 
+int tinyml_write_eval_metrics_json(
+    const char *path,
+    float eval_loss,
+    float prediction_x4,
+    float weight,
+    float bias
+);
+
 /* checkpoint */
 int tinyml_save_dense_checkpoint(const char *path, const TinyML_DenseLayer *layer);
 int tinyml_load_dense_checkpoint(const char *path, TinyML_DenseLayer *layer);
