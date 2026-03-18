@@ -1,0 +1,51 @@
+name: DVC Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dvc-repro:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install ninja dvc
+
+      - name: Show tool versions
+        shell: pwsh
+        run: |
+          cmake --version
+          python --version
+          python -m dvc version
+          ninja --version
+          gcc --version
+
+      - name: Configure project
+        shell: pwsh
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc
+
+      - name: Build project
+        shell: pwsh
+        run: |
+          cmake --build build
+
+      - name: Run DVC pipeline
+        shell: pwsh
+        run: |
+          python -m dvc repro
+          python -m dvc metrics show
