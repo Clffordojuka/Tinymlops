@@ -1,13 +1,8 @@
 schema: '2.0'
 stages:
   train:
-    cmd: ./build/apps/train_app configs/experiments/linear_long.cfg
+    cmd: python scripts/train_entry.py configs/experiments/linear_long.cfg
     deps:
-    - path: build/apps/train_app
-      hash: md5
-      md5: 56b28894877b80eb32a703f80d5a451f
-      size: 26560
-      isexec: true
     - path: configs/base/train_linear.cfg
       hash: md5
       md5: 2fdc6266056aec93367e520148d6d577
@@ -27,6 +22,11 @@ stages:
       hash: md5
       md5: 833399145fa214b9cb7953715f315245
       size: 23
+      isexec: true
+    - path: scripts/train_entry.py
+      hash: md5
+      md5: 2a161837cdaffcc88c1cd8407f7a6463
+      size: 1003
       isexec: true
     params:
       params.yaml:
@@ -41,13 +41,8 @@ stages:
       md5: 1b2a2faa244408b5ed7aff2aa2e0a544
       size: 55
   evaluate:
-    cmd: ./build/apps/evaluate_app configs/experiments/linear_long.cfg
+    cmd: python scripts/evaluate_entry.py configs/experiments/linear_long.cfg
     deps:
-    - path: build/apps/evaluate_app
-      hash: md5
-      md5: c349c2d6fffc459668e60ed6b7b92f0f
-      size: 26560
-      isexec: true
     - path: configs/base/train_linear.cfg
       hash: md5
       md5: 2fdc6266056aec93367e520148d6d577
@@ -72,6 +67,11 @@ stages:
       hash: md5
       md5: 1b2a2faa244408b5ed7aff2aa2e0a544
       size: 55
+    - path: scripts/evaluate_entry.py
+      hash: md5
+      md5: 4145f58dd64e682f6e374a4432220821
+      size: 1023
+      isexec: true
     params:
       params.yaml:
         evaluate.config_path: configs/experiments/linear_long.cfg

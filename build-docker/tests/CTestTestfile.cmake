@@ -1,0 +1,32 @@
+# CMake generated Testfile for 
+# Source directory: /workspace/tests
+# Build directory: /workspace/build-docker/tests
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+add_test(smoke_test "/workspace/build-docker/tests/test_smoke")
+set_tests_properties(smoke_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;5;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(matrix_test "/workspace/build-docker/tests/test_matrix")
+set_tests_properties(matrix_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;11;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(dense_test "/workspace/build-docker/tests/test_dense")
+set_tests_properties(dense_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;17;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(activation_test "/workspace/build-docker/tests/test_activation")
+set_tests_properties(activation_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;23;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(loss_test "/workspace/build-docker/tests/test_loss")
+set_tests_properties(loss_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;29;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(model_test "/workspace/build-docker/tests/test_model")
+set_tests_properties(model_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;35;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(training_step_test "/workspace/build-docker/tests/test_training_step")
+set_tests_properties(training_step_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;41;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(linear_fit_test "/workspace/build-docker/tests/test_linear_fit")
+set_tests_properties(linear_fit_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;47;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(dataset_test "/workspace/build-docker/tests/test_dataset")
+set_tests_properties(dataset_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;54;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(config_test "/workspace/build-docker/tests/test_config")
+set_tests_properties(config_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;61;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(checkpoint_test "/workspace/build-docker/tests/test_checkpoint")
+set_tests_properties(checkpoint_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;67;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(evaluate_test "/workspace/build-docker/tests/test_evaluate")
+set_tests_properties(evaluate_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;74;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(predict_test "/workspace/build-docker/tests/test_predict")
+set_tests_properties(predict_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;81;add_test;/workspace/tests/CMakeLists.txt;0;")
