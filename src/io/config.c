@@ -19,6 +19,8 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     config.learning_rate = 0.01f;
     snprintf(config.metrics_path, sizeof(config.metrics_path), "metrics/train_metrics.json");
     snprintf(config.checkpoint_path, sizeof(config.checkpoint_path), "models/checkpoints/linear_model.txt");
+    config.validation_split = 0.25f;
+    snprintf(config.eval_metrics_path, sizeof(config.eval_metrics_path), "metrics/eval_metrics.json");
 
     return config;
 }
@@ -58,6 +60,10 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 snprintf(config->metrics_path, sizeof(config->metrics_path), "%s", value);
             } else if (strcmp(key, "checkpoint_path") == 0) {
                 snprintf(config->checkpoint_path, sizeof(config->checkpoint_path), "%s", value);
+            } else if (strcmp(key, "validation_split") == 0) {
+                config->validation_split = (float)atof(value);
+            } else if (strcmp(key, "eval_metrics_path") == 0) {
+                snprintf(config->eval_metrics_path, sizeof(config->eval_metrics_path), "%s", value);
             }
         }
     }

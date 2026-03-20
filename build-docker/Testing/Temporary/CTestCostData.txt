@@ -1,14 +1,14 @@
-smoke_test 1 0.00863911
-matrix_test 1 0.00976104
-dense_test 1 0.00860823
-activation_test 1 0.00907939
-loss_test 1 0.00905335
-model_test 1 0.0112633
-training_step_test 1 0.00820284
-linear_fit_test 1 0.0116227
-dataset_test 1 0.0219842
-config_test 1 0.0206346
-checkpoint_test 1 0.0283289
-evaluate_test 1 0.0166016
-predict_test 1 0.00700149
+smoke_test 2 0.00291862
+matrix_test 2 0.00449772
+dense_test 2 0.00658533
+activation_test 2 0.00904243
+loss_test 2 0.00640436
+model_test 2 0.00538359
+training_step_test 2 0.00503033
+linear_fit_test 2 0.00524384
+dataset_test 2 0.0163253
+config_test 2 0.0151548
+checkpoint_test 2 0.028815
+evaluate_test 2 0.0211194
+predict_test 2 0.00462955
 ---

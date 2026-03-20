@@ -5,7 +5,8 @@ int tinyml_write_training_metrics_json(
     const char *path,
     int epochs,
     float learning_rate,
-    float final_loss,
+    float train_loss,
+    float val_loss,
     float weight,
     float bias
 ) {
@@ -17,7 +18,8 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "{\n");
     fprintf(fp, "  \"epochs\": %d,\n", epochs);
     fprintf(fp, "  \"learning_rate\": %.6f,\n", learning_rate);
-    fprintf(fp, "  \"final_loss\": %.6f,\n", final_loss);
+    fprintf(fp, "  \"train_loss\": %.6f,\n", train_loss);
+    fprintf(fp, "  \"val_loss\": %.6f,\n", val_loss);
     fprintf(fp, "  \"weight\": %.6f,\n", weight);
     fprintf(fp, "  \"bias\": %.6f\n", bias);
     fprintf(fp, "}\n");

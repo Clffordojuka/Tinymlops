@@ -15,6 +15,8 @@ int main(int argc, char **argv) {
     }
 
     TinyML_Dataset dataset = tinyml_dataset_load_csv(config.data_path);
+    TinyML_Dataset train_dataset;
+    TinyML_Dataset val_dataset;
     TinyML_DenseLayer layer;
 
     if (dataset.sample_count == 0) {
@@ -22,25 +24,29 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    tinyml_dataset_split(&dataset, config.validation_split, &train_dataset, &val_dataset);
+
     if (!tinyml_load_dense_checkpoint(config.checkpoint_path, &layer)) {
         fprintf(stderr, "Failed to load checkpoint: %s\n", config.checkpoint_path);
         tinyml_dataset_free(&dataset);
+        tinyml_dataset_free(&train_dataset);
+        tinyml_dataset_free(&val_dataset);
         return 1;
     }
 
-    float eval_loss = tinyml_evaluate_dense(&layer, &dataset);
+    float eval_loss = tinyml_evaluate_dense(&layer, &val_dataset);
     float prediction_x4 = tinyml_predict_dense_single(&layer, 4.0f);
 
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
     printf("Checkpoint: %s\n", config.checkpoint_path);
-    printf("Evaluation loss: %.6f\n", eval_loss);
+    printf("Validation loss: %.6f\n", eval_loss);
     printf("Prediction for x=4.0: %.6f\n", prediction_x4);
     printf("Loaded weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
     printf("Loaded bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
 
     if (!tinyml_write_eval_metrics_json(
-            "metrics/eval_metrics.json",
+            config.eval_metrics_path,
             eval_loss,
             prediction_x4,
             tinyml_matrix_get(&layer.weights, 0, 0),
@@ -49,6 +55,8 @@ int main(int argc, char **argv) {
     }
 
     tinyml_dataset_free(&dataset);
+    tinyml_dataset_free(&train_dataset);
+    tinyml_dataset_free(&val_dataset);
     tinyml_dense_free(&layer);
 
     return 0;

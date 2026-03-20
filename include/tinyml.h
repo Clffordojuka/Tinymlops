@@ -45,6 +45,8 @@ typedef struct {
     float learning_rate;
     char metrics_path[256];
     char checkpoint_path[256];
+    float validation_split;
+    char eval_metrics_path[256];
 } TinyML_TrainConfig;
 
 /* matrix */
@@ -63,6 +65,12 @@ void tinyml_matrix_scale_inplace(TinyML_Matrix *matrix, float scalar);
 TinyML_Dataset tinyml_dataset_create(size_t sample_count, size_t feature_count);
 void tinyml_dataset_free(TinyML_Dataset *dataset);
 TinyML_Dataset tinyml_dataset_load_csv(const char *path);
+void tinyml_dataset_split(
+    const TinyML_Dataset *dataset,
+    float validation_split,
+    TinyML_Dataset *train_dataset,
+    TinyML_Dataset *val_dataset
+);
 
 /* config */
 TinyML_TrainConfig tinyml_default_train_config(void);
@@ -110,7 +118,8 @@ int tinyml_write_training_metrics_json(
     const char *path,
     int epochs,
     float learning_rate,
-    float final_loss,
+    float train_loss,
+    float val_loss,
     float weight,
     float bias
 );

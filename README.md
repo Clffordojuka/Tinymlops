@@ -468,7 +468,4 @@ The project is currently at a strong early-stage MLOps milestone:
 * Docker execution is working
 * MLflow tracking is integrated
 
-```
-
-The next best thing to build after this README is `docs/architecture.md` so the workflow is explained visually and structurally.
-```
+---
