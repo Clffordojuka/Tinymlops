@@ -1,6 +1,6 @@
 {
-  "eval_loss": 0.007335,
-  "prediction_x4": 7.914356,
-  "weight": 1.948972,
-  "bias": 0.118468
+  "eval_loss": 0.000000,
+  "prediction_x4": 14.644387,
+  "weight": 2.494434,
+  "bias": 4.666651
 }

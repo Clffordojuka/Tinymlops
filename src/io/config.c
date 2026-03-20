@@ -20,7 +20,10 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     snprintf(config.metrics_path, sizeof(config.metrics_path), "metrics/train_metrics.json");
     snprintf(config.checkpoint_path, sizeof(config.checkpoint_path), "models/checkpoints/linear_model.txt");
     config.validation_split = 0.25f;
+    config.shuffle = 1;
+    config.split_seed = 42u;
     snprintf(config.eval_metrics_path, sizeof(config.eval_metrics_path), "metrics/eval_metrics.json");
+    snprintf(config.normalization_path, sizeof(config.normalization_path), "models/checkpoints/normalization_stats.txt");
 
     return config;
 }
@@ -62,8 +65,14 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 snprintf(config->checkpoint_path, sizeof(config->checkpoint_path), "%s", value);
             } else if (strcmp(key, "validation_split") == 0) {
                 config->validation_split = (float)atof(value);
+            } else if (strcmp(key, "shuffle") == 0) {
+                config->shuffle = atoi(value);
+            } else if (strcmp(key, "split_seed") == 0) {
+                config->split_seed = (unsigned int)strtoul(value, NULL, 10);
             } else if (strcmp(key, "eval_metrics_path") == 0) {
                 snprintf(config->eval_metrics_path, sizeof(config->eval_metrics_path), "%s", value);
+            } else if (strcmp(key, "normalization_path") == 0) {
+                snprintf(config->normalization_path, sizeof(config->normalization_path), "%s", value);
             }
         }
     }

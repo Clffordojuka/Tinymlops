@@ -1,3 +1,3 @@
 experiment,epochs,learning_rate,train_final_loss,eval_loss,prediction_x4,weight,bias
-linear_long,500,0.005,,0.0,14.644387,2.494434,4.666651
+linear_long,500,0.005,,1e-06,7.989403,1.990542,0.027235
 linear_fast,50,0.02,0.006733,0.006172,7.978409,1.949324,0.181113

@@ -79,3 +79,15 @@ add_executable(test_predict
 target_link_libraries(test_predict PRIVATE tinyml_core)
 target_compile_definitions(test_predict PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 add_test(NAME predict_test COMMAND test_predict)
+
+add_executable(test_dataset_split
+    unit/test_dataset_split.c
+)
+target_link_libraries(test_dataset_split PRIVATE tinyml_core)
+add_test(NAME dataset_split_test COMMAND test_dataset_split)
+
+add_executable(test_normalization
+    unit/test_normalization.c
+)
+target_link_libraries(test_normalization PRIVATE tinyml_core)
+add_test(NAME normalization_test COMMAND test_normalization)

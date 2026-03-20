@@ -63,14 +63,17 @@ def experiment_name_from_config(config_path: str) -> str:
 def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict) -> None:
     print("\n=== Experiment Summary ===")
     print(f"Config: {config_path}")
-    print(f"Train final_loss: {train_metrics.get('final_loss')}")
+    print(f"Train loss: {train_metrics.get('train_loss')}")
+    print(f"Val loss: {train_metrics.get('val_loss')}")
     print(f"Train epochs: {train_metrics.get('epochs')}")
     print(f"Train learning_rate: {train_metrics.get('learning_rate')}")
+    print(f"Validation split: {train_metrics.get('validation_split')}")
+    print(f"Shuffle: {train_metrics.get('shuffle')}")
+    print(f"Split seed: {train_metrics.get('split_seed')}")
     print(f"Eval eval_loss: {eval_metrics.get('eval_loss')}")
     print(f"Prediction x=4: {eval_metrics.get('prediction_x4')}")
     print(f"Weight: {eval_metrics.get('weight')}")
     print(f"Bias: {eval_metrics.get('bias')}")
-
 
 def main() -> int:
     if len(sys.argv) < 2:

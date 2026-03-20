@@ -34,12 +34,13 @@ def collect_experiments() -> list[dict]:
             "experiment": name,
             "epochs": train.get("epochs"),
             "learning_rate": train.get("learning_rate"),
-            "train_final_loss": train.get("final_loss"),
+            "train_loss": train.get("train_loss"),
+            "val_loss": train.get("val_loss"),
             "eval_loss": evalm.get("eval_loss"),
             "prediction_x4": evalm.get("prediction_x4"),
             "weight": evalm.get("weight"),
             "bias": evalm.get("bias"),
-        })
+     })
 
     rows.sort(key=lambda r: (r["eval_loss"] is None, r["eval_loss"]))
     return rows
@@ -76,17 +77,19 @@ def print_summary(rows: list[dict]) -> None:
             f"{row['experiment']}: "
             f"epochs={row['epochs']}, "
             f"lr={row['learning_rate']}, "
-            f"train_loss={row['train_final_loss']}, "
+            f"train_loss={row['train_loss']}, "
+            f"val_loss={row['val_loss']}, "
             f"eval_loss={row['eval_loss']}, "
             f"pred_x4={row['prediction_x4']}"
-        )
+    )
 
     best = rows[0]
     print("\nBest experiment:")
     print(
         f"  {best['experiment']} "
         f"(eval_loss={best['eval_loss']}, "
-        f"train_final_loss={best['train_final_loss']})"
+        f"train_loss={best['train_loss']}, "
+        f"val_loss={best['val_loss']})"
     )
     print(f"\nSummary written to: {SUMMARY_CSV.relative_to(ROOT)}")
 

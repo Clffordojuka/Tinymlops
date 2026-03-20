@@ -49,7 +49,18 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    tinyml_dataset_split(&dataset, config.validation_split, &train_dataset, &val_dataset);
+    tinyml_dataset_split(
+    &dataset,
+    config.validation_split,
+    config.shuffle,
+    config.split_seed,
+    &train_dataset,
+    &val_dataset
+);
+
+TinyML_NormalizationStats norm_stats = tinyml_fit_normalization(&train_dataset);
+tinyml_apply_normalization(&train_dataset, &norm_stats);
+tinyml_apply_normalization(&val_dataset, &norm_stats);
 
     if (train_dataset.sample_count == 0) {
         fprintf(stderr, "Training split is empty.\n");
@@ -92,28 +103,37 @@ int main(int argc, char **argv) {
     }
 
     TinyML_Matrix test_input = tinyml_matrix_create(1, 1);
-    tinyml_matrix_set(&test_input, 0, 0, 4.0f);
+    float normalized_test_x = tinyml_normalize_single_value(4.0f, norm_stats.mean[0], norm_stats.std[0]);
+    tinyml_matrix_set(&test_input, 0, 0, normalized_test_x);
     TinyML_Matrix prediction = tinyml_dense_forward(&layer, &test_input);
 
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
     printf("Prediction for x=4.0: %.6f\n", tinyml_matrix_get(&prediction, 0, 0));
+    printf("Normalized x=4.0: %.6f\n", normalized_test_x);
     printf("Learned weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
     printf("Learned bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
 
     if (!tinyml_write_training_metrics_json(
-            config.metrics_path,
-            config.epochs,
-            config.learning_rate,
-            final_train_loss,
-            final_val_loss,
-            tinyml_matrix_get(&layer.weights, 0, 0),
-            tinyml_matrix_get(&layer.bias, 0, 0))) {
+        config.metrics_path,
+        config.epochs,
+        config.learning_rate,
+        final_train_loss,
+        final_val_loss,
+        config.validation_split,
+        config.shuffle,
+        config.split_seed,
+        tinyml_matrix_get(&layer.weights, 0, 0),
+        tinyml_matrix_get(&layer.bias, 0, 0))) {
         fprintf(stderr, "Warning: failed to write metrics file: %s\n", config.metrics_path);
     }
 
     if (!tinyml_save_dense_checkpoint(config.checkpoint_path, &layer)) {
         fprintf(stderr, "Warning: failed to write checkpoint: %s\n", config.checkpoint_path);
+    }
+
+    if (!tinyml_save_normalization_stats(config.normalization_path, &norm_stats)) {
+    fprintf(stderr, "Warning: failed to write normalization stats: %s\n", config.normalization_path);
     }
 
     tinyml_matrix_free(&prediction);
@@ -124,6 +144,7 @@ int main(int argc, char **argv) {
     tinyml_dataset_free(&train_dataset);
     tinyml_dataset_free(&val_dataset);
     tinyml_dense_free(&layer);
+    tinyml_normalization_stats_free(&norm_stats);
 
     return 0;
 }

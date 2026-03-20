@@ -24,6 +24,8 @@
 /workspace/build-docker/tests/CMakeFiles/test_checkpoint.dir
 /workspace/build-docker/tests/CMakeFiles/test_evaluate.dir
 /workspace/build-docker/tests/CMakeFiles/test_predict.dir
+/workspace/build-docker/tests/CMakeFiles/test_dataset_split.dir
+/workspace/build-docker/tests/CMakeFiles/test_normalization.dir
 /workspace/build-docker/tests/CMakeFiles/test.dir
 /workspace/build-docker/tests/CMakeFiles/edit_cache.dir
 /workspace/build-docker/tests/CMakeFiles/rebuild_cache.dir

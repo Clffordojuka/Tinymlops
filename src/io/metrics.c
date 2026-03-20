@@ -7,6 +7,9 @@ int tinyml_write_training_metrics_json(
     float learning_rate,
     float train_loss,
     float val_loss,
+    float validation_split,
+    int shuffle,
+    unsigned int split_seed,
     float weight,
     float bias
 ) {
@@ -20,6 +23,9 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "  \"learning_rate\": %.6f,\n", learning_rate);
     fprintf(fp, "  \"train_loss\": %.6f,\n", train_loss);
     fprintf(fp, "  \"val_loss\": %.6f,\n", val_loss);
+    fprintf(fp, "  \"validation_split\": %.6f,\n", validation_split);
+    fprintf(fp, "  \"shuffle\": %d,\n", shuffle);
+    fprintf(fp, "  \"split_seed\": %u,\n", split_seed);
     fprintf(fp, "  \"weight\": %.6f,\n", weight);
     fprintf(fp, "  \"bias\": %.6f\n", bias);
     fprintf(fp, "}\n");

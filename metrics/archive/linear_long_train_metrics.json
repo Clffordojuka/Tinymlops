@@ -1,8 +1,11 @@
 {
   "epochs": 500,
   "learning_rate": 0.005000,
-  "train_loss": 0.002090,
-  "val_loss": 0.007335,
-  "weight": 1.948972,
-  "bias": 0.118468
+  "train_loss": 0.000000,
+  "val_loss": 0.000000,
+  "validation_split": 0.250000,
+  "shuffle": 1,
+  "split_seed": 42,
+  "weight": 2.494434,
+  "bias": 4.666651
 }

@@ -46,8 +46,17 @@ typedef struct {
     char metrics_path[256];
     char checkpoint_path[256];
     float validation_split;
+    int shuffle;
+    unsigned int split_seed;
     char eval_metrics_path[256];
+    char normalization_path[256];
 } TinyML_TrainConfig;
+
+typedef struct {
+    size_t feature_count;
+    float *mean;
+    float *std;
+} TinyML_NormalizationStats;
 
 /* matrix */
 TinyML_Matrix tinyml_matrix_create(size_t rows, size_t cols);
@@ -68,6 +77,8 @@ TinyML_Dataset tinyml_dataset_load_csv(const char *path);
 void tinyml_dataset_split(
     const TinyML_Dataset *dataset,
     float validation_split,
+    int shuffle,
+    unsigned int split_seed,
     TinyML_Dataset *train_dataset,
     TinyML_Dataset *val_dataset
 );
@@ -120,6 +131,9 @@ int tinyml_write_training_metrics_json(
     float learning_rate,
     float train_loss,
     float val_loss,
+    float validation_split,
+    int shuffle,
+    unsigned int split_seed,
     float weight,
     float bias
 );
@@ -148,6 +162,16 @@ TinyML_Model tinyml_model_create(size_t input_dim, size_t output_dim, TinyML_Act
 void tinyml_model_free(TinyML_Model *model);
 TinyML_Matrix tinyml_model_forward(const TinyML_Model *model, const TinyML_Matrix *input);
 
+/* normalization */
+TinyML_NormalizationStats tinyml_normalization_stats_create(size_t feature_count);
+void tinyml_normalization_stats_free(TinyML_NormalizationStats *stats);
+
+TinyML_NormalizationStats tinyml_fit_normalization(const TinyML_Dataset *dataset);
+void tinyml_apply_normalization(TinyML_Dataset *dataset, const TinyML_NormalizationStats *stats);
+float tinyml_normalize_single_value(float value, float mean, float std);
+
+int tinyml_save_normalization_stats(const char *path, const TinyML_NormalizationStats *stats);
+int tinyml_load_normalization_stats(const char *path, TinyML_NormalizationStats *stats);
 #ifdef __cplusplus
 }
 #endif
