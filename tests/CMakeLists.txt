@@ -91,3 +91,10 @@ add_executable(test_normalization
 )
 target_link_libraries(test_normalization PRIVATE tinyml_core)
 add_test(NAME normalization_test COMMAND test_normalization)
+
+add_executable(test_dataset_multi
+    unit/test_dataset_multi.c
+)
+target_link_libraries(test_dataset_multi PRIVATE tinyml_core)
+target_compile_definitions(test_dataset_multi PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+add_test(NAME dataset_multi_test COMMAND test_dataset_multi)

@@ -8,12 +8,14 @@ float tinyml_evaluate_dense(
         return 0.0f;
     }
 
-    TinyML_Matrix input = tinyml_matrix_create(1, 1);
+    TinyML_Matrix input = tinyml_matrix_create(1, dataset->feature_count);
     TinyML_Matrix target = tinyml_matrix_create(1, 1);
     float total_loss = 0.0f;
 
     for (size_t i = 0; i < dataset->sample_count; ++i) {
-        tinyml_matrix_set(&input, 0, 0, tinyml_matrix_get(&dataset->features, i, 0));
+        for (size_t j = 0; j < dataset->feature_count; ++j) {
+            tinyml_matrix_set(&input, 0, j, tinyml_matrix_get(&dataset->features, i, j));
+        }
         tinyml_matrix_set(&target, 0, 0, tinyml_matrix_get(&dataset->targets, i, 0));
 
         TinyML_Matrix pred = tinyml_dense_forward(layer, &input);

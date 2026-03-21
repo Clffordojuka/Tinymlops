@@ -4,15 +4,10 @@
 
 int main(int argc, char **argv) {
     const char *config_path = "configs/base/train_linear.cfg";
-    float x_value = 4.0f;
     TinyML_TrainConfig config = tinyml_default_train_config();
 
     if (argc > 1) {
         config_path = argv[1];
-    }
-
-    if (argc > 2) {
-        x_value = (float)atof(argv[2]);
     }
 
     if (!tinyml_load_train_config(config_path, &config)) {
@@ -34,19 +29,62 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    float normalized_x = tinyml_normalize_single_value(x_value, norm_stats.mean[0], norm_stats.std[0]);
-    float prediction = tinyml_predict_dense_single(&layer, normalized_x);
+    if ((size_t)norm_stats.feature_count != layer.input_dim) {
+        fprintf(stderr,
+                "Normalization feature count (%zu) does not match model input_dim (%zu)\n",
+                norm_stats.feature_count,
+                layer.input_dim);
+        tinyml_normalization_stats_free(&norm_stats);
+        tinyml_dense_free(&layer);
+        return 1;
+    }
+
+    if (argc != (int)(2 + layer.input_dim)) {
+        fprintf(stderr,
+                "Usage: %s <config_path>", argv[0]);
+        for (size_t i = 0; i < layer.input_dim; ++i) {
+            fprintf(stderr, " <x%zu>", i + 1);
+        }
+        fprintf(stderr, "\n");
+        fprintf(stderr,
+                "Model expects %zu feature value(s), but received %d.\n",
+                layer.input_dim,
+                argc - 2);
+        tinyml_normalization_stats_free(&norm_stats);
+        tinyml_dense_free(&layer);
+        return 1;
+    }
+
+    TinyML_Matrix input = tinyml_matrix_create(1, layer.input_dim);
 
     printf("Config: %s\n", config_path);
     printf("Checkpoint: %s\n", config.checkpoint_path);
     printf("Normalization: %s\n", config.normalization_path);
-    printf("Input x: %.6f\n", x_value);
-    printf("Normalized x: %.6f\n", normalized_x);
-    printf("Predicted y: %.6f\n", prediction);
+
+    for (size_t i = 0; i < layer.input_dim; ++i) {
+        float raw_value = (float)atof(argv[2 + i]);
+        float normalized_value = tinyml_normalize_single_value(
+            raw_value,
+            norm_stats.mean[i],
+            norm_stats.std[i]
+        );
+
+        tinyml_matrix_set(&input, 0, i, normalized_value);
+
+        printf("Input x%zu: %.6f\n", i + 1, raw_value);
+        printf("Normalized x%zu: %.6f\n", i + 1, normalized_value);
+    }
+
+    TinyML_Matrix prediction = tinyml_dense_forward(&layer, &input);
+
+    printf("Predicted y: %.6f\n", tinyml_matrix_get(&prediction, 0, 0));
     printf("Model weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
     printf("Model bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
 
+    tinyml_matrix_free(&prediction);
+    tinyml_matrix_free(&input);
     tinyml_normalization_stats_free(&norm_stats);
     tinyml_dense_free(&layer);
+
     return 0;
 }

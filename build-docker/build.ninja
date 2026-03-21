@@ -900,6 +900,41 @@ build tests/test_normalization: C_EXECUTABLE_LINKER__test_normalization_ tests/C
   TARGET_FILE = tests/test_normalization
   TARGET_PDB = test_normalization.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target test_dataset_multi
+
+
+#############################################
+# Order-only phony target for test_dataset_multi
+
+build cmake_object_order_depends_target_test_dataset_multi: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_dataset_multi.dir/unit/test_dataset_multi.c.o: C_COMPILER__test_dataset_multi_unscanned_ /workspace/tests/unit/test_dataset_multi.c || cmake_object_order_depends_target_test_dataset_multi
+  DEFINES = -DTINYML_SOURCE_DIR=\"/workspace\"
+  DEP_FILE = tests/CMakeFiles/test_dataset_multi.dir/unit/test_dataset_multi.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_dataset_multi.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_dataset_multi.dir/unit
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_dataset_multi
+
+
+#############################################
+# Link the executable tests/test_dataset_multi
+
+build tests/test_dataset_multi: C_EXECUTABLE_LINKER__test_dataset_multi_ tests/CMakeFiles/test_dataset_multi.dir/unit/test_dataset_multi.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_dataset_multi.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_dataset_multi.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_dataset_multi.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_dataset_multi
+  TARGET_PDB = test_dataset_multi.dbg
+
 
 #############################################
 # Utility command for test
@@ -951,6 +986,8 @@ build test_checkpoint: phony tests/test_checkpoint
 build test_config: phony tests/test_config
 
 build test_dataset: phony tests/test_dataset
+
+build test_dataset_multi: phony tests/test_dataset_multi
 
 build test_dataset_split: phony tests/test_dataset_split
 
@@ -1007,7 +1044,7 @@ build src/all: phony src/libtinyml_core.a
 #############################################
 # Folder: /workspace/build-docker/tests
 
-build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization
+build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi
 
 # =============================================================================
 # Built-in targets

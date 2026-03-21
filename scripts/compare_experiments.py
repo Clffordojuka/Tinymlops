@@ -40,7 +40,7 @@ def collect_experiments() -> list[dict]:
             "prediction_x4": evalm.get("prediction_x4"),
             "weight": evalm.get("weight"),
             "bias": evalm.get("bias"),
-     })
+        })
 
     rows.sort(key=lambda r: (r["eval_loss"] is None, r["eval_loss"]))
     return rows
@@ -53,7 +53,8 @@ def write_summary(rows: list[dict]) -> None:
         "experiment",
         "epochs",
         "learning_rate",
-        "train_final_loss",
+        "train_loss",
+        "val_loss",
         "eval_loss",
         "prediction_x4",
         "weight",
@@ -81,7 +82,7 @@ def print_summary(rows: list[dict]) -> None:
             f"val_loss={row['val_loss']}, "
             f"eval_loss={row['eval_loss']}, "
             f"pred_x4={row['prediction_x4']}"
-    )
+        )
 
     best = rows[0]
     print("\nBest experiment:")
