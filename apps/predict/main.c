@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if ((size_t)norm_stats.feature_count != layer.input_dim) {
+    if (norm_stats.feature_count != layer.input_dim) {
         fprintf(stderr,
                 "Normalization feature count (%zu) does not match model input_dim (%zu)\n",
                 norm_stats.feature_count,
@@ -40,8 +40,7 @@ int main(int argc, char **argv) {
     }
 
     if (argc != (int)(2 + layer.input_dim)) {
-        fprintf(stderr,
-                "Usage: %s <config_path>", argv[0]);
+        fprintf(stderr, "Usage: %s <config_path>", argv[0]);
         for (size_t i = 0; i < layer.input_dim; ++i) {
             fprintf(stderr, " <x%zu>", i + 1);
         }
@@ -78,8 +77,17 @@ int main(int argc, char **argv) {
     TinyML_Matrix prediction = tinyml_dense_forward(&layer, &input);
 
     printf("Predicted y: %.6f\n", tinyml_matrix_get(&prediction, 0, 0));
-    printf("Model weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
-    printf("Model bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
+
+    for (size_t i = 0; i < layer.input_dim; ++i) {
+        for (size_t o = 0; o < layer.output_dim; ++o) {
+            printf("Model weight[%zu,%zu]: %.6f\n",
+                   i, o, tinyml_matrix_get(&layer.weights, i, o));
+        }
+    }
+
+    for (size_t o = 0; o < layer.output_dim; ++o) {
+        printf("Model bias[%zu]: %.6f\n", o, tinyml_matrix_get(&layer.bias, 0, o));
+    }
 
     tinyml_matrix_free(&prediction);
     tinyml_matrix_free(&input);

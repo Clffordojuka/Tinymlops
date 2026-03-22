@@ -8,6 +8,7 @@ import mlflow
 ROOT = Path(__file__).resolve().parent.parent
 ARCHIVE_DIR = ROOT / "metrics" / "archive"
 CHECKPOINT_ARCHIVE_DIR = ROOT / "models" / "registry"
+MODEL_EXPORT_ARCHIVE_DIR = ROOT / "models" / "exported"
 
 MLFLOW_DB_URI = "sqlite:///mlflow.db"
 mlflow.set_tracking_uri(MLFLOW_DB_URI)
@@ -28,16 +29,17 @@ def run_experiment_script(config_path: str) -> None:
         raise RuntimeError("run_experiment.py failed")
 
 
-def find_archived_outputs(experiment_name: str) -> tuple[Path, Path, Path]:
+def find_archived_outputs(experiment_name: str) -> tuple[Path, Path, Path, Path]:
     train_metrics = ARCHIVE_DIR / f"{experiment_name}_train_metrics.json"
     eval_metrics = ARCHIVE_DIR / f"{experiment_name}_eval_metrics.json"
     checkpoint = CHECKPOINT_ARCHIVE_DIR / f"{experiment_name}_model.txt"
+    model_params = MODEL_EXPORT_ARCHIVE_DIR / f"{experiment_name}_model_params.json"
 
-    for path in (train_metrics, eval_metrics, checkpoint):
+    for path in (train_metrics, eval_metrics, checkpoint, model_params):
         if not path.exists():
             raise FileNotFoundError(f"Missing archived output: {path}")
 
-    return train_metrics, eval_metrics, checkpoint
+    return train_metrics, eval_metrics, checkpoint, model_params
 
 
 def log_run(config_path: str) -> None:
@@ -45,10 +47,11 @@ def log_run(config_path: str) -> None:
 
     run_experiment_script(config_path)
 
-    train_metrics_path, eval_metrics_path, checkpoint_path = find_archived_outputs(experiment_name)
+    train_metrics_path, eval_metrics_path, checkpoint_path, model_params_path = find_archived_outputs(experiment_name)
 
     train_metrics = load_json(train_metrics_path)
     eval_metrics = load_json(eval_metrics_path)
+    model_params = load_json(model_params_path)
 
     mlflow.set_experiment("tinyml-ops")
 
@@ -60,17 +63,18 @@ def log_run(config_path: str) -> None:
         mlflow.log_param("validation_split", train_metrics.get("validation_split"))
         mlflow.log_param("shuffle", train_metrics.get("shuffle"))
         mlflow.log_param("split_seed", train_metrics.get("split_seed"))
+        mlflow.log_param("input_dim", model_params.get("input_dim"))
+        mlflow.log_param("output_dim", model_params.get("output_dim"))
 
         mlflow.log_metric("train_loss", train_metrics.get("train_loss"))
         mlflow.log_metric("val_loss", train_metrics.get("val_loss"))
         mlflow.log_metric("eval_loss", eval_metrics.get("eval_loss"))
         mlflow.log_metric("prediction_x4", eval_metrics.get("prediction_x4"))
-        mlflow.log_metric("weight", eval_metrics.get("weight"))
-        mlflow.log_metric("bias", eval_metrics.get("bias"))
 
         mlflow.log_artifact(str(train_metrics_path), artifact_path="metrics")
         mlflow.log_artifact(str(eval_metrics_path), artifact_path="metrics")
         mlflow.log_artifact(str(checkpoint_path), artifact_path="checkpoints")
+        mlflow.log_artifact(str(model_params_path), artifact_path="model_params")
 
         summary_csv = ROOT / "results" / "experiment_summary.csv"
         if summary_csv.exists():

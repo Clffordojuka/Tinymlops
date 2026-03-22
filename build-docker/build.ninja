@@ -935,6 +935,74 @@ build tests/test_dataset_multi: C_EXECUTABLE_LINKER__test_dataset_multi_ tests/C
   TARGET_FILE = tests/test_dataset_multi
   TARGET_PDB = test_dataset_multi.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target test_checkpoint_multi
+
+
+#############################################
+# Order-only phony target for test_checkpoint_multi
+
+build cmake_object_order_depends_target_test_checkpoint_multi: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_checkpoint_multi.dir/unit/test_checkpoint_multi.c.o: C_COMPILER__test_checkpoint_multi_unscanned_ /workspace/tests/unit/test_checkpoint_multi.c || cmake_object_order_depends_target_test_checkpoint_multi
+  DEP_FILE = tests/CMakeFiles/test_checkpoint_multi.dir/unit/test_checkpoint_multi.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_checkpoint_multi.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_checkpoint_multi.dir/unit
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_checkpoint_multi
+
+
+#############################################
+# Link the executable tests/test_checkpoint_multi
+
+build tests/test_checkpoint_multi: C_EXECUTABLE_LINKER__test_checkpoint_multi_ tests/CMakeFiles/test_checkpoint_multi.dir/unit/test_checkpoint_multi.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_checkpoint_multi.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_checkpoint_multi.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_checkpoint_multi.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_checkpoint_multi
+  TARGET_PDB = test_checkpoint_multi.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target test_predict_multi
+
+
+#############################################
+# Order-only phony target for test_predict_multi
+
+build cmake_object_order_depends_target_test_predict_multi: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_predict_multi.dir/integration/test_predict_multi.c.o: C_COMPILER__test_predict_multi_unscanned_ /workspace/tests/integration/test_predict_multi.c || cmake_object_order_depends_target_test_predict_multi
+  DEP_FILE = tests/CMakeFiles/test_predict_multi.dir/integration/test_predict_multi.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_predict_multi.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_predict_multi.dir/integration
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_predict_multi
+
+
+#############################################
+# Link the executable tests/test_predict_multi
+
+build tests/test_predict_multi: C_EXECUTABLE_LINKER__test_predict_multi_ tests/CMakeFiles/test_predict_multi.dir/integration/test_predict_multi.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_predict_multi.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_predict_multi.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_predict_multi.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_predict_multi
+  TARGET_PDB = test_predict_multi.dbg
+
 
 #############################################
 # Utility command for test
@@ -983,6 +1051,8 @@ build test_activation: phony tests/test_activation
 
 build test_checkpoint: phony tests/test_checkpoint
 
+build test_checkpoint_multi: phony tests/test_checkpoint_multi
+
 build test_config: phony tests/test_config
 
 build test_dataset: phony tests/test_dataset
@@ -1006,6 +1076,8 @@ build test_model: phony tests/test_model
 build test_normalization: phony tests/test_normalization
 
 build test_predict: phony tests/test_predict
+
+build test_predict_multi: phony tests/test_predict_multi
 
 build test_smoke: phony tests/test_smoke
 
@@ -1044,7 +1116,7 @@ build src/all: phony src/libtinyml_core.a
 #############################################
 # Folder: /workspace/build-docker/tests
 
-build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi
+build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi
 
 # =============================================================================
 # Built-in targets

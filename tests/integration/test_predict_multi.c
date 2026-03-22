@@ -5,7 +5,7 @@ int main(void) {
     TinyML_DenseLayer layer = tinyml_dense_create(2, 1);
 
     tinyml_matrix_set(&layer.weights, 0, 0, 1.0f);
-    tinyml_matrix_set(&layer.weights, 0, 1, 3.0f);
+    tinyml_matrix_set(&layer.weights, 1, 0, 3.0f);
     tinyml_matrix_set(&layer.bias, 0, 0, 1.0f);
 
     TinyML_Matrix input = tinyml_matrix_create(1, 2);

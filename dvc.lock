@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   train:
-    cmd: python scripts/train_entry.py configs/experiments/linear_long.cfg
+    cmd: python scripts/train_entry.py configs/experiments/linear_multi.cfg
     deps:
     - path: configs/base/train_linear.cfg
       hash: md5
@@ -30,18 +30,18 @@ stages:
       isexec: true
     params:
       params.yaml:
-        train.config_path: configs/experiments/linear_long.cfg
+        train.config_path: configs/experiments/linear_multi.cfg
     outs:
     - path: metrics/train_metrics.json
       hash: md5
-      md5: eab65b5fa62fec6b8c9695d6b056feac
-      size: 209
+      md5: 6eb604c0230c1f01a4580bb1fb0f9a45
+      size: 210
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: 385739549ea511bc08895d6739981107
-      size: 55
+      md5: 74a87672d4e1f195fdf59fd4b0f34885
+      size: 82
   evaluate:
-    cmd: python scripts/evaluate_entry.py configs/experiments/linear_long.cfg
+    cmd: python scripts/evaluate_entry.py configs/experiments/linear_multi.cfg
     deps:
     - path: configs/base/train_linear.cfg
       hash: md5
@@ -65,8 +65,8 @@ stages:
       isexec: true
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: 385739549ea511bc08895d6739981107
-      size: 55
+      md5: 74a87672d4e1f195fdf59fd4b0f34885
+      size: 82
     - path: scripts/evaluate_entry.py
       hash: md5
       md5: 4145f58dd64e682f6e374a4432220821
@@ -74,9 +74,9 @@ stages:
       isexec: true
     params:
       params.yaml:
-        evaluate.config_path: configs/experiments/linear_long.cfg
+        evaluate.config_path: configs/experiments/linear_multi.cfg
     outs:
     - path: metrics/eval_metrics.json
       hash: md5
-      md5: cc6060af7fb6ebb3a4b7e6b705092c87
+      md5: 4b3cdcc1b3c92d7c3d7ad145e3ec7b03
       size: 100

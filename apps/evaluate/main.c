@@ -89,8 +89,18 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("Loaded weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
-    printf("Loaded bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
+    for (size_t i = 0; i < layer.input_dim; ++i)
+    {
+        for (size_t o = 0; o < layer.output_dim; ++o)
+        {
+            printf("Loaded weight[%zu,%zu]: %.6f\n",
+                   i, o, tinyml_matrix_get(&layer.weights, i, o));
+        }
+    }
+
+for (size_t o = 0; o < layer.output_dim; ++o) {
+    printf("Loaded bias[%zu]: %.6f\n", o, tinyml_matrix_get(&layer.bias, 0, o));
+}
 
     tinyml_normalization_stats_free(&norm_stats);
     tinyml_dataset_free(&dataset);

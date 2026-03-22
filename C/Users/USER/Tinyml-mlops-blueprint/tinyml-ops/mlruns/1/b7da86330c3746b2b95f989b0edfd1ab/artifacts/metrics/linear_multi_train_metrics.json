@@ -1,0 +1,11 @@
+{
+  "epochs": 500,
+  "learning_rate": 0.010000,
+  "train_loss": 0.000000,
+  "val_loss": 0.000000,
+  "validation_split": 0.250000,
+  "shuffle": 1,
+  "split_seed": 42,
+  "weight": 2.828454,
+  "bias": 12.200006
+}

@@ -128,8 +128,18 @@ int main(int argc, char **argv) {
         printf("Sample prediction skipped: dataset has %zu features.\n", train_dataset.feature_count);
     }
 
-    printf("Learned weight: %.6f\n", tinyml_matrix_get(&layer.weights, 0, 0));
-    printf("Learned bias: %.6f\n", tinyml_matrix_get(&layer.bias, 0, 0));
+    for (size_t i = 0; i < layer.input_dim; ++i)
+    {
+        for (size_t o = 0; o < layer.output_dim; ++o)
+        {
+            printf("Learned weight[%zu,%zu]: %.6f\n",
+                   i, o, tinyml_matrix_get(&layer.weights, i, o));
+        }
+    }
+
+for (size_t o = 0; o < layer.output_dim; ++o) {
+    printf("Learned bias[%zu]: %.6f\n", o, tinyml_matrix_get(&layer.bias, 0, o));
+}
 
     if (!tinyml_write_training_metrics_json(
             config.metrics_path,

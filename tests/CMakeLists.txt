@@ -98,3 +98,15 @@ add_executable(test_dataset_multi
 target_link_libraries(test_dataset_multi PRIVATE tinyml_core)
 target_compile_definitions(test_dataset_multi PRIVATE TINYML_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 add_test(NAME dataset_multi_test COMMAND test_dataset_multi)
+
+add_executable(test_checkpoint_multi
+    unit/test_checkpoint_multi.c
+)
+target_link_libraries(test_checkpoint_multi PRIVATE tinyml_core)
+add_test(NAME checkpoint_multi_test COMMAND test_checkpoint_multi)
+
+add_executable(test_predict_multi
+    integration/test_predict_multi.c
+)
+target_link_libraries(test_predict_multi PRIVATE tinyml_core)
+add_test(NAME predict_multi_test COMMAND test_predict_multi)
