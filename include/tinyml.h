@@ -125,6 +125,11 @@ float tinyml_train_epoch_dense(
 );
 
 /* metrics */
+int tinyml_dense_parameter_count(const TinyML_DenseLayer *layer);
+float tinyml_dense_weight_l2_norm(const TinyML_DenseLayer *layer);
+float tinyml_dense_max_abs_weight(const TinyML_DenseLayer *layer);
+float tinyml_dense_bias_l2_norm(const TinyML_DenseLayer *layer);
+
 int tinyml_write_training_metrics_json(
     const char *path,
     int epochs,
@@ -134,16 +139,20 @@ int tinyml_write_training_metrics_json(
     float validation_split,
     int shuffle,
     unsigned int split_seed,
-    float weight,
-    float bias
+    int parameter_count,
+    float weight_l2_norm,
+    float max_abs_weight,
+    float bias_l2_norm
 );
 
 int tinyml_write_eval_metrics_json(
     const char *path,
     float eval_loss,
     float prediction_x4,
-    float weight,
-    float bias
+    int parameter_count,
+    float weight_l2_norm,
+    float max_abs_weight,
+    float bias_l2_norm
 );
 
 /* checkpoint */

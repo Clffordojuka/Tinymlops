@@ -38,8 +38,10 @@ def collect_experiments() -> list[dict]:
             "val_loss": train.get("val_loss"),
             "eval_loss": evalm.get("eval_loss"),
             "prediction_x4": evalm.get("prediction_x4"),
-            "weight": evalm.get("weight"),
-            "bias": evalm.get("bias"),
+            "parameter_count": evalm.get("parameter_count"),
+            "weight_l2_norm": evalm.get("weight_l2_norm"),
+            "max_abs_weight": evalm.get("max_abs_weight"),
+            "bias_l2_norm": evalm.get("bias_l2_norm"),
         })
 
     rows.sort(key=lambda r: (r["eval_loss"] is None, r["eval_loss"]))
@@ -57,8 +59,10 @@ def write_summary(rows: list[dict]) -> None:
         "val_loss",
         "eval_loss",
         "prediction_x4",
-        "weight",
-        "bias",
+        "parameter_count",
+        "weight_l2_norm",
+        "max_abs_weight",
+        "bias_l2_norm",
     ]
 
     with SUMMARY_CSV.open("w", newline="", encoding="utf-8") as fp:
@@ -81,6 +85,9 @@ def print_summary(rows: list[dict]) -> None:
             f"train_loss={row['train_loss']}, "
             f"val_loss={row['val_loss']}, "
             f"eval_loss={row['eval_loss']}, "
+            f"params={row['parameter_count']}, "
+            f"weight_l2={row['weight_l2_norm']}, "
+            f"max_abs_weight={row['max_abs_weight']}, "
             f"pred_x4={row['prediction_x4']}"
         )
 

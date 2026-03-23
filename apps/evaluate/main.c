@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
     tinyml_apply_normalization(&val_dataset, &norm_stats);
 
     float eval_loss = tinyml_evaluate_dense(&layer, &val_dataset);
+    float prediction_x4 = 0.0f;
 
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
@@ -63,44 +64,35 @@ int main(int argc, char **argv) {
 
     if (val_dataset.feature_count == 1) {
         float normalized_x4 = tinyml_normalize_single_value(4.0f, norm_stats.mean[0], norm_stats.std[0]);
-        float prediction_x4 = tinyml_predict_dense_single(&layer, normalized_x4);
+        prediction_x4 = tinyml_predict_dense_single(&layer, normalized_x4);
 
         printf("Prediction for x=4.0: %.6f\n", prediction_x4);
         printf("Normalized x=4.0: %.6f\n", normalized_x4);
-
-        if (!tinyml_write_eval_metrics_json(
-                config.eval_metrics_path,
-                eval_loss,
-                prediction_x4,
-                tinyml_matrix_get(&layer.weights, 0, 0),
-                tinyml_matrix_get(&layer.bias, 0, 0))) {
-            fprintf(stderr, "Warning: failed to write eval metrics file.\n");
-        }
     } else {
         printf("Sample prediction skipped: dataset has %zu features.\n", val_dataset.feature_count);
-
-        if (!tinyml_write_eval_metrics_json(
-                config.eval_metrics_path,
-                eval_loss,
-                0.0f,
-                tinyml_matrix_get(&layer.weights, 0, 0),
-                tinyml_matrix_get(&layer.bias, 0, 0))) {
-            fprintf(stderr, "Warning: failed to write eval metrics file.\n");
-        }
     }
 
-    for (size_t i = 0; i < layer.input_dim; ++i)
-    {
-        for (size_t o = 0; o < layer.output_dim; ++o)
-        {
+    for (size_t i = 0; i < layer.input_dim; ++i) {
+        for (size_t o = 0; o < layer.output_dim; ++o) {
             printf("Loaded weight[%zu,%zu]: %.6f\n",
                    i, o, tinyml_matrix_get(&layer.weights, i, o));
         }
     }
 
-for (size_t o = 0; o < layer.output_dim; ++o) {
-    printf("Loaded bias[%zu]: %.6f\n", o, tinyml_matrix_get(&layer.bias, 0, o));
-}
+    for (size_t o = 0; o < layer.output_dim; ++o) {
+        printf("Loaded bias[%zu]: %.6f\n", o, tinyml_matrix_get(&layer.bias, 0, o));
+    }
+
+    if (!tinyml_write_eval_metrics_json(
+            config.eval_metrics_path,
+            eval_loss,
+            prediction_x4,
+            tinyml_dense_parameter_count(&layer),
+            tinyml_dense_weight_l2_norm(&layer),
+            tinyml_dense_max_abs_weight(&layer),
+            tinyml_dense_bias_l2_norm(&layer))) {
+        fprintf(stderr, "Warning: failed to write eval metrics file.\n");
+    }
 
     tinyml_normalization_stats_free(&norm_stats);
     tinyml_dataset_free(&dataset);

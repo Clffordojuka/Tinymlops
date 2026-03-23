@@ -10,8 +10,10 @@ int tinyml_write_training_metrics_json(
     float validation_split,
     int shuffle,
     unsigned int split_seed,
-    float weight,
-    float bias
+    int parameter_count,
+    float weight_l2_norm,
+    float max_abs_weight,
+    float bias_l2_norm
 ) {
     FILE *fp = fopen(path, "w");
     if (fp == NULL) {
@@ -26,8 +28,10 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "  \"validation_split\": %.6f,\n", validation_split);
     fprintf(fp, "  \"shuffle\": %d,\n", shuffle);
     fprintf(fp, "  \"split_seed\": %u,\n", split_seed);
-    fprintf(fp, "  \"weight\": %.6f,\n", weight);
-    fprintf(fp, "  \"bias\": %.6f\n", bias);
+    fprintf(fp, "  \"parameter_count\": %d,\n", parameter_count);
+    fprintf(fp, "  \"weight_l2_norm\": %.6f,\n", weight_l2_norm);
+    fprintf(fp, "  \"max_abs_weight\": %.6f,\n", max_abs_weight);
+    fprintf(fp, "  \"bias_l2_norm\": %.6f\n", bias_l2_norm);
     fprintf(fp, "}\n");
 
     fclose(fp);
@@ -38,8 +42,10 @@ int tinyml_write_eval_metrics_json(
     const char *path,
     float eval_loss,
     float prediction_x4,
-    float weight,
-    float bias
+    int parameter_count,
+    float weight_l2_norm,
+    float max_abs_weight,
+    float bias_l2_norm
 ) {
     FILE *fp = fopen(path, "w");
     if (fp == NULL) {
@@ -49,8 +55,10 @@ int tinyml_write_eval_metrics_json(
     fprintf(fp, "{\n");
     fprintf(fp, "  \"eval_loss\": %.6f,\n", eval_loss);
     fprintf(fp, "  \"prediction_x4\": %.6f,\n", prediction_x4);
-    fprintf(fp, "  \"weight\": %.6f,\n", weight);
-    fprintf(fp, "  \"bias\": %.6f\n", bias);
+    fprintf(fp, "  \"parameter_count\": %d,\n", parameter_count);
+    fprintf(fp, "  \"weight_l2_norm\": %.6f,\n", weight_l2_norm);
+    fprintf(fp, "  \"max_abs_weight\": %.6f,\n", max_abs_weight);
+    fprintf(fp, "  \"bias_l2_norm\": %.6f\n", bias_l2_norm);
     fprintf(fp, "}\n");
 
     fclose(fp);

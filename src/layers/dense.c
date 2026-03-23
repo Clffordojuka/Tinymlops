@@ -1,3 +1,4 @@
+#include <math.h>
 #include "tinyml.h"
 
 TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim) {
@@ -84,4 +85,64 @@ TinyML_Matrix tinyml_dense_backward(
     tinyml_matrix_free(&dW);
 
     return grad_input;
+}
+
+int tinyml_dense_parameter_count(const TinyML_DenseLayer *layer) {
+    if (layer == NULL) {
+        return 0;
+    }
+
+    return (int)(layer->input_dim * layer->output_dim + layer->output_dim);
+}
+
+float tinyml_dense_weight_l2_norm(const TinyML_DenseLayer *layer) {
+    float sum_sq = 0.0f;
+
+    if (layer == NULL) {
+        return 0.0f;
+    }
+
+    for (size_t i = 0; i < layer->input_dim; ++i) {
+        for (size_t o = 0; o < layer->output_dim; ++o) {
+            float w = tinyml_matrix_get(&layer->weights, i, o);
+            sum_sq += w * w;
+        }
+    }
+
+    return sqrtf(sum_sq);
+}
+
+float tinyml_dense_max_abs_weight(const TinyML_DenseLayer *layer) {
+    float max_abs = 0.0f;
+
+    if (layer == NULL) {
+        return 0.0f;
+    }
+
+    for (size_t i = 0; i < layer->input_dim; ++i) {
+        for (size_t o = 0; o < layer->output_dim; ++o) {
+            float w = tinyml_matrix_get(&layer->weights, i, o);
+            float abs_w = (w < 0.0f) ? -w : w;
+            if (abs_w > max_abs) {
+                max_abs = abs_w;
+            }
+        }
+    }
+
+    return max_abs;
+}
+
+float tinyml_dense_bias_l2_norm(const TinyML_DenseLayer *layer) {
+    float sum_sq = 0.0f;
+
+    if (layer == NULL) {
+        return 0.0f;
+    }
+
+    for (size_t o = 0; o < layer->output_dim; ++o) {
+        float b = tinyml_matrix_get(&layer->bias, 0, o);
+        sum_sq += b * b;
+    }
+
+    return sqrtf(sum_sq);
 }

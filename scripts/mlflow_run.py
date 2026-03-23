@@ -70,6 +70,10 @@ def log_run(config_path: str) -> None:
         mlflow.log_metric("val_loss", train_metrics.get("val_loss"))
         mlflow.log_metric("eval_loss", eval_metrics.get("eval_loss"))
         mlflow.log_metric("prediction_x4", eval_metrics.get("prediction_x4"))
+        mlflow.log_metric("parameter_count", eval_metrics.get("parameter_count"))
+        mlflow.log_metric("weight_l2_norm", eval_metrics.get("weight_l2_norm"))
+        mlflow.log_metric("max_abs_weight", eval_metrics.get("max_abs_weight"))
+        mlflow.log_metric("bias_l2_norm", eval_metrics.get("bias_l2_norm"))
 
         mlflow.log_artifact(str(train_metrics_path), artifact_path="metrics")
         mlflow.log_artifact(str(eval_metrics_path), artifact_path="metrics")
