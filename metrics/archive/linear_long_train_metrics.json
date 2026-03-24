@@ -6,6 +6,8 @@
   "validation_split": 0.250000,
   "shuffle": 1,
   "split_seed": 42,
-  "weight": 2.494434,
-  "bias": 4.666651
+  "parameter_count": 2,
+  "weight_l2_norm": 2.494434,
+  "max_abs_weight": 2.494434,
+  "bias_l2_norm": 4.666651
 }

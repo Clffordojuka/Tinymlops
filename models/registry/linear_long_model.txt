@@ -1,4 +1,4 @@
 input_dim=1
 output_dim=1
-weight=2.494434
-bias=4.666651
+weight_0_0=2.494434
+bias_0=4.666651

@@ -1,4 +1,2 @@
 experiment,epochs,learning_rate,train_loss,val_loss,eval_loss,prediction_x4,parameter_count,weight_l2_norm,max_abs_weight,bias_l2_norm
-linear_long,500,0.005,0.0,0.0,0.0,14.644387,,,,
 linear_multi,500,0.01,0.0,0.0,0.0,0.0,,,,
-linear_fast,50,0.02,0.000116,0.000118,0.000118,7.986207,2,2.490771,2.490771,4.657773
