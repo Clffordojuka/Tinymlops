@@ -84,6 +84,7 @@ def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict, mod
     print(f"Val loss: {train_metrics.get('val_loss')}")
     print(f"Train epochs: {train_metrics.get('epochs')}")
     print(f"Train learning_rate: {train_metrics.get('learning_rate')}")
+    print(f"Batch size: {train_metrics.get('batch_size')}")
     print(f"Validation split: {train_metrics.get('validation_split')}")
     print(f"Shuffle: {train_metrics.get('shuffle')}")
     print(f"Split seed: {train_metrics.get('split_seed')}")

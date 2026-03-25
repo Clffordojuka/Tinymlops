@@ -1,13 +1,14 @@
 {
   "epochs": 500,
   "learning_rate": 0.005000,
-  "train_loss": 0.000000,
-  "val_loss": 0.000000,
+  "batch_size": 2,
+  "train_loss": 0.000006,
+  "val_loss": 0.000009,
   "validation_split": 0.250000,
   "shuffle": 1,
   "split_seed": 42,
   "parameter_count": 2,
-  "weight_l2_norm": 2.494434,
-  "max_abs_weight": 2.494434,
-  "bias_l2_norm": 4.666651
+  "weight_l2_norm": 2.492617,
+  "max_abs_weight": 2.492617,
+  "bias_l2_norm": 4.664708
 }

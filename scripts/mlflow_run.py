@@ -60,6 +60,7 @@ def log_run(config_path: str) -> None:
         mlflow.log_param("experiment_name", experiment_name)
         mlflow.log_param("epochs", train_metrics.get("epochs"))
         mlflow.log_param("learning_rate", train_metrics.get("learning_rate"))
+        mlflow.log_param("batch_size", train_metrics.get("batch_size"))
         mlflow.log_param("validation_split", train_metrics.get("validation_split"))
         mlflow.log_param("shuffle", train_metrics.get("shuffle"))
         mlflow.log_param("split_seed", train_metrics.get("split_seed"))

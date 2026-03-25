@@ -1003,6 +1003,40 @@ build tests/test_predict_multi: C_EXECUTABLE_LINKER__test_predict_multi_ tests/C
   TARGET_FILE = tests/test_predict_multi
   TARGET_PDB = test_predict_multi.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target test_batch_training
+
+
+#############################################
+# Order-only phony target for test_batch_training
+
+build cmake_object_order_depends_target_test_batch_training: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_batch_training.dir/unit/test_batch_training.c.o: C_COMPILER__test_batch_training_unscanned_ /workspace/tests/unit/test_batch_training.c || cmake_object_order_depends_target_test_batch_training
+  DEP_FILE = tests/CMakeFiles/test_batch_training.dir/unit/test_batch_training.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_batch_training.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_batch_training.dir/unit
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_batch_training
+
+
+#############################################
+# Link the executable tests/test_batch_training
+
+build tests/test_batch_training: C_EXECUTABLE_LINKER__test_batch_training_ tests/CMakeFiles/test_batch_training.dir/unit/test_batch_training.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_batch_training.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_batch_training.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_batch_training.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_batch_training
+  TARGET_PDB = test_batch_training.dbg
+
 
 #############################################
 # Utility command for test
@@ -1048,6 +1082,8 @@ build libtinyml_core.a: phony src/libtinyml_core.a
 build predict_app: phony apps/predict_app
 
 build test_activation: phony tests/test_activation
+
+build test_batch_training: phony tests/test_batch_training
 
 build test_checkpoint: phony tests/test_checkpoint
 
@@ -1116,7 +1152,7 @@ build src/all: phony src/libtinyml_core.a
 #############################################
 # Folder: /workspace/build-docker/tests
 
-build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi
+build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi tests/test_batch_training
 
 # =============================================================================
 # Built-in targets

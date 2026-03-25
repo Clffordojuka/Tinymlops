@@ -40,3 +40,5 @@ add_test(checkpoint_multi_test "/workspace/build-docker/tests/test_checkpoint_mu
 set_tests_properties(checkpoint_multi_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;106;add_test;/workspace/tests/CMakeLists.txt;0;")
 add_test(predict_multi_test "/workspace/build-docker/tests/test_predict_multi")
 set_tests_properties(predict_multi_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;112;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(batch_training_test "/workspace/build-docker/tests/test_batch_training")
+set_tests_properties(batch_training_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;118;add_test;/workspace/tests/CMakeLists.txt;0;")

@@ -4,22 +4,17 @@
 int main(void) {
     TinyML_DenseLayer layer = tinyml_dense_create(1, 1);
 
-    TinyML_Matrix inputs[3];
-    TinyML_Matrix targets[3];
+    TinyML_Matrix inputs = tinyml_matrix_create(3, 1);
+    TinyML_Matrix targets = tinyml_matrix_create(3, 1);
 
-    for (int i = 0; i < 3; ++i) {
-        inputs[i] = tinyml_matrix_create(1, 1);
-        targets[i] = tinyml_matrix_create(1, 1);
-    }
+    tinyml_matrix_set(&inputs, 0, 0, 1.0f);
+    tinyml_matrix_set(&targets, 0, 0, 2.0f);
 
-    tinyml_matrix_set(&inputs[0], 0, 0, 1.0f);
-    tinyml_matrix_set(&targets[0], 0, 0, 2.0f);
+    tinyml_matrix_set(&inputs, 1, 0, 2.0f);
+    tinyml_matrix_set(&targets, 1, 0, 4.0f);
 
-    tinyml_matrix_set(&inputs[1], 0, 0, 2.0f);
-    tinyml_matrix_set(&targets[1], 0, 0, 4.0f);
-
-    tinyml_matrix_set(&inputs[2], 0, 0, 3.0f);
-    tinyml_matrix_set(&targets[2], 0, 0, 6.0f);
+    tinyml_matrix_set(&inputs, 2, 0, 3.0f);
+    tinyml_matrix_set(&targets, 2, 0, 6.0f);
 
     tinyml_matrix_set(&layer.weights, 0, 0, 0.0f);
     tinyml_matrix_set(&layer.bias, 0, 0, 0.0f);
@@ -34,7 +29,7 @@ int main(void) {
     const float learning_rate = 0.01f;
 
     for (int epoch = 0; epoch < epochs; ++epoch) {
-        tinyml_train_epoch_dense(&layer, inputs, targets, 3, learning_rate);
+        tinyml_train_epoch_dense(&layer, &inputs, &targets, 3, learning_rate);
     }
 
     TinyML_Matrix pred_after = tinyml_dense_forward(&layer, &test_input);
@@ -47,12 +42,8 @@ int main(void) {
     tinyml_matrix_free(&pred_before);
     tinyml_matrix_free(&pred_after);
     tinyml_matrix_free(&test_input);
-
-    for (int i = 0; i < 3; ++i) {
-        tinyml_matrix_free(&inputs[i]);
-        tinyml_matrix_free(&targets[i]);
-    }
-
+    tinyml_matrix_free(&inputs);
+    tinyml_matrix_free(&targets);
     tinyml_dense_free(&layer);
 
     return 0;

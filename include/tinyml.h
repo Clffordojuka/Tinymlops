@@ -50,6 +50,7 @@ typedef struct {
     unsigned int split_seed;
     char eval_metrics_path[256];
     char normalization_path[256];
+    size_t batch_size;
 } TinyML_TrainConfig;
 
 typedef struct {
@@ -116,6 +117,13 @@ float tinyml_train_step_dense(
     float learning_rate
 );
 
+float tinyml_train_batch_dense(
+    TinyML_DenseLayer *layer,
+    const TinyML_Matrix *inputs,
+    const TinyML_Matrix *targets,
+    float learning_rate
+);
+
 float tinyml_train_epoch_dense(
     TinyML_DenseLayer *layer,
     const TinyML_Matrix *inputs,
@@ -134,6 +142,7 @@ int tinyml_write_training_metrics_json(
     const char *path,
     int epochs,
     float learning_rate,
+    size_t batch_size,
     float train_loss,
     float val_loss,
     float validation_split,

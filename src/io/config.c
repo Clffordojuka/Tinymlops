@@ -17,6 +17,7 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     snprintf(config.data_path, sizeof(config.data_path), "data/samples/linear.csv");
     config.epochs = 200;
     config.learning_rate = 0.01f;
+    config.batch_size = 2;
     snprintf(config.metrics_path, sizeof(config.metrics_path), "metrics/train_metrics.json");
     snprintf(config.checkpoint_path, sizeof(config.checkpoint_path), "models/checkpoints/linear_model.txt");
     config.validation_split = 0.25f;
@@ -73,6 +74,8 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 snprintf(config->eval_metrics_path, sizeof(config->eval_metrics_path), "%s", value);
             } else if (strcmp(key, "normalization_path") == 0) {
                 snprintf(config->normalization_path, sizeof(config->normalization_path), "%s", value);
+            } else if (strcmp(key, "batch_size") == 0) {
+                config->batch_size = (size_t)strtoul(value, NULL, 10);
             }
         }
     }

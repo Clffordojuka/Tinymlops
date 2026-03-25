@@ -5,6 +5,7 @@ int tinyml_write_training_metrics_json(
     const char *path,
     int epochs,
     float learning_rate,
+    size_t batch_size,
     float train_loss,
     float val_loss,
     float validation_split,
@@ -23,6 +24,7 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "{\n");
     fprintf(fp, "  \"epochs\": %d,\n", epochs);
     fprintf(fp, "  \"learning_rate\": %.6f,\n", learning_rate);
+    fprintf(fp, "  \"batch_size\": %zu,\n", batch_size);
     fprintf(fp, "  \"train_loss\": %.6f,\n", train_loss);
     fprintf(fp, "  \"val_loss\": %.6f,\n", val_loss);
     fprintf(fp, "  \"validation_split\": %.6f,\n", validation_split);

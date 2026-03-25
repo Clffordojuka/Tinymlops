@@ -110,3 +110,9 @@ add_executable(test_predict_multi
 )
 target_link_libraries(test_predict_multi PRIVATE tinyml_core)
 add_test(NAME predict_multi_test COMMAND test_predict_multi)
+
+add_executable(test_batch_training
+    unit/test_batch_training.c
+)
+target_link_libraries(test_batch_training PRIVATE tinyml_core)
+add_test(NAME batch_training_test COMMAND test_batch_training)
