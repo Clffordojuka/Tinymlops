@@ -60,6 +60,9 @@ def log_run(config_path: str) -> None:
         mlflow.log_param("experiment_name", experiment_name)
         mlflow.log_param("epochs", train_metrics.get("epochs"))
         mlflow.log_param("learning_rate", train_metrics.get("learning_rate"))
+        mlflow.log_param("lr_schedule", train_metrics.get("lr_schedule"))
+        mlflow.log_param("lr_step_size", train_metrics.get("lr_step_size"))
+        mlflow.log_param("lr_decay", train_metrics.get("lr_decay"))
         mlflow.log_param("batch_size", train_metrics.get("batch_size"))
         mlflow.log_param("validation_split", train_metrics.get("validation_split"))
         mlflow.log_param("shuffle", train_metrics.get("shuffle"))
@@ -75,6 +78,7 @@ def log_run(config_path: str) -> None:
         mlflow.log_metric("weight_l2_norm", eval_metrics.get("weight_l2_norm"))
         mlflow.log_metric("max_abs_weight", eval_metrics.get("max_abs_weight"))
         mlflow.log_metric("bias_l2_norm", eval_metrics.get("bias_l2_norm"))
+        mlflow.log_metric("final_learning_rate", train_metrics.get("final_learning_rate"))
 
         mlflow.log_artifact(str(train_metrics_path), artifact_path="metrics")
         mlflow.log_artifact(str(eval_metrics_path), artifact_path="metrics")

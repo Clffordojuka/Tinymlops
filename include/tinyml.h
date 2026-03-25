@@ -43,6 +43,9 @@ typedef struct {
     char data_path[256];
     int epochs;
     float learning_rate;
+    char lr_schedule[32];
+    int lr_step_size;
+    float lr_decay;
     char metrics_path[256];
     char checkpoint_path[256];
     float validation_split;
@@ -145,6 +148,10 @@ int tinyml_write_training_metrics_json(
     const char *path,
     int epochs,
     float learning_rate,
+    float final_learning_rate,
+    const char *lr_schedule,
+    int lr_step_size,
+    float lr_decay,
     size_t batch_size,
     float train_loss,
     float val_loss,

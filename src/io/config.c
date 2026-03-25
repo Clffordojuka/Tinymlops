@@ -28,6 +28,9 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     config.save_best_only = 1;
     snprintf(config.eval_metrics_path, sizeof(config.eval_metrics_path), "metrics/eval_metrics.json");
     snprintf(config.normalization_path, sizeof(config.normalization_path), "models/checkpoints/normalization_stats.txt");
+    snprintf(config.lr_schedule, sizeof(config.lr_schedule), "constant");
+    config.lr_step_size = 50;
+    config.lr_decay = 0.5f;
 
     return config;
 }
@@ -85,6 +88,12 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 config->min_delta = (float)atof(value);
             } else if (strcmp(key, "save_best_only") == 0) {
                 config->save_best_only = atoi(value);
+            } else if (strcmp(key, "lr_schedule") == 0) {
+                snprintf(config->lr_schedule, sizeof(config->lr_schedule), "%.31s", value);
+            } else if (strcmp(key, "lr_step_size") == 0) {
+                config->lr_step_size = atoi(value);
+            } else if (strcmp(key, "lr_decay") == 0) {
+                config->lr_decay = (float)atof(value);
             }
         }
     }

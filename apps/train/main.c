@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "tinyml.h"
 
 static float tinyml_compute_dataset_loss(const TinyML_DenseLayer *layer, const TinyML_Dataset *dataset) {
@@ -26,6 +27,23 @@ static float tinyml_compute_dataset_loss(const TinyML_DenseLayer *layer, const T
     tinyml_matrix_free(&target);
 
     return total_loss / (float)dataset->sample_count;
+}
+
+static float tinyml_current_learning_rate(const TinyML_TrainConfig *config, int epoch_index) {
+    if (strcmp(config->lr_schedule, "step") == 0) {
+        if (config->lr_step_size > 0) {
+            int num_decays = epoch_index / config->lr_step_size;
+            float lr = config->learning_rate;
+
+            for (int i = 0; i < num_decays; ++i) {
+                lr *= config->lr_decay;
+            }
+
+            return lr;
+        }
+    }
+
+    return config->learning_rate;
 }
 
 int main(int argc, char **argv) {
@@ -82,6 +100,7 @@ int main(int argc, char **argv) {
     float final_train_loss = 0.0f;
     float final_val_loss = 0.0f;
     float best_val_loss = 1e30f;
+    float final_learning_rate = config.learning_rate;
     int best_epoch = 0;
     int stopped_early = 0;
     int epochs_without_improvement = 0;
@@ -89,6 +108,8 @@ int main(int argc, char **argv) {
     for (int epoch = 0; epoch < config.epochs; ++epoch) {
         float epoch_loss = 0.0f;
         size_t batch_count = 0;
+        float current_learning_rate = tinyml_current_learning_rate(&config, epoch);
+        final_learning_rate = current_learning_rate;
 
         for (size_t start = 0; start < train_dataset.sample_count; start += config.batch_size) {
             size_t batch_rows = config.batch_size;
@@ -123,7 +144,7 @@ int main(int argc, char **argv) {
                 &layer,
                 &batch_inputs,
                 &batch_targets,
-                config.learning_rate
+                current_learning_rate
             );
             batch_count++;
 
@@ -153,9 +174,10 @@ int main(int argc, char **argv) {
 
         if ((epoch + 1) % 20 == 0 || epoch == 0) {
             printf(
-                "Epoch %d/%d - Train Loss: %.6f - Val Loss: %.6f\n",
+                "Epoch %d/%d - LR: %.6f - Train Loss: %.6f - Val Loss: %.6f\n",
                 epoch + 1,
                 config.epochs,
+                current_learning_rate,
                 final_train_loss,
                 final_val_loss
             );
@@ -215,6 +237,10 @@ int main(int argc, char **argv) {
             config.metrics_path,
             config.epochs,
             config.learning_rate,
+            final_learning_rate,
+            config.lr_schedule,
+            config.lr_step_size,
+            config.lr_decay,
             config.batch_size,
             final_train_loss,
             final_val_loss,

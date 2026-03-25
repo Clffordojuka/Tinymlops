@@ -5,18 +5,18 @@ stages:
     deps:
     - path: configs/base/train_linear.cfg
       hash: md5
-      md5: 3cdbf170804bb664a71b827fb93a0d7c
-      size: 227
+      md5: ee4d1a85005d92f4df036257837971e6
+      size: 276
       isexec: true
     - path: configs/experiments/linear_fast.cfg
       hash: md5
-      md5: f538b5084db194383511d05c8130b0cc
-      size: 252
+      md5: 156d0f41ab5bc7a6de7c9d2311422728
+      size: 301
       isexec: true
     - path: configs/experiments/linear_long.cfg
       hash: md5
-      md5: dd85d2efadd3470602a90c313666bf61
-      size: 382
+      md5: e8a7bf8931780a5cae629a678065bcbc
+      size: 431
       isexec: true
     - path: data/samples/linear.csv
       hash: md5
@@ -34,29 +34,29 @@ stages:
     outs:
     - path: metrics/train_metrics.json
       hash: md5
-      md5: 6e8c0aa87cc12e3a39e73249794dce7d
-      size: 437
+      md5: 811629fd5cb7ee56e247098dc3fbc6d2
+      size: 543
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: 08a392043e73bdbad2414c3a5c9b9193
+      md5: e56ee3d3703d592097a709141543fafe
       size: 82
   evaluate:
     cmd: python scripts/evaluate_entry.py configs/experiments/linear_multi.cfg
     deps:
     - path: configs/base/train_linear.cfg
       hash: md5
-      md5: 3cdbf170804bb664a71b827fb93a0d7c
-      size: 227
+      md5: ee4d1a85005d92f4df036257837971e6
+      size: 276
       isexec: true
     - path: configs/experiments/linear_fast.cfg
       hash: md5
-      md5: f538b5084db194383511d05c8130b0cc
-      size: 252
+      md5: 156d0f41ab5bc7a6de7c9d2311422728
+      size: 301
       isexec: true
     - path: configs/experiments/linear_long.cfg
       hash: md5
-      md5: dd85d2efadd3470602a90c313666bf61
-      size: 382
+      md5: e8a7bf8931780a5cae629a678065bcbc
+      size: 431
       isexec: true
     - path: data/samples/linear.csv
       hash: md5
@@ -65,7 +65,7 @@ stages:
       isexec: true
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: 08a392043e73bdbad2414c3a5c9b9193
+      md5: e56ee3d3703d592097a709141543fafe
       size: 82
     - path: scripts/evaluate_entry.py
       hash: md5
@@ -78,5 +78,5 @@ stages:
     outs:
     - path: metrics/eval_metrics.json
       hash: md5
-      md5: 0b98828ccf71b4b8cc753723d2824414
+      md5: 0dfa62835b878f993257a1b42e710846
       size: 170

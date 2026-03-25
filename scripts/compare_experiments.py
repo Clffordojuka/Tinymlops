@@ -34,6 +34,10 @@ def collect_experiments() -> list[dict]:
             "experiment": name,
             "epochs": train.get("epochs"),
             "learning_rate": train.get("learning_rate"),
+            "lr_schedule": train.get("lr_schedule"),
+            "lr_step_size": train.get("lr_step_size"),
+            "lr_decay": train.get("lr_decay"),
+            "final_learning_rate": train.get("final_learning_rate"),
             "batch_size": train.get("batch_size"),
             "train_loss": train.get("train_loss"),
             "val_loss": train.get("val_loss"),
@@ -56,6 +60,10 @@ def write_summary(rows: list[dict]) -> None:
         "experiment",
         "epochs",
         "learning_rate",
+        "lr_schedule",
+        "lr_step_size",
+        "lr_decay",
+        "final_learning_rate",
         "batch_size",
         "train_loss",
         "val_loss",
@@ -84,6 +92,8 @@ def print_summary(rows: list[dict]) -> None:
             f"{row['experiment']}: "
             f"epochs={row['epochs']}, "
             f"lr={row['learning_rate']}, "
+            f"schedule={row['lr_schedule']}, "
+            f"final_lr={row['final_learning_rate']}, "
             f"batch_size={row['batch_size']}, "
             f"train_loss={row['train_loss']}, "
             f"val_loss={row['val_loss']}, "

@@ -1,5 +1,5 @@
 input_dim=2
 output_dim=1
-weight_0_0=2.825828
-weight_1_0=3.065761
-bias_0=12.189971
+weight_0_0=2.829462
+weight_1_0=3.073586
+bias_0=12.158147
