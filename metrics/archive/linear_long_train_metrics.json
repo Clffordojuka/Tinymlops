@@ -10,5 +10,11 @@
   "parameter_count": 2,
   "weight_l2_norm": 2.492617,
   "max_abs_weight": 2.492617,
-  "bias_l2_norm": 4.664708
+  "bias_l2_norm": 4.664708,
+  "best_val_loss": 0.000009,
+  "best_epoch": 499,
+  "stopped_early": 0,
+  "patience": 20,
+  "min_delta": 0.000001,
+  "save_best_only": 1
 }

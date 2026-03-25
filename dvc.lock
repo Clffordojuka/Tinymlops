@@ -15,8 +15,8 @@ stages:
       isexec: true
     - path: configs/experiments/linear_long.cfg
       hash: md5
-      md5: 2b8bf06e0b0900778de39ea5d00cd616
-      size: 331
+      md5: dd85d2efadd3470602a90c313666bf61
+      size: 382
       isexec: true
     - path: data/samples/linear.csv
       hash: md5
@@ -34,11 +34,11 @@ stages:
     outs:
     - path: metrics/train_metrics.json
       hash: md5
-      md5: bc53c5328feb89f2a9c66b102d7964c5
-      size: 299
+      md5: 6e8c0aa87cc12e3a39e73249794dce7d
+      size: 437
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: f49d67fbc1b5a95d50a78be6d39cae91
+      md5: 08a392043e73bdbad2414c3a5c9b9193
       size: 82
   evaluate:
     cmd: python scripts/evaluate_entry.py configs/experiments/linear_multi.cfg
@@ -55,8 +55,8 @@ stages:
       isexec: true
     - path: configs/experiments/linear_long.cfg
       hash: md5
-      md5: 2b8bf06e0b0900778de39ea5d00cd616
-      size: 331
+      md5: dd85d2efadd3470602a90c313666bf61
+      size: 382
       isexec: true
     - path: data/samples/linear.csv
       hash: md5
@@ -65,7 +65,7 @@ stages:
       isexec: true
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: f49d67fbc1b5a95d50a78be6d39cae91
+      md5: 08a392043e73bdbad2414c3a5c9b9193
       size: 82
     - path: scripts/evaluate_entry.py
       hash: md5
@@ -78,5 +78,5 @@ stages:
     outs:
     - path: metrics/eval_metrics.json
       hash: md5
-      md5: 7c6767098565bf09811aafbe0afbd6c9
+      md5: 0b98828ccf71b4b8cc753723d2824414
       size: 170

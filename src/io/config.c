@@ -23,6 +23,9 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     config.validation_split = 0.25f;
     config.shuffle = 1;
     config.split_seed = 42u;
+    config.patience = 20;
+    config.min_delta = 0.000001f;
+    config.save_best_only = 1;
     snprintf(config.eval_metrics_path, sizeof(config.eval_metrics_path), "metrics/eval_metrics.json");
     snprintf(config.normalization_path, sizeof(config.normalization_path), "models/checkpoints/normalization_stats.txt");
 
@@ -76,6 +79,12 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 snprintf(config->normalization_path, sizeof(config->normalization_path), "%s", value);
             } else if (strcmp(key, "batch_size") == 0) {
                 config->batch_size = (size_t)strtoul(value, NULL, 10);
+            } else if (strcmp(key, "patience") == 0) {
+                config->patience = atoi(value);
+            } else if (strcmp(key, "min_delta") == 0) {
+                config->min_delta = (float)atof(value);
+            } else if (strcmp(key, "save_best_only") == 0) {
+                config->save_best_only = atoi(value);
             }
         }
     }

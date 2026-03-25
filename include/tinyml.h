@@ -51,6 +51,9 @@ typedef struct {
     char eval_metrics_path[256];
     char normalization_path[256];
     size_t batch_size;
+    int patience;
+    float min_delta;
+    int save_best_only;
 } TinyML_TrainConfig;
 
 typedef struct {
@@ -151,7 +154,13 @@ int tinyml_write_training_metrics_json(
     int parameter_count,
     float weight_l2_norm,
     float max_abs_weight,
-    float bias_l2_norm
+    float bias_l2_norm,
+    float best_val_loss,
+    int best_epoch,
+    int stopped_early,
+    int patience,
+    float min_delta,
+    int save_best_only
 );
 
 int tinyml_write_eval_metrics_json(

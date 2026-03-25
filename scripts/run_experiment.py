@@ -94,6 +94,12 @@ def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict, mod
     print(f"Model output_dim: {model_params.get('output_dim')}")
     print(f"Weights: {model_params.get('weights')}")
     print(f"Bias: {model_params.get('bias')}")
+    print(f"Best val loss: {train_metrics.get('best_val_loss')}")
+    print(f"Best epoch: {train_metrics.get('best_epoch')}")
+    print(f"Stopped early: {train_metrics.get('stopped_early')}")
+    print(f"Patience: {train_metrics.get('patience')}")
+    print(f"Min delta: {train_metrics.get('min_delta')}")
+    print(f"Save best only: {train_metrics.get('save_best_only')}")
 
 
 def main() -> int:

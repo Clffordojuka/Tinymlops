@@ -81,6 +81,10 @@ int main(int argc, char **argv) {
 
     float final_train_loss = 0.0f;
     float final_val_loss = 0.0f;
+    float best_val_loss = 1e30f;
+    int best_epoch = 0;
+    int stopped_early = 0;
+    int epochs_without_improvement = 0;
 
     for (int epoch = 0; epoch < config.epochs; ++epoch) {
         float epoch_loss = 0.0f;
@@ -130,6 +134,23 @@ int main(int argc, char **argv) {
         final_train_loss = (batch_count > 0) ? epoch_loss / (float)batch_count : 0.0f;
         final_val_loss = tinyml_compute_dataset_loss(&layer, &val_dataset);
 
+        if ((best_val_loss - final_val_loss) > config.min_delta) {
+            best_val_loss = final_val_loss;
+            best_epoch = epoch + 1;
+            epochs_without_improvement = 0;
+
+            if (config.save_best_only) {
+                if (!tinyml_save_dense_checkpoint(config.checkpoint_path, &layer)) {
+                    fprintf(stderr, "Warning: failed to write checkpoint: %s\n", config.checkpoint_path);
+                }
+                if (!tinyml_save_normalization_stats(config.normalization_path, &norm_stats)) {
+                    fprintf(stderr, "Warning: failed to write normalization stats: %s\n", config.normalization_path);
+                }
+            }
+        } else {
+            epochs_without_improvement++;
+        }
+
         if ((epoch + 1) % 20 == 0 || epoch == 0) {
             printf(
                 "Epoch %d/%d - Train Loss: %.6f - Val Loss: %.6f\n",
@@ -139,10 +160,29 @@ int main(int argc, char **argv) {
                 final_val_loss
             );
         }
+
+        if (config.patience > 0 && epochs_without_improvement >= config.patience) {
+            stopped_early = 1;
+            printf("Early stopping triggered at epoch %d\n", epoch + 1);
+            break;
+        }
+    }
+
+    if (!config.save_best_only) {
+        if (!tinyml_save_dense_checkpoint(config.checkpoint_path, &layer)) {
+            fprintf(stderr, "Warning: failed to write checkpoint: %s\n", config.checkpoint_path);
+        }
+
+        if (!tinyml_save_normalization_stats(config.normalization_path, &norm_stats)) {
+            fprintf(stderr, "Warning: failed to write normalization stats: %s\n", config.normalization_path);
+        }
     }
 
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
+    printf("Best epoch: %d\n", best_epoch);
+    printf("Best val loss: %.6f\n", best_val_loss);
+    printf("Stopped early: %d\n", stopped_early);
 
     if (train_dataset.feature_count == 1) {
         TinyML_Matrix test_input = tinyml_matrix_create(1, 1);
@@ -184,16 +224,14 @@ int main(int argc, char **argv) {
             tinyml_dense_parameter_count(&layer),
             tinyml_dense_weight_l2_norm(&layer),
             tinyml_dense_max_abs_weight(&layer),
-            tinyml_dense_bias_l2_norm(&layer))) {
+            tinyml_dense_bias_l2_norm(&layer),
+            best_val_loss,
+            best_epoch,
+            stopped_early,
+            config.patience,
+            config.min_delta,
+            config.save_best_only)) {
         fprintf(stderr, "Warning: failed to write metrics file: %s\n", config.metrics_path);
-    }
-
-    if (!tinyml_save_dense_checkpoint(config.checkpoint_path, &layer)) {
-        fprintf(stderr, "Warning: failed to write checkpoint: %s\n", config.checkpoint_path);
-    }
-
-    if (!tinyml_save_normalization_stats(config.normalization_path, &norm_stats)) {
-        fprintf(stderr, "Warning: failed to write normalization stats: %s\n", config.normalization_path);
     }
 
     tinyml_normalization_stats_free(&norm_stats);

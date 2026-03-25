@@ -14,7 +14,13 @@ int tinyml_write_training_metrics_json(
     int parameter_count,
     float weight_l2_norm,
     float max_abs_weight,
-    float bias_l2_norm
+    float bias_l2_norm,
+    float best_val_loss,
+    int best_epoch,
+    int stopped_early,
+    int patience,
+    float min_delta,
+    int save_best_only
 ) {
     FILE *fp = fopen(path, "w");
     if (fp == NULL) {
@@ -33,7 +39,13 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "  \"parameter_count\": %d,\n", parameter_count);
     fprintf(fp, "  \"weight_l2_norm\": %.6f,\n", weight_l2_norm);
     fprintf(fp, "  \"max_abs_weight\": %.6f,\n", max_abs_weight);
-    fprintf(fp, "  \"bias_l2_norm\": %.6f\n", bias_l2_norm);
+    fprintf(fp, "  \"bias_l2_norm\": %.6f,\n", bias_l2_norm);
+    fprintf(fp, "  \"best_val_loss\": %.6f,\n", best_val_loss);
+    fprintf(fp, "  \"best_epoch\": %d,\n", best_epoch);
+    fprintf(fp, "  \"stopped_early\": %d,\n", stopped_early);
+    fprintf(fp, "  \"patience\": %d,\n", patience);
+    fprintf(fp, "  \"min_delta\": %.6f,\n", min_delta);
+    fprintf(fp, "  \"save_best_only\": %d\n", save_best_only);
     fprintf(fp, "}\n");
 
     fclose(fp);
