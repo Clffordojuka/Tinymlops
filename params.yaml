@@ -1,5 +1,5 @@
 train:
-  config_path: configs/experiments/linear_multi.cfg
+  config_path: configs/experiments/linear_long.cfg
 
 evaluate:
-  config_path: configs/experiments/linear_multi.cfg
+  config_path: configs/experiments/linear_long.cfg

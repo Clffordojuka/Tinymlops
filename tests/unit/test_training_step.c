@@ -16,7 +16,7 @@ int main(void) {
     float loss_before = tinyml_mse_loss(&target, &pred_before);
 
     TinyML_Matrix grad = tinyml_mse_loss_gradient(&target, &pred_before);
-    TinyML_Matrix grad_input = tinyml_dense_backward(&layer, &input, &grad, 0.1f);
+    TinyML_Matrix grad_input = tinyml_dense_backward(&layer, &input, &grad, 0.1f, 0.0f);
 
     TinyML_Matrix pred_after = tinyml_dense_forward(&layer, &input);
     float loss_after = tinyml_mse_loss(&target, &pred_after);

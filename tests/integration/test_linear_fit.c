@@ -29,7 +29,7 @@ int main(void) {
     const float learning_rate = 0.01f;
 
     for (int epoch = 0; epoch < epochs; ++epoch) {
-        tinyml_train_epoch_dense(&layer, &inputs, &targets, 3, learning_rate);
+        tinyml_train_epoch_dense(&layer, &inputs, &targets, 3, learning_rate, 0.0f);
     }
 
     TinyML_Matrix pred_after = tinyml_dense_forward(&layer, &test_input);

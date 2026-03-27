@@ -144,7 +144,8 @@ int main(int argc, char **argv) {
                 &layer,
                 &batch_inputs,
                 &batch_targets,
-                current_learning_rate
+                current_learning_rate,
+                config.l2_lambda
             );
             batch_count++;
 
@@ -241,6 +242,7 @@ int main(int argc, char **argv) {
             config.lr_schedule,
             config.lr_step_size,
             config.lr_decay,
+            config.l2_lambda,
             config.batch_size,
             final_train_loss,
             final_val_loss,

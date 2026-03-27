@@ -9,6 +9,7 @@ int tinyml_write_training_metrics_json(
     const char *lr_schedule,
     int lr_step_size,
     float lr_decay,
+    float l2_lambda,
     size_t batch_size,
     float train_loss,
     float val_loss,
@@ -38,6 +39,7 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "  \"lr_schedule\": \"%s\",\n", lr_schedule);
     fprintf(fp, "  \"lr_step_size\": %d,\n", lr_step_size);
     fprintf(fp, "  \"lr_decay\": %.6f,\n", lr_decay);
+    fprintf(fp, "  \"l2_lambda\": %.6f,\n", l2_lambda);
     fprintf(fp, "  \"batch_size\": %zu,\n", batch_size);
     fprintf(fp, "  \"train_loss\": %.6f,\n", train_loss);
     fprintf(fp, "  \"val_loss\": %.6f,\n", val_loss);

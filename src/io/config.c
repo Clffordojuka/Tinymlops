@@ -31,6 +31,7 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     snprintf(config.lr_schedule, sizeof(config.lr_schedule), "constant");
     config.lr_step_size = 50;
     config.lr_decay = 0.5f;
+    config.l2_lambda = 0.0f;
 
     return config;
 }
@@ -94,6 +95,8 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 config->lr_step_size = atoi(value);
             } else if (strcmp(key, "lr_decay") == 0) {
                 config->lr_decay = (float)atof(value);
+            } else if (strcmp(key, "l2_lambda") == 0) {
+                config->l2_lambda = (float)atof(value);
             }
         }
     }

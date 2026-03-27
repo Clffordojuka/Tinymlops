@@ -46,6 +46,7 @@ typedef struct {
     char lr_schedule[32];
     int lr_step_size;
     float lr_decay;
+    float l2_lambda;
     char metrics_path[256];
     char checkpoint_path[256];
     float validation_split;
@@ -102,7 +103,8 @@ TinyML_Matrix tinyml_dense_backward(
     TinyML_DenseLayer *layer,
     const TinyML_Matrix *input,
     const TinyML_Matrix *grad_output,
-    float learning_rate
+    float learning_rate,
+    float l2_lambda
 );
 
 /* activations */
@@ -120,14 +122,16 @@ float tinyml_train_step_dense(
     TinyML_DenseLayer *layer,
     const TinyML_Matrix *input,
     const TinyML_Matrix *target,
-    float learning_rate
+    float learning_rate,
+    float l2_lambda
 );
 
 float tinyml_train_batch_dense(
     TinyML_DenseLayer *layer,
     const TinyML_Matrix *inputs,
     const TinyML_Matrix *targets,
-    float learning_rate
+    float learning_rate,
+    float l2_lambda
 );
 
 float tinyml_train_epoch_dense(
@@ -135,7 +139,8 @@ float tinyml_train_epoch_dense(
     const TinyML_Matrix *inputs,
     const TinyML_Matrix *targets,
     size_t sample_count,
-    float learning_rate
+    float learning_rate,
+    float l2_lambda
 );
 
 /* metrics */
@@ -152,6 +157,7 @@ int tinyml_write_training_metrics_json(
     const char *lr_schedule,
     int lr_step_size,
     float lr_decay,
+    float l2_lambda,
     size_t batch_size,
     float train_loss,
     float val_loss,

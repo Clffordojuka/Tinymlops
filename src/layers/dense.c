@@ -45,7 +45,8 @@ TinyML_Matrix tinyml_dense_backward(
     TinyML_DenseLayer *layer,
     const TinyML_Matrix *input,
     const TinyML_Matrix *grad_output,
-    float learning_rate
+    float learning_rate,
+    float l2_lambda
 ) {
     TinyML_Matrix input_t = tinyml_matrix_transpose(input);
     TinyML_Matrix dW = tinyml_matrix_multiply(&input_t, grad_output);
@@ -67,7 +68,8 @@ TinyML_Matrix tinyml_dense_backward(
         for (size_t o = 0; o < layer->output_dim; ++o) {
             float w = tinyml_matrix_get(&layer->weights, i, o);
             float grad = tinyml_matrix_get(&dW, i, o);
-            tinyml_matrix_set(&layer->weights, i, o, w - learning_rate * grad);
+            float reg_grad = l2_lambda * w;
+            tinyml_matrix_set(&layer->weights, i, o, w - learning_rate * (grad + reg_grad));
         }
     }
 
