@@ -17,19 +17,22 @@ int main(int argc, char **argv) {
     TinyML_Dataset dataset = tinyml_dataset_load_csv(config.data_path);
     TinyML_Dataset train_dataset;
     TinyML_Dataset val_dataset;
+    TinyML_Dataset test_dataset;
 
     if (dataset.sample_count == 0) {
         fprintf(stderr, "Failed to load dataset: %s\n", config.data_path);
         return 1;
     }
 
-    tinyml_dataset_split(
+    tinyml_dataset_split_three_way(
         &dataset,
         config.validation_split,
+        config.test_split,
         config.shuffle,
         config.split_seed,
         &train_dataset,
-        &val_dataset
+        &val_dataset,
+        &test_dataset
     );
 
     TinyML_DenseLayer layer;
@@ -38,6 +41,7 @@ int main(int argc, char **argv) {
         tinyml_dataset_free(&dataset);
         tinyml_dataset_free(&train_dataset);
         tinyml_dataset_free(&val_dataset);
+        tinyml_dataset_free(&test_dataset);
         return 1;
     }
 
@@ -47,29 +51,31 @@ int main(int argc, char **argv) {
         tinyml_dataset_free(&dataset);
         tinyml_dataset_free(&train_dataset);
         tinyml_dataset_free(&val_dataset);
+        tinyml_dataset_free(&test_dataset);
         tinyml_dense_free(&layer);
         return 1;
     }
 
     tinyml_apply_normalization(&train_dataset, &norm_stats);
     tinyml_apply_normalization(&val_dataset, &norm_stats);
+    tinyml_apply_normalization(&test_dataset, &norm_stats);
 
-    float eval_loss = tinyml_evaluate_dense(&layer, &val_dataset);
+    float eval_loss = tinyml_evaluate_dense(&layer, &test_dataset);
     float prediction_x4 = 0.0f;
 
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
     printf("Checkpoint: %s\n", config.checkpoint_path);
-    printf("Validation loss: %.6f\n", eval_loss);
+    printf("Test loss: %.6f\n", eval_loss);
 
-    if (val_dataset.feature_count == 1) {
+    if (test_dataset.feature_count == 1) {
         float normalized_x4 = tinyml_normalize_single_value(4.0f, norm_stats.mean[0], norm_stats.std[0]);
         prediction_x4 = tinyml_predict_dense_single(&layer, normalized_x4);
 
         printf("Prediction for x=4.0: %.6f\n", prediction_x4);
         printf("Normalized x=4.0: %.6f\n", normalized_x4);
     } else {
-        printf("Sample prediction skipped: dataset has %zu features.\n", val_dataset.feature_count);
+        printf("Sample prediction skipped: dataset has %zu features.\n", test_dataset.feature_count);
     }
 
     for (size_t i = 0; i < layer.input_dim; ++i) {
@@ -98,6 +104,7 @@ int main(int argc, char **argv) {
     tinyml_dataset_free(&dataset);
     tinyml_dataset_free(&train_dataset);
     tinyml_dataset_free(&val_dataset);
+    tinyml_dataset_free(&test_dataset);
     tinyml_dense_free(&layer);
 
     return 0;

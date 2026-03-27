@@ -50,6 +50,7 @@ typedef struct {
     char metrics_path[256];
     char checkpoint_path[256];
     float validation_split;
+    float test_split;
     int shuffle;
     unsigned int split_seed;
     char eval_metrics_path[256];
@@ -90,7 +91,16 @@ void tinyml_dataset_split(
     TinyML_Dataset *train_dataset,
     TinyML_Dataset *val_dataset
 );
-
+void tinyml_dataset_split_three_way(
+    const TinyML_Dataset *dataset,
+    float validation_split,
+    float test_split,
+    int shuffle,
+    unsigned int split_seed,
+    TinyML_Dataset *train_dataset,
+    TinyML_Dataset *val_dataset,
+    TinyML_Dataset *test_dataset
+);
 /* config */
 TinyML_TrainConfig tinyml_default_train_config(void);
 int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config);

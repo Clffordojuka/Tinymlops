@@ -66,19 +66,22 @@ int main(int argc, char **argv) {
     TinyML_Dataset dataset = tinyml_dataset_load_csv(config.data_path);
     TinyML_Dataset train_dataset;
     TinyML_Dataset val_dataset;
+    TinyML_Dataset test_dataset;
 
     if (dataset.sample_count == 0) {
         fprintf(stderr, "Failed to load dataset: %s\n", config.data_path);
         return 1;
     }
 
-    tinyml_dataset_split(
+    tinyml_dataset_split_three_way(
         &dataset,
         config.validation_split,
+        config.test_split,
         config.shuffle,
         config.split_seed,
         &train_dataset,
-        &val_dataset
+        &val_dataset,
+        &test_dataset
     );
 
     if (train_dataset.sample_count == 0) {
@@ -267,6 +270,7 @@ int main(int argc, char **argv) {
     tinyml_dataset_free(&train_dataset);
     tinyml_dataset_free(&val_dataset);
     tinyml_dense_free(&layer);
+    tinyml_dataset_free(&test_dataset);
 
     return 0;
 }

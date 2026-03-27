@@ -21,6 +21,7 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     snprintf(config.metrics_path, sizeof(config.metrics_path), "metrics/train_metrics.json");
     snprintf(config.checkpoint_path, sizeof(config.checkpoint_path), "models/checkpoints/linear_model.txt");
     config.validation_split = 0.25f;
+    config.test_split = 0.20f;
     config.shuffle = 1;
     config.split_seed = 42u;
     config.patience = 20;
@@ -73,6 +74,8 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 snprintf(config->checkpoint_path, sizeof(config->checkpoint_path), "%s", value);
             } else if (strcmp(key, "validation_split") == 0) {
                 config->validation_split = (float)atof(value);
+            } else if (strcmp(key, "test_split") == 0) {
+                config->test_split = (float)atof(value);
             } else if (strcmp(key, "shuffle") == 0) {
                 config->shuffle = atoi(value);
             } else if (strcmp(key, "split_seed") == 0) {
