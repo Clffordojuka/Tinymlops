@@ -1139,6 +1139,40 @@ build tests/test_mlp_train_step: C_EXECUTABLE_LINKER__test_mlp_train_step_ tests
   TARGET_FILE = tests/test_mlp_train_step
   TARGET_PDB = test_mlp_train_step.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target test_checkpoint_mlp
+
+
+#############################################
+# Order-only phony target for test_checkpoint_mlp
+
+build cmake_object_order_depends_target_test_checkpoint_mlp: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_checkpoint_mlp.dir/unit/test_checkpoint_mlp.c.o: C_COMPILER__test_checkpoint_mlp_unscanned_ /workspace/tests/unit/test_checkpoint_mlp.c || cmake_object_order_depends_target_test_checkpoint_mlp
+  DEP_FILE = tests/CMakeFiles/test_checkpoint_mlp.dir/unit/test_checkpoint_mlp.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_checkpoint_mlp.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_checkpoint_mlp.dir/unit
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_checkpoint_mlp
+
+
+#############################################
+# Link the executable tests/test_checkpoint_mlp
+
+build tests/test_checkpoint_mlp: C_EXECUTABLE_LINKER__test_checkpoint_mlp_ tests/CMakeFiles/test_checkpoint_mlp.dir/unit/test_checkpoint_mlp.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_checkpoint_mlp.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_checkpoint_mlp.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_checkpoint_mlp.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_checkpoint_mlp
+  TARGET_PDB = test_checkpoint_mlp.dbg
+
 
 #############################################
 # Utility command for test
@@ -1188,6 +1222,8 @@ build test_activation: phony tests/test_activation
 build test_batch_training: phony tests/test_batch_training
 
 build test_checkpoint: phony tests/test_checkpoint
+
+build test_checkpoint_mlp: phony tests/test_checkpoint_mlp
 
 build test_checkpoint_multi: phony tests/test_checkpoint_multi
 
@@ -1260,7 +1296,7 @@ build src/all: phony src/libtinyml_core.a
 #############################################
 # Folder: /workspace/build-docker/tests
 
-build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi tests/test_batch_training tests/test_mlp tests/test_mlp_forward tests/test_mlp_train_step
+build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi tests/test_batch_training tests/test_mlp tests/test_mlp_forward tests/test_mlp_train_step tests/test_checkpoint_mlp
 
 # =============================================================================
 # Built-in targets

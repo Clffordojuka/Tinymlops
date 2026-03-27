@@ -204,6 +204,8 @@ int tinyml_write_eval_metrics_json(
 /* checkpoint */
 int tinyml_save_dense_checkpoint(const char *path, const TinyML_DenseLayer *layer);
 int tinyml_load_dense_checkpoint(const char *path, TinyML_DenseLayer *layer);
+int tinyml_save_mlp_checkpoint(const char *path, const TinyML_MLP *mlp);
+int tinyml_load_mlp_checkpoint(const char *path, TinyML_MLP *mlp);
 
 /* evaluation */
 float tinyml_evaluate_dense(

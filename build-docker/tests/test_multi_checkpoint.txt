@@ -1,5 +1,6 @@
-input_dim=2
-output_dim=1
-weight_0_0=1.500000
-weight_1_0=-0.500000
-bias_0=2.000000
+model_type=dense
+dense_input_dim=2
+dense_output_dim=1
+dense_weight_0_0=1.500000
+dense_weight_1_0=-0.500000
+dense_bias_0=2.000000

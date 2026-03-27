@@ -33,6 +33,7 @@
 /workspace/build-docker/tests/CMakeFiles/test_mlp.dir
 /workspace/build-docker/tests/CMakeFiles/test_mlp_forward.dir
 /workspace/build-docker/tests/CMakeFiles/test_mlp_train_step.dir
+/workspace/build-docker/tests/CMakeFiles/test_checkpoint_mlp.dir
 /workspace/build-docker/tests/CMakeFiles/test.dir
 /workspace/build-docker/tests/CMakeFiles/edit_cache.dir
 /workspace/build-docker/tests/CMakeFiles/rebuild_cache.dir

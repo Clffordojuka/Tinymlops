@@ -134,3 +134,9 @@ add_executable(test_mlp_train_step
 )
 target_link_libraries(test_mlp_train_step PRIVATE tinyml_core)
 add_test(NAME mlp_train_step_test COMMAND test_mlp_train_step)
+
+add_executable(test_checkpoint_mlp
+    unit/test_checkpoint_mlp.c
+)
+target_link_libraries(test_checkpoint_mlp PRIVATE tinyml_core)
+add_test(NAME checkpoint_mlp_test COMMAND test_checkpoint_mlp)
