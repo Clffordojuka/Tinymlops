@@ -116,3 +116,21 @@ add_executable(test_batch_training
 )
 target_link_libraries(test_batch_training PRIVATE tinyml_core)
 add_test(NAME batch_training_test COMMAND test_batch_training)
+
+add_executable(test_mlp
+    unit/test_mlp.c
+)
+target_link_libraries(test_mlp PRIVATE tinyml_core)
+add_test(NAME mlp_test COMMAND test_mlp)
+
+add_executable(test_mlp_forward
+    integration/test_mlp_forward.c
+)
+target_link_libraries(test_mlp_forward PRIVATE tinyml_core)
+add_test(NAME mlp_forward_test COMMAND test_mlp_forward)
+
+add_executable(test_mlp_train_step
+    integration/test_mlp_train_step.c
+)
+target_link_libraries(test_mlp_train_step PRIVATE tinyml_core)
+add_test(NAME mlp_train_step_test COMMAND test_mlp_train_step)

@@ -67,3 +67,56 @@ float tinyml_train_epoch_dense(
 
     return (sample_count > 0) ? total_loss / (float)sample_count : 0.0f;
 }
+
+float tinyml_train_step_mlp(
+    TinyML_MLP *mlp,
+    const TinyML_Matrix *input,
+    const TinyML_Matrix *target,
+    float learning_rate,
+    float l2_lambda
+) {
+    TinyML_Matrix hidden_linear = tinyml_dense_forward(&mlp->hidden, input);
+    TinyML_Matrix hidden_activated = tinyml_matrix_copy(&hidden_linear);
+    tinyml_matrix_apply_relu(&hidden_activated);
+
+    TinyML_Matrix output = tinyml_dense_forward(&mlp->output, &hidden_activated);
+    float loss = tinyml_mse_loss(target, &output);
+
+    TinyML_Matrix grad_output = tinyml_mse_loss_gradient(target, &output);
+    TinyML_Matrix grad_hidden = tinyml_dense_backward(
+        &mlp->output,
+        &hidden_activated,
+        &grad_output,
+        learning_rate,
+        l2_lambda
+    );
+
+    TinyML_Matrix relu_grad = tinyml_matrix_copy(&hidden_linear);
+    tinyml_matrix_apply_relu_derivative_inplace(&relu_grad);
+
+    for (size_t r = 0; r < grad_hidden.rows; ++r) {
+        for (size_t c = 0; c < grad_hidden.cols; ++c) {
+            float g = tinyml_matrix_get(&grad_hidden, r, c);
+            float rd = tinyml_matrix_get(&relu_grad, r, c);
+            tinyml_matrix_set(&grad_hidden, r, c, g * rd);
+        }
+    }
+
+    TinyML_Matrix grad_input = tinyml_dense_backward(
+        &mlp->hidden,
+        input,
+        &grad_hidden,
+        learning_rate,
+        l2_lambda
+    );
+
+    tinyml_matrix_free(&hidden_linear);
+    tinyml_matrix_free(&hidden_activated);
+    tinyml_matrix_free(&output);
+    tinyml_matrix_free(&grad_output);
+    tinyml_matrix_free(&grad_hidden);
+    tinyml_matrix_free(&relu_grad);
+    tinyml_matrix_free(&grad_input);
+
+    return loss;
+}

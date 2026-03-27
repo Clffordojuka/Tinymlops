@@ -1037,6 +1037,108 @@ build tests/test_batch_training: C_EXECUTABLE_LINKER__test_batch_training_ tests
   TARGET_FILE = tests/test_batch_training
   TARGET_PDB = test_batch_training.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target test_mlp
+
+
+#############################################
+# Order-only phony target for test_mlp
+
+build cmake_object_order_depends_target_test_mlp: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_mlp.dir/unit/test_mlp.c.o: C_COMPILER__test_mlp_unscanned_ /workspace/tests/unit/test_mlp.c || cmake_object_order_depends_target_test_mlp
+  DEP_FILE = tests/CMakeFiles/test_mlp.dir/unit/test_mlp.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_mlp.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_mlp.dir/unit
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_mlp
+
+
+#############################################
+# Link the executable tests/test_mlp
+
+build tests/test_mlp: C_EXECUTABLE_LINKER__test_mlp_ tests/CMakeFiles/test_mlp.dir/unit/test_mlp.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_mlp.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_mlp.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_mlp.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_mlp
+  TARGET_PDB = test_mlp.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target test_mlp_forward
+
+
+#############################################
+# Order-only phony target for test_mlp_forward
+
+build cmake_object_order_depends_target_test_mlp_forward: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_mlp_forward.dir/integration/test_mlp_forward.c.o: C_COMPILER__test_mlp_forward_unscanned_ /workspace/tests/integration/test_mlp_forward.c || cmake_object_order_depends_target_test_mlp_forward
+  DEP_FILE = tests/CMakeFiles/test_mlp_forward.dir/integration/test_mlp_forward.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_mlp_forward.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_mlp_forward.dir/integration
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_mlp_forward
+
+
+#############################################
+# Link the executable tests/test_mlp_forward
+
+build tests/test_mlp_forward: C_EXECUTABLE_LINKER__test_mlp_forward_ tests/CMakeFiles/test_mlp_forward.dir/integration/test_mlp_forward.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_mlp_forward.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_mlp_forward.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_mlp_forward.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_mlp_forward
+  TARGET_PDB = test_mlp_forward.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target test_mlp_train_step
+
+
+#############################################
+# Order-only phony target for test_mlp_train_step
+
+build cmake_object_order_depends_target_test_mlp_train_step: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_mlp_train_step.dir/integration/test_mlp_train_step.c.o: C_COMPILER__test_mlp_train_step_unscanned_ /workspace/tests/integration/test_mlp_train_step.c || cmake_object_order_depends_target_test_mlp_train_step
+  DEP_FILE = tests/CMakeFiles/test_mlp_train_step.dir/integration/test_mlp_train_step.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_mlp_train_step.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_mlp_train_step.dir/integration
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_mlp_train_step
+
+
+#############################################
+# Link the executable tests/test_mlp_train_step
+
+build tests/test_mlp_train_step: C_EXECUTABLE_LINKER__test_mlp_train_step_ tests/CMakeFiles/test_mlp_train_step.dir/integration/test_mlp_train_step.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_mlp_train_step.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_mlp_train_step.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_mlp_train_step.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_mlp_train_step
+  TARGET_PDB = test_mlp_train_step.dbg
+
 
 #############################################
 # Utility command for test
@@ -1107,6 +1209,12 @@ build test_loss: phony tests/test_loss
 
 build test_matrix: phony tests/test_matrix
 
+build test_mlp: phony tests/test_mlp
+
+build test_mlp_forward: phony tests/test_mlp_forward
+
+build test_mlp_train_step: phony tests/test_mlp_train_step
+
 build test_model: phony tests/test_model
 
 build test_normalization: phony tests/test_normalization
@@ -1152,7 +1260,7 @@ build src/all: phony src/libtinyml_core.a
 #############################################
 # Folder: /workspace/build-docker/tests
 
-build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi tests/test_batch_training
+build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi tests/test_batch_training tests/test_mlp tests/test_mlp_forward tests/test_mlp_train_step
 
 # =============================================================================
 # Built-in targets

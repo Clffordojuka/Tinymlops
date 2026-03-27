@@ -33,6 +33,11 @@ typedef struct {
 } TinyML_Model;
 
 typedef struct {
+    TinyML_DenseLayer hidden;
+    TinyML_DenseLayer output;
+} TinyML_MLP;
+
+typedef struct {
     size_t sample_count;
     size_t feature_count;
     TinyML_Matrix features;
@@ -211,6 +216,18 @@ float tinyml_predict_dense_single(const TinyML_DenseLayer *layer, float x);
 TinyML_Model tinyml_model_create(size_t input_dim, size_t output_dim, TinyML_Activation activation);
 void tinyml_model_free(TinyML_Model *model);
 TinyML_Matrix tinyml_model_forward(const TinyML_Model *model, const TinyML_Matrix *input);
+
+TinyML_MLP tinyml_mlp_create(size_t input_dim, size_t hidden_dim, size_t output_dim);
+void tinyml_mlp_free(TinyML_MLP *mlp);
+TinyML_Matrix tinyml_mlp_forward(const TinyML_MLP *mlp, const TinyML_Matrix *input);
+
+float tinyml_train_step_mlp(
+    TinyML_MLP *mlp,
+    const TinyML_Matrix *input,
+    const TinyML_Matrix *target,
+    float learning_rate,
+    float l2_lambda
+);
 
 /* normalization */
 TinyML_NormalizationStats tinyml_normalization_stats_create(size_t feature_count);
