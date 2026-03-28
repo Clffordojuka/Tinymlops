@@ -52,6 +52,8 @@ typedef struct {
     int lr_step_size;
     float lr_decay;
     float l2_lambda;
+    char model_type[32];
+    size_t hidden_dim;
     char metrics_path[256];
     char checkpoint_path[256];
     float validation_split;
@@ -230,6 +232,13 @@ float tinyml_train_step_mlp(
     float learning_rate,
     float l2_lambda
 );
+
+float tinyml_evaluate_mlp(
+    const TinyML_MLP *mlp,
+    const TinyML_Dataset *dataset
+);
+
+float tinyml_predict_mlp_single(const TinyML_MLP *mlp, float x);
 
 /* normalization */
 TinyML_NormalizationStats tinyml_normalization_stats_create(size_t feature_count);

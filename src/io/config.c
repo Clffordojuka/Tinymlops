@@ -33,6 +33,8 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     config.lr_step_size = 50;
     config.lr_decay = 0.5f;
     config.l2_lambda = 0.0f;
+    snprintf(config.model_type, sizeof(config.model_type), "linear");
+    config.hidden_dim = 8;
 
     return config;
 }
@@ -100,6 +102,10 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                 config->lr_decay = (float)atof(value);
             } else if (strcmp(key, "l2_lambda") == 0) {
                 config->l2_lambda = (float)atof(value);
+            } else if (strcmp(key, "model_type") == 0) {
+               snprintf(config->model_type, sizeof(config->model_type), "%.31s", value);
+            } else if (strcmp(key, "hidden_dim") == 0) {
+                config->hidden_dim = (size_t)strtoul(value, NULL, 10);
             }
         }
     }
