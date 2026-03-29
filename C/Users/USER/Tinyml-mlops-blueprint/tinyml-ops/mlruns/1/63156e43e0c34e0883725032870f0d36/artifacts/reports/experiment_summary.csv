@@ -1,5 +1,4 @@
 experiment,epochs,learning_rate,lr_schedule,lr_step_size,lr_decay,final_learning_rate,batch_size,train_loss,val_loss,eval_loss,prediction_x4,parameter_count,weight_l2_norm,max_abs_weight,bias_l2_norm
-linear_long,500,0.005,step,50,0.5,1e-05,2,0.066707,0.085756,0.0,7.610335,2,2.373676,2.373676,4.438376
-mlp_long,500,0.005,step,50,0.5,0.005,2,9.934813,0.0,0.0,0.196628,25,0.0,0.0,0.196628
 linear_fast,50,0.02,,,,,,0.000116,0.000118,0.000118,7.986207,2,2.490771,2.490771,4.657773
 linear_multi,500,0.01,step,50,0.5,2e-05,2,0.001703,0.001274,0.001275,0.0,3,4.177653,3.073586,12.158147
+linear_long,500,0.005,step,50,0.5,1e-05,2,0.978361,1.619188,1.619188,6.166422,2,1.794617,1.794617,3.768263
