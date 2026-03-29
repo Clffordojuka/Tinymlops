@@ -104,6 +104,8 @@ def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict, mod
     print(f"Patience: {train_metrics.get('patience')}")
     print(f"Min delta: {train_metrics.get('min_delta')}")
     print(f"Save best only: {train_metrics.get('save_best_only')}")
+    print(f"Model type: {train_metrics.get('model_type')}")
+    print(f"Hidden dim: {train_metrics.get('hidden_dim')}")
 
 
 def main() -> int:

@@ -5,6 +5,7 @@ add_library(tinyml_core
     core/loss.c
     core/train.c
     core/eval.c
+    core/runtime_model.c
     data/dataset.c
     data/normalization.c
     io/csv.c

@@ -74,6 +74,17 @@ typedef struct {
     float *std;
 } TinyML_NormalizationStats;
 
+typedef enum {
+    TINYML_MODEL_LINEAR = 0,
+    TINYML_MODEL_MLP = 1
+} TinyML_ModelKind;
+
+typedef struct {
+    TinyML_ModelKind kind;
+    TinyML_DenseLayer linear;
+    TinyML_MLP mlp;
+} TinyML_RuntimeModel;
+
 /* matrix */
 TinyML_Matrix tinyml_matrix_create(size_t rows, size_t cols);
 void tinyml_matrix_free(TinyML_Matrix *matrix);
@@ -175,6 +186,8 @@ int tinyml_write_training_metrics_json(
     int lr_step_size,
     float lr_decay,
     float l2_lambda,
+    const char *model_type,
+    size_t hidden_dim,
     size_t batch_size,
     float train_loss,
     float val_loss,
@@ -250,6 +263,55 @@ float tinyml_normalize_single_value(float value, float mean, float std);
 
 int tinyml_save_normalization_stats(const char *path, const TinyML_NormalizationStats *stats);
 int tinyml_load_normalization_stats(const char *path, TinyML_NormalizationStats *stats);
+
+/* runtime model */
+int tinyml_runtime_model_init(
+    TinyML_RuntimeModel *model,
+    const TinyML_TrainConfig *config,
+    size_t input_dim
+);
+
+void tinyml_runtime_model_free(TinyML_RuntimeModel *model);
+
+TinyML_Matrix tinyml_runtime_model_forward(
+    const TinyML_RuntimeModel *model,
+    const TinyML_Matrix *input
+);
+
+float tinyml_runtime_model_train_step(
+    TinyML_RuntimeModel *model,
+    const TinyML_Matrix *input,
+    const TinyML_Matrix *target,
+    float learning_rate,
+    float l2_lambda
+);
+
+float tinyml_runtime_model_evaluate(
+    const TinyML_RuntimeModel *model,
+    const TinyML_Dataset *dataset
+);
+
+float tinyml_runtime_model_predict_single(
+    const TinyML_RuntimeModel *model,
+    float x
+);
+
+int tinyml_runtime_model_save_checkpoint(
+    const TinyML_RuntimeModel *model,
+    const char *path
+);
+
+int tinyml_runtime_model_load_checkpoint(
+    TinyML_RuntimeModel *model,
+    const TinyML_TrainConfig *config,
+    const char *path
+);
+
+int tinyml_runtime_model_parameter_count(const TinyML_RuntimeModel *model);
+float tinyml_runtime_model_weight_l2_norm(const TinyML_RuntimeModel *model);
+float tinyml_runtime_model_max_abs_weight(const TinyML_RuntimeModel *model);
+float tinyml_runtime_model_bias_l2_norm(const TinyML_RuntimeModel *model);
+
 #ifdef __cplusplus
 }
 #endif

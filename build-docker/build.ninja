@@ -126,6 +126,13 @@ build src/CMakeFiles/tinyml_core.dir/core/eval.c.o: C_COMPILER__tinyml_core_unsc
   OBJECT_DIR = src/CMakeFiles/tinyml_core.dir
   OBJECT_FILE_DIR = src/CMakeFiles/tinyml_core.dir/core
 
+build src/CMakeFiles/tinyml_core.dir/core/runtime_model.c.o: C_COMPILER__tinyml_core_unscanned_ /workspace/src/core/runtime_model.c || cmake_object_order_depends_target_tinyml_core
+  DEP_FILE = src/CMakeFiles/tinyml_core.dir/core/runtime_model.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = src/CMakeFiles/tinyml_core.dir
+  OBJECT_FILE_DIR = src/CMakeFiles/tinyml_core.dir/core
+
 build src/CMakeFiles/tinyml_core.dir/data/dataset.c.o: C_COMPILER__tinyml_core_unscanned_ /workspace/src/data/dataset.c || cmake_object_order_depends_target_tinyml_core
   DEP_FILE = src/CMakeFiles/tinyml_core.dir/data/dataset.c.o.d
   FLAGS = -std=c99 -Wall -Wextra -Wpedantic
@@ -197,7 +204,7 @@ build src/CMakeFiles/tinyml_core.dir/utils/activation.c.o: C_COMPILER__tinyml_co
 #############################################
 # Link the static library src/libtinyml_core.a
 
-build src/libtinyml_core.a: C_STATIC_LIBRARY_LINKER__tinyml_core_ src/CMakeFiles/tinyml_core.dir/core/tinyml.c.o src/CMakeFiles/tinyml_core.dir/core/matrix.c.o src/CMakeFiles/tinyml_core.dir/core/model.c.o src/CMakeFiles/tinyml_core.dir/core/loss.c.o src/CMakeFiles/tinyml_core.dir/core/train.c.o src/CMakeFiles/tinyml_core.dir/core/eval.c.o src/CMakeFiles/tinyml_core.dir/data/dataset.c.o src/CMakeFiles/tinyml_core.dir/data/normalization.c.o src/CMakeFiles/tinyml_core.dir/io/csv.c.o src/CMakeFiles/tinyml_core.dir/io/config.c.o src/CMakeFiles/tinyml_core.dir/io/metrics.c.o src/CMakeFiles/tinyml_core.dir/io/checkpoint.c.o src/CMakeFiles/tinyml_core.dir/io/normalization_io.c.o src/CMakeFiles/tinyml_core.dir/layers/dense.c.o src/CMakeFiles/tinyml_core.dir/utils/activation.c.o
+build src/libtinyml_core.a: C_STATIC_LIBRARY_LINKER__tinyml_core_ src/CMakeFiles/tinyml_core.dir/core/tinyml.c.o src/CMakeFiles/tinyml_core.dir/core/matrix.c.o src/CMakeFiles/tinyml_core.dir/core/model.c.o src/CMakeFiles/tinyml_core.dir/core/loss.c.o src/CMakeFiles/tinyml_core.dir/core/train.c.o src/CMakeFiles/tinyml_core.dir/core/eval.c.o src/CMakeFiles/tinyml_core.dir/core/runtime_model.c.o src/CMakeFiles/tinyml_core.dir/data/dataset.c.o src/CMakeFiles/tinyml_core.dir/data/normalization.c.o src/CMakeFiles/tinyml_core.dir/io/csv.c.o src/CMakeFiles/tinyml_core.dir/io/config.c.o src/CMakeFiles/tinyml_core.dir/io/metrics.c.o src/CMakeFiles/tinyml_core.dir/io/checkpoint.c.o src/CMakeFiles/tinyml_core.dir/io/normalization_io.c.o src/CMakeFiles/tinyml_core.dir/layers/dense.c.o src/CMakeFiles/tinyml_core.dir/utils/activation.c.o
   OBJECT_DIR = src/CMakeFiles/tinyml_core.dir
   POST_BUILD = :
   PRE_LINK = :

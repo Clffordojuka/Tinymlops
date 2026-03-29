@@ -10,6 +10,8 @@ int tinyml_write_training_metrics_json(
     int lr_step_size,
     float lr_decay,
     float l2_lambda,
+    const char *model_type,
+    size_t hidden_dim,
     size_t batch_size,
     float train_loss,
     float val_loss,

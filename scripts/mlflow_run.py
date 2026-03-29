@@ -69,6 +69,8 @@ def log_run(config_path: str) -> None:
         mlflow.log_param("split_seed", train_metrics.get("split_seed"))
         mlflow.log_param("input_dim", model_params.get("input_dim"))
         mlflow.log_param("output_dim", model_params.get("output_dim"))
+        mlflow.log_param("model_type", train_metrics.get("model_type"))
+        mlflow.log_param("hidden_dim", train_metrics.get("hidden_dim"))
 
         mlflow.log_metric("train_loss", train_metrics.get("train_loss"))
         mlflow.log_metric("val_loss", train_metrics.get("val_loss"))
