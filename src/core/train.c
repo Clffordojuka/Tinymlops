@@ -77,7 +77,7 @@ float tinyml_train_step_mlp(
 ) {
     TinyML_Matrix hidden_linear = tinyml_dense_forward(&mlp->hidden, input);
     TinyML_Matrix hidden_activated = tinyml_matrix_copy(&hidden_linear);
-    tinyml_matrix_apply_relu(&hidden_activated);
+    tinyml_matrix_apply_activation(&hidden_activated, mlp->hidden_activation);
 
     TinyML_Matrix output = tinyml_dense_forward(&mlp->output, &hidden_activated);
     float loss = tinyml_mse_loss(target, &output);
@@ -91,14 +91,14 @@ float tinyml_train_step_mlp(
         l2_lambda
     );
 
-    TinyML_Matrix relu_grad = tinyml_matrix_copy(&hidden_linear);
-    tinyml_matrix_apply_relu_derivative_inplace(&relu_grad);
+    TinyML_Matrix activation_grad = tinyml_matrix_copy(&hidden_linear);
+    tinyml_matrix_apply_activation_derivative_inplace(&activation_grad, mlp->hidden_activation);
 
     for (size_t r = 0; r < grad_hidden.rows; ++r) {
         for (size_t c = 0; c < grad_hidden.cols; ++c) {
             float g = tinyml_matrix_get(&grad_hidden, r, c);
-            float rd = tinyml_matrix_get(&relu_grad, r, c);
-            tinyml_matrix_set(&grad_hidden, r, c, g * rd);
+            float ad = tinyml_matrix_get(&activation_grad, r, c);
+            tinyml_matrix_set(&grad_hidden, r, c, g * ad);
         }
     }
 
@@ -115,7 +115,7 @@ float tinyml_train_step_mlp(
     tinyml_matrix_free(&output);
     tinyml_matrix_free(&grad_output);
     tinyml_matrix_free(&grad_hidden);
-    tinyml_matrix_free(&relu_grad);
+    tinyml_matrix_free(&activation_grad);
     tinyml_matrix_free(&grad_input);
 
     return loss;

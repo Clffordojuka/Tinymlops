@@ -176,6 +176,7 @@ int main(int argc, char **argv) {
             config.l2_lambda,
             config.model_type,
             strcmp(config.model_type, "mlp") == 0 ? config.hidden_dim : 0,
+            config.hidden_activation,
             config.batch_size,
             final_train_loss,
             final_val_loss,

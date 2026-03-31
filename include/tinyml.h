@@ -24,7 +24,9 @@ typedef struct {
 
 typedef enum {
     TINYML_ACT_NONE = 0,
-    TINYML_ACT_RELU = 1
+    TINYML_ACT_RELU = 1,
+    TINYML_ACT_TANH = 2,
+    TINYML_ACT_LINEAR = 3
 } TinyML_Activation;
 
 typedef struct {
@@ -35,6 +37,7 @@ typedef struct {
 typedef struct {
     TinyML_DenseLayer hidden;
     TinyML_DenseLayer output;
+    TinyML_Activation hidden_activation;
 } TinyML_MLP;
 
 typedef struct {
@@ -54,6 +57,7 @@ typedef struct {
     float l2_lambda;
     char model_type[32];
     size_t hidden_dim;
+    char hidden_activation[32];
     char metrics_path[256];
     char checkpoint_path[256];
     float validation_split;
@@ -119,6 +123,7 @@ void tinyml_dataset_split_three_way(
     TinyML_Dataset *val_dataset,
     TinyML_Dataset *test_dataset
 );
+
 /* config */
 TinyML_TrainConfig tinyml_default_train_config(void);
 int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config);
@@ -138,8 +143,18 @@ TinyML_Matrix tinyml_dense_backward(
 /* activations */
 float tinyml_relu(float x);
 float tinyml_relu_derivative(float x);
+float tinyml_tanh(float x);
+float tinyml_tanh_derivative(float x);
+
 void tinyml_matrix_apply_relu(TinyML_Matrix *matrix);
 void tinyml_matrix_apply_relu_derivative_inplace(TinyML_Matrix *matrix);
+void tinyml_matrix_apply_tanh(TinyML_Matrix *matrix);
+void tinyml_matrix_apply_tanh_derivative_inplace(TinyML_Matrix *matrix);
+
+TinyML_Activation tinyml_activation_from_string(const char *name);
+const char *tinyml_activation_to_string(TinyML_Activation activation);
+void tinyml_matrix_apply_activation(TinyML_Matrix *matrix, TinyML_Activation activation);
+void tinyml_matrix_apply_activation_derivative_inplace(TinyML_Matrix *matrix, TinyML_Activation activation);
 
 /* loss */
 float tinyml_mse_loss(const TinyML_Matrix *y_true, const TinyML_Matrix *y_pred);
@@ -188,6 +203,7 @@ int tinyml_write_training_metrics_json(
     float l2_lambda,
     const char *model_type,
     size_t hidden_dim,
+    const char *hidden_activation,
     size_t batch_size,
     float train_loss,
     float val_loss,
@@ -234,7 +250,12 @@ TinyML_Model tinyml_model_create(size_t input_dim, size_t output_dim, TinyML_Act
 void tinyml_model_free(TinyML_Model *model);
 TinyML_Matrix tinyml_model_forward(const TinyML_Model *model, const TinyML_Matrix *input);
 
-TinyML_MLP tinyml_mlp_create(size_t input_dim, size_t hidden_dim, size_t output_dim);
+TinyML_MLP tinyml_mlp_create(
+    size_t input_dim,
+    size_t hidden_dim,
+    size_t output_dim,
+    TinyML_Activation hidden_activation
+);
 void tinyml_mlp_free(TinyML_MLP *mlp);
 TinyML_Matrix tinyml_mlp_forward(const TinyML_MLP *mlp, const TinyML_Matrix *input);
 

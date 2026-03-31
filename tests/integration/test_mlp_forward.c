@@ -2,7 +2,7 @@
 #include "tinyml.h"
 
 int main(void) {
-    TinyML_MLP mlp = tinyml_mlp_create(2, 2, 1);
+    TinyML_MLP mlp = tinyml_mlp_create(2, 2, 1, TINYML_ACT_RELU);
 
     tinyml_matrix_set(&mlp.hidden.weights, 0, 0, 1.0f);
     tinyml_matrix_set(&mlp.hidden.weights, 1, 0, 1.0f);

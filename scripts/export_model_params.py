@@ -45,10 +45,15 @@ def parse_checkpoint(path: Path) -> dict:
         dense = parse_dense_block(data, "dense")
         return {
             "model_type": "linear",
-            "input_dim": dense["input_dim"],
-            "output_dim": dense["output_dim"],
-            "weights": dense["weights"],
-            "bias": dense["bias"],
+            "architecture": {
+                "input_dim": dense["input_dim"],
+                "hidden_dim": 0,
+                "output_dim": dense["output_dim"],
+            },
+            "parameters": {
+                "weights": dense["weights"],
+                "bias": dense["bias"],
+            },
         }
 
     if model_type == "mlp":
@@ -56,13 +61,17 @@ def parse_checkpoint(path: Path) -> dict:
         output = parse_dense_block(data, "output")
         return {
             "model_type": "mlp",
-            "input_dim": hidden["input_dim"],
-            "hidden_dim": hidden["output_dim"],
-            "output_dim": output["output_dim"],
-            "hidden_weights": hidden["weights"],
-            "hidden_bias": hidden["bias"],
-            "output_weights": output["weights"],
-            "output_bias": output["bias"],
+            "architecture": {
+                "input_dim": hidden["input_dim"],
+                "hidden_dim": hidden["output_dim"],
+                "output_dim": output["output_dim"],
+            },
+            "parameters": {
+                "hidden_weights": hidden["weights"],
+                "hidden_bias": hidden["bias"],
+                "output_weights": output["weights"],
+                "output_bias": output["bias"],
+            },
         }
 
     raise ValueError(f"Unsupported model_type in checkpoint: {model_type}")

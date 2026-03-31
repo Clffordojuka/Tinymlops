@@ -12,14 +12,8 @@ static int tinyml_write_dense_block(FILE *fp, const char *prefix, const TinyML_D
 
     for (size_t i = 0; i < layer->input_dim; ++i) {
         for (size_t o = 0; o < layer->output_dim; ++o) {
-            fprintf(
-                fp,
-                "%s_weight_%zu_%zu=%f\n",
-                prefix,
-                i,
-                o,
-                tinyml_matrix_get(&layer->weights, i, o)
-            );
+            fprintf(fp, "%s_weight_%zu_%zu=%f\n",
+                    prefix, i, o, tinyml_matrix_get(&layer->weights, i, o));
         }
     }
 
@@ -124,6 +118,7 @@ int tinyml_save_mlp_checkpoint(const char *path, const TinyML_MLP *mlp) {
     }
 
     fprintf(fp, "model_type=mlp\n");
+    fprintf(fp, "hidden_activation=%d\n", (int)mlp->hidden_activation);
 
     if (!tinyml_write_dense_block(fp, "hidden", &mlp->hidden)) {
         fclose(fp);
@@ -143,6 +138,7 @@ int tinyml_load_mlp_checkpoint(const char *path, TinyML_MLP *mlp) {
     FILE *fp = fopen(path, "r");
     char key[128];
     char model_type[128];
+    int hidden_activation = 0;
 
     if (fp == NULL || mlp == NULL) {
         return 0;
@@ -151,6 +147,12 @@ int tinyml_load_mlp_checkpoint(const char *path, TinyML_MLP *mlp) {
     if (fscanf(fp, "%127[^=]=%127s\n", key, model_type) != 2 ||
         strcmp(key, "model_type") != 0 ||
         strcmp(model_type, "mlp") != 0) {
+        fclose(fp);
+        return 0;
+    }
+
+    if (fscanf(fp, "%127[^=]=%d\n", key, &hidden_activation) != 2 ||
+        strcmp(key, "hidden_activation") != 0) {
         fclose(fp);
         return 0;
     }
@@ -165,6 +167,8 @@ int tinyml_load_mlp_checkpoint(const char *path, TinyML_MLP *mlp) {
         tinyml_dense_free(&mlp->hidden);
         return 0;
     }
+
+    mlp->hidden_activation = (TinyML_Activation)hidden_activation;
 
     fclose(fp);
     return 1;

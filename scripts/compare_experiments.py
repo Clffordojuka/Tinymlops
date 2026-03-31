@@ -32,11 +32,14 @@ def collect_experiments() -> list[dict]:
 
         rows.append({
             "experiment": name,
+            "model_type": train.get("model_type"),
+            "hidden_dim": train.get("hidden_dim"),
             "epochs": train.get("epochs"),
             "learning_rate": train.get("learning_rate"),
             "lr_schedule": train.get("lr_schedule"),
             "lr_step_size": train.get("lr_step_size"),
             "lr_decay": train.get("lr_decay"),
+            "l2_lambda": train.get("l2_lambda"),
             "final_learning_rate": train.get("final_learning_rate"),
             "batch_size": train.get("batch_size"),
             "train_loss": train.get("train_loss"),
@@ -58,11 +61,14 @@ def write_summary(rows: list[dict]) -> None:
 
     fieldnames = [
         "experiment",
+        "model_type",
+        "hidden_dim",
         "epochs",
         "learning_rate",
         "lr_schedule",
         "lr_step_size",
         "lr_decay",
+        "l2_lambda",
         "final_learning_rate",
         "batch_size",
         "train_loss",
@@ -90,10 +96,13 @@ def print_summary(rows: list[dict]) -> None:
     for row in rows:
         print(
             f"{row['experiment']}: "
+            f"model={row['model_type']}, "
+            f"hidden_dim={row['hidden_dim']}, "
             f"epochs={row['epochs']}, "
             f"lr={row['learning_rate']}, "
             f"schedule={row['lr_schedule']}, "
             f"final_lr={row['final_learning_rate']}, "
+            f"l2={row['l2_lambda']}, "
             f"batch_size={row['batch_size']}, "
             f"train_loss={row['train_loss']}, "
             f"val_loss={row['val_loss']}, "
@@ -108,7 +117,9 @@ def print_summary(rows: list[dict]) -> None:
     print("\nBest experiment:")
     print(
         f"  {best['experiment']} "
-        f"(eval_loss={best['eval_loss']}, "
+        f"(model={best['model_type']}, "
+        f"hidden_dim={best['hidden_dim']}, "
+        f"eval_loss={best['eval_loss']}, "
         f"train_loss={best['train_loss']}, "
         f"val_loss={best['val_loss']})"
     )

@@ -53,24 +53,33 @@ def log_run(config_path: str) -> None:
     eval_metrics = load_json(eval_metrics_path)
     model_params = load_json(model_params_path)
 
+    architecture = model_params.get("architecture", {})
+    parameters = model_params.get("parameters", {})
+
     mlflow.set_experiment("tinyml-ops")
 
     with mlflow.start_run(run_name=experiment_name):
         mlflow.log_param("config_path", config_path)
         mlflow.log_param("experiment_name", experiment_name)
+
+        mlflow.log_param("model_type", train_metrics.get("model_type"))
+        mlflow.log_param("hidden_dim", train_metrics.get("hidden_dim"))
         mlflow.log_param("epochs", train_metrics.get("epochs"))
         mlflow.log_param("learning_rate", train_metrics.get("learning_rate"))
         mlflow.log_param("lr_schedule", train_metrics.get("lr_schedule"))
         mlflow.log_param("lr_step_size", train_metrics.get("lr_step_size"))
         mlflow.log_param("lr_decay", train_metrics.get("lr_decay"))
+        mlflow.log_param("l2_lambda", train_metrics.get("l2_lambda"))
         mlflow.log_param("batch_size", train_metrics.get("batch_size"))
         mlflow.log_param("validation_split", train_metrics.get("validation_split"))
         mlflow.log_param("shuffle", train_metrics.get("shuffle"))
         mlflow.log_param("split_seed", train_metrics.get("split_seed"))
-        mlflow.log_param("input_dim", model_params.get("input_dim"))
-        mlflow.log_param("output_dim", model_params.get("output_dim"))
-        mlflow.log_param("model_type", train_metrics.get("model_type"))
-        mlflow.log_param("hidden_dim", train_metrics.get("hidden_dim"))
+
+        mlflow.log_param("input_dim", architecture.get("input_dim"))
+        mlflow.log_param("output_dim", architecture.get("output_dim"))
+
+        if architecture.get("hidden_dim") is not None:
+            mlflow.log_param("architecture_hidden_dim", architecture.get("hidden_dim"))
 
         mlflow.log_metric("train_loss", train_metrics.get("train_loss"))
         mlflow.log_metric("val_loss", train_metrics.get("val_loss"))
@@ -81,6 +90,35 @@ def log_run(config_path: str) -> None:
         mlflow.log_metric("max_abs_weight", eval_metrics.get("max_abs_weight"))
         mlflow.log_metric("bias_l2_norm", eval_metrics.get("bias_l2_norm"))
         mlflow.log_metric("final_learning_rate", train_metrics.get("final_learning_rate"))
+
+        if train_metrics.get("best_val_loss") is not None:
+            mlflow.log_metric("best_val_loss", train_metrics.get("best_val_loss"))
+        if train_metrics.get("best_epoch") is not None:
+            mlflow.log_metric("best_epoch", train_metrics.get("best_epoch"))
+
+        mlflow.set_tag("model_type", train_metrics.get("model_type", "unknown"))
+        mlflow.set_tag("architecture", model_params.get("model_type", "unknown"))
+
+        if model_params.get("model_type") == "mlp":
+            mlflow.set_tag("has_hidden_layer", "true")
+            mlflow.log_param("exported_hidden_dim", architecture.get("hidden_dim"))
+            mlflow.log_param("hidden_weight_rows", len(parameters.get("hidden_weights", [])))
+            mlflow.log_param(
+                "hidden_weight_cols",
+                len(parameters.get("hidden_weights", [[]])[0]) if parameters.get("hidden_weights") else 0
+            )
+            mlflow.log_param("output_weight_rows", len(parameters.get("output_weights", [])))
+            mlflow.log_param(
+                "output_weight_cols",
+                len(parameters.get("output_weights", [[]])[0]) if parameters.get("output_weights") else 0
+            )
+        else:
+            mlflow.set_tag("has_hidden_layer", "false")
+            mlflow.log_param("weight_rows", len(parameters.get("weights", [])))
+            mlflow.log_param(
+                "weight_cols",
+                len(parameters.get("weights", [[]])[0]) if parameters.get("weights") else 0
+            )
 
         mlflow.log_artifact(str(train_metrics_path), artifact_path="metrics")
         mlflow.log_artifact(str(eval_metrics_path), artifact_path="metrics")

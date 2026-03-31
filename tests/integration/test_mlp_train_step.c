@@ -2,7 +2,7 @@
 #include "tinyml.h"
 
 int main(void) {
-    TinyML_MLP mlp = tinyml_mlp_create(1, 4, 1);
+    TinyML_MLP mlp = tinyml_mlp_create(1, 4, 1, TINYML_ACT_RELU);
 
     TinyML_Matrix input = tinyml_matrix_create(1, 1);
     TinyML_Matrix target = tinyml_matrix_create(1, 1);
@@ -15,6 +15,7 @@ int main(void) {
 
     assert(before >= 0.0f);
     assert(after >= 0.0f);
+    assert(after <= before);
 
     tinyml_matrix_free(&input);
     tinyml_matrix_free(&target);

@@ -2,7 +2,7 @@
 #include "tinyml.h"
 
 int main(void) {
-    TinyML_MLP mlp = tinyml_mlp_create(2, 3, 1);
+    TinyML_MLP mlp = tinyml_mlp_create(2, 3, 1, TINYML_ACT_RELU);
 
     tinyml_matrix_set(&mlp.hidden.weights, 0, 0, 1.0f);
     tinyml_matrix_set(&mlp.hidden.weights, 1, 0, 2.0f);
@@ -29,6 +29,7 @@ int main(void) {
     assert(loaded.hidden.output_dim == 3);
     assert(loaded.output.input_dim == 3);
     assert(loaded.output.output_dim == 1);
+    assert(loaded.hidden_activation == TINYML_ACT_RELU);
 
     assert(tinyml_matrix_get(&loaded.hidden.weights, 0, 0) == 1.0f);
     assert(tinyml_matrix_get(&loaded.hidden.weights, 1, 2) == 6.0f);

@@ -77,6 +77,26 @@ def experiment_name_from_config(config_path: str) -> str:
     return Path(config_path).stem
 
 
+def print_model_params(model_params: dict) -> None:
+    model_type = model_params.get("model_type")
+    architecture = model_params.get("architecture", {})
+    parameters = model_params.get("parameters", {})
+
+    print(f"Model type: {model_type}")
+    print(f"Model input_dim: {architecture.get('input_dim')}")
+    print(f"Model hidden_dim: {architecture.get('hidden_dim')}")
+    print(f"Model output_dim: {architecture.get('output_dim')}")
+
+    if model_type == "mlp":
+        print(f"Hidden weights: {parameters.get('hidden_weights')}")
+        print(f"Hidden bias: {parameters.get('hidden_bias')}")
+        print(f"Output weights: {parameters.get('output_weights')}")
+        print(f"Output bias: {parameters.get('output_bias')}")
+    else:
+        print(f"Weights: {parameters.get('weights')}")
+        print(f"Bias: {parameters.get('bias')}")
+
+
 def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict, model_params: dict) -> None:
     print("\n=== Experiment Summary ===")
     print(f"Config: {config_path}")
@@ -87,25 +107,21 @@ def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict, mod
     print(f"LR schedule: {train_metrics.get('lr_schedule')}")
     print(f"LR step size: {train_metrics.get('lr_step_size')}")
     print(f"LR decay: {train_metrics.get('lr_decay')}")
+    print(f"L2 lambda: {train_metrics.get('l2_lambda')}")
     print(f"Final learning_rate: {train_metrics.get('final_learning_rate')}")
     print(f"Batch size: {train_metrics.get('batch_size')}")
     print(f"Validation split: {train_metrics.get('validation_split')}")
     print(f"Shuffle: {train_metrics.get('shuffle')}")
     print(f"Split seed: {train_metrics.get('split_seed')}")
-    print(f"Eval eval_loss: {eval_metrics.get('eval_loss')}")
-    print(f"Prediction x=4: {eval_metrics.get('prediction_x4')}")
-    print(f"Model input_dim: {model_params.get('input_dim')}")
-    print(f"Model output_dim: {model_params.get('output_dim')}")
-    print(f"Weights: {model_params.get('weights')}")
-    print(f"Bias: {model_params.get('bias')}")
     print(f"Best val loss: {train_metrics.get('best_val_loss')}")
     print(f"Best epoch: {train_metrics.get('best_epoch')}")
     print(f"Stopped early: {train_metrics.get('stopped_early')}")
     print(f"Patience: {train_metrics.get('patience')}")
     print(f"Min delta: {train_metrics.get('min_delta')}")
     print(f"Save best only: {train_metrics.get('save_best_only')}")
-    print(f"Model type: {train_metrics.get('model_type')}")
-    print(f"Hidden dim: {train_metrics.get('hidden_dim')}")
+    print(f"Eval eval_loss: {eval_metrics.get('eval_loss')}")
+    print(f"Prediction x=4: {eval_metrics.get('prediction_x4')}")
+    print_model_params(model_params)
 
 
 def main() -> int:

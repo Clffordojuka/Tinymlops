@@ -35,6 +35,7 @@ TinyML_TrainConfig tinyml_default_train_config(void) {
     config.l2_lambda = 0.0f;
     snprintf(config.model_type, sizeof(config.model_type), "linear");
     config.hidden_dim = 8;
+    snprintf(config.hidden_activation, sizeof(config.hidden_activation), "relu");
 
     return config;
 }
@@ -106,6 +107,8 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config) {
                snprintf(config->model_type, sizeof(config->model_type), "%.31s", value);
             } else if (strcmp(key, "hidden_dim") == 0) {
                 config->hidden_dim = (size_t)strtoul(value, NULL, 10);
+            } else if (strcmp(key, "hidden_activation") == 0) {
+                snprintf(config->hidden_activation, sizeof(config->hidden_activation), "%.31s", value);
             }
         }
     }

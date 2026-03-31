@@ -1,0 +1,18 @@
+{
+  "model_type": "linear",
+  "architecture": {
+    "input_dim": 1,
+    "hidden_dim": 0,
+    "output_dim": 1
+  },
+  "parameters": {
+    "weights": [
+      [
+        2.373676
+      ]
+    ],
+    "bias": [
+      4.438376
+    ]
+  }
+}

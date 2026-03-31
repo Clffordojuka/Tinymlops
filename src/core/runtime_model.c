@@ -16,8 +16,9 @@ int tinyml_runtime_model_init(
 
     if (tinyml_config_is_mlp(config)) {
         size_t hidden_dim = config->hidden_dim > 0 ? config->hidden_dim : 8;
+        TinyML_Activation hidden_activation = tinyml_activation_from_string(config->hidden_activation);
         model->kind = TINYML_MODEL_MLP;
-        model->mlp = tinyml_mlp_create(input_dim, hidden_dim, 1);
+        model->mlp = tinyml_mlp_create(input_dim, hidden_dim, 1, hidden_activation);
     } else {
         model->kind = TINYML_MODEL_LINEAR;
         model->linear = tinyml_dense_create(input_dim, 1);
