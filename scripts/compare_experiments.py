@@ -34,6 +34,7 @@ def collect_experiments() -> list[dict]:
             "experiment": name,
             "model_type": train.get("model_type"),
             "hidden_dim": train.get("hidden_dim"),
+            "hidden_activation": train.get("hidden_activation"),
             "epochs": train.get("epochs"),
             "learning_rate": train.get("learning_rate"),
             "lr_schedule": train.get("lr_schedule"),
@@ -63,6 +64,7 @@ def write_summary(rows: list[dict]) -> None:
         "experiment",
         "model_type",
         "hidden_dim",
+        "hidden_activation",
         "epochs",
         "learning_rate",
         "lr_schedule",
@@ -98,6 +100,7 @@ def print_summary(rows: list[dict]) -> None:
             f"{row['experiment']}: "
             f"model={row['model_type']}, "
             f"hidden_dim={row['hidden_dim']}, "
+            f"hidden_activation={row['hidden_activation']}, "
             f"epochs={row['epochs']}, "
             f"lr={row['learning_rate']}, "
             f"schedule={row['lr_schedule']}, "

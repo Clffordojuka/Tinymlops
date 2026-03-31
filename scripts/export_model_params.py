@@ -64,6 +64,7 @@ def parse_checkpoint(path: Path) -> dict:
             "architecture": {
                 "input_dim": hidden["input_dim"],
                 "hidden_dim": hidden["output_dim"],
+                #"hidden_activation": hidden["activation"],
                 "output_dim": output["output_dim"],
             },
             "parameters": {

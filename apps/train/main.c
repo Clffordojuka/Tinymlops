@@ -152,6 +152,7 @@ int main(int argc, char **argv) {
     printf("Dataset: %s\n", config.data_path);
     printf("Model type: %s\n", config.model_type);
     printf("Hidden dim: %zu\n", strcmp(config.model_type, "mlp") == 0 ? config.hidden_dim : 0);
+    printf("Hidden activation: %s\n", strcmp(config.model_type, "mlp") == 0 ? config.hidden_activation : "none");
     printf("Best epoch: %d\n", best_epoch);
     printf("Best val loss: %.6f\n", best_val_loss);
     printf("Stopped early: %d\n", stopped_early);
@@ -176,7 +177,7 @@ int main(int argc, char **argv) {
             config.l2_lambda,
             config.model_type,
             strcmp(config.model_type, "mlp") == 0 ? config.hidden_dim : 0,
-            config.hidden_activation,
+            strcmp(config.model_type, "mlp") == 0 ? config.hidden_activation : "none",
             config.batch_size,
             final_train_loss,
             final_val_loss,
