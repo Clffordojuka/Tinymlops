@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "tinyml.h"
 
 int main(int argc, char **argv) {
@@ -22,106 +21,81 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    TinyML_RuntimeModel model;
+    if (!tinyml_runtime_model_load_checkpoint(&model, &config, config.checkpoint_path)) {
+        fprintf(stderr, "Failed to load checkpoint: %s\n", config.checkpoint_path);
+        tinyml_normalization_stats_free(&norm_stats);
+        return 1;
+    }
+
+    size_t input_dim = 0;
+    if (model.kind == TINYML_MODEL_LINEAR) {
+        input_dim = model.linear.input_dim;
+    } else if (model.kind == TINYML_MODEL_MLP) {
+        input_dim = model.mlp.hidden.input_dim;
+    } else if (model.kind == TINYML_MODEL_DEEP_MLP) {
+        if (model.deep_mlp.num_layers == 0 || model.deep_mlp.layers == NULL) {
+            fprintf(stderr, "Loaded deep MLP has no layers.\n");
+            tinyml_runtime_model_free(&model);
+            tinyml_normalization_stats_free(&norm_stats);
+            return 1;
+        }
+        input_dim = model.deep_mlp.layers[0].input_dim;
+    }
+
+    if (norm_stats.feature_count != input_dim) {
+        fprintf(stderr,
+                "Normalization feature count (%zu) does not match model input_dim (%zu)\n",
+                norm_stats.feature_count,
+                input_dim);
+        tinyml_runtime_model_free(&model);
+        tinyml_normalization_stats_free(&norm_stats);
+        return 1;
+    }
+
+    if (argc != (int)(2 + input_dim)) {
+        fprintf(stderr, "Usage: %s <config_path>", argv[0]);
+        for (size_t i = 0; i < input_dim; ++i) {
+            fprintf(stderr, " <x%zu>", i + 1);
+        }
+        fprintf(stderr, "\n");
+        fprintf(stderr,
+                "Model expects %zu feature value(s), but received %d.\n",
+                input_dim,
+                argc - 2);
+        tinyml_runtime_model_free(&model);
+        tinyml_normalization_stats_free(&norm_stats);
+        return 1;
+    }
+
+    TinyML_Matrix input = tinyml_matrix_create(1, input_dim);
+
     printf("Config: %s\n", config_path);
     printf("Checkpoint: %s\n", config.checkpoint_path);
     printf("Normalization: %s\n", config.normalization_path);
+    printf("Model type: %s\n", config.model_type);
 
-    if (strcmp(config.model_type, "mlp") == 0) {
-        TinyML_MLP mlp;
-        if (!tinyml_load_mlp_checkpoint(config.checkpoint_path, &mlp)) {
-            fprintf(stderr, "Failed to load MLP checkpoint: %s\n", config.checkpoint_path);
-            tinyml_normalization_stats_free(&norm_stats);
-            return 1;
-        }
+    for (size_t i = 0; i < input_dim; ++i) {
+        float raw_value = (float)atof(argv[2 + i]);
+        float normalized_value = tinyml_normalize_single_value(
+            raw_value,
+            norm_stats.mean[i],
+            norm_stats.std[i]
+        );
 
-        if (norm_stats.feature_count != mlp.hidden.input_dim) {
-            fprintf(stderr,
-                    "Normalization feature count (%zu) does not match model input_dim (%zu)\n",
-                    norm_stats.feature_count,
-                    mlp.hidden.input_dim);
-            tinyml_normalization_stats_free(&norm_stats);
-            tinyml_mlp_free(&mlp);
-            return 1;
-        }
+        tinyml_matrix_set(&input, 0, i, normalized_value);
 
-        if (argc != (int)(2 + mlp.hidden.input_dim)) {
-            fprintf(stderr, "Usage: %s <config_path>", argv[0]);
-            for (size_t i = 0; i < mlp.hidden.input_dim; ++i) {
-                fprintf(stderr, " <x%zu>", i + 1);
-            }
-            fprintf(stderr, "\n");
-            tinyml_normalization_stats_free(&norm_stats);
-            tinyml_mlp_free(&mlp);
-            return 1;
-        }
-
-        TinyML_Matrix input = tinyml_matrix_create(1, mlp.hidden.input_dim);
-
-        for (size_t i = 0; i < mlp.hidden.input_dim; ++i) {
-            float raw_value = (float)atof(argv[2 + i]);
-            float normalized_value = tinyml_normalize_single_value(raw_value, norm_stats.mean[i], norm_stats.std[i]);
-            tinyml_matrix_set(&input, 0, i, normalized_value);
-
-            printf("Input x%zu: %.6f\n", i + 1, raw_value);
-            printf("Normalized x%zu: %.6f\n", i + 1, normalized_value);
-        }
-
-        TinyML_Matrix prediction = tinyml_mlp_forward(&mlp, &input);
-        printf("Model type: mlp\n");
-        printf("Predicted y: %.6f\n", tinyml_matrix_get(&prediction, 0, 0));
-
-        tinyml_matrix_free(&prediction);
-        tinyml_matrix_free(&input);
-        tinyml_mlp_free(&mlp);
-    } else {
-        TinyML_DenseLayer layer;
-        if (!tinyml_load_dense_checkpoint(config.checkpoint_path, &layer)) {
-            fprintf(stderr, "Failed to load checkpoint: %s\n", config.checkpoint_path);
-            tinyml_normalization_stats_free(&norm_stats);
-            return 1;
-        }
-
-        if (norm_stats.feature_count != layer.input_dim) {
-            fprintf(stderr,
-                    "Normalization feature count (%zu) does not match model input_dim (%zu)\n",
-                    norm_stats.feature_count,
-                    layer.input_dim);
-            tinyml_normalization_stats_free(&norm_stats);
-            tinyml_dense_free(&layer);
-            return 1;
-        }
-
-        if (argc != (int)(2 + layer.input_dim)) {
-            fprintf(stderr, "Usage: %s <config_path>", argv[0]);
-            for (size_t i = 0; i < layer.input_dim; ++i) {
-                fprintf(stderr, " <x%zu>", i + 1);
-            }
-            fprintf(stderr, "\n");
-            tinyml_normalization_stats_free(&norm_stats);
-            tinyml_dense_free(&layer);
-            return 1;
-        }
-
-        TinyML_Matrix input = tinyml_matrix_create(1, layer.input_dim);
-
-        for (size_t i = 0; i < layer.input_dim; ++i) {
-            float raw_value = (float)atof(argv[2 + i]);
-            float normalized_value = tinyml_normalize_single_value(raw_value, norm_stats.mean[i], norm_stats.std[i]);
-            tinyml_matrix_set(&input, 0, i, normalized_value);
-
-            printf("Input x%zu: %.6f\n", i + 1, raw_value);
-            printf("Normalized x%zu: %.6f\n", i + 1, normalized_value);
-        }
-
-        TinyML_Matrix prediction = tinyml_dense_forward(&layer, &input);
-        printf("Model type: linear\n");
-        printf("Predicted y: %.6f\n", tinyml_matrix_get(&prediction, 0, 0));
-
-        tinyml_matrix_free(&prediction);
-        tinyml_matrix_free(&input);
-        tinyml_dense_free(&layer);
+        printf("Input x%zu: %.6f\n", i + 1, raw_value);
+        printf("Normalized x%zu: %.6f\n", i + 1, normalized_value);
     }
 
+    TinyML_Matrix prediction = tinyml_runtime_model_forward(&model, &input);
+    printf("Predicted y: %.6f\n", tinyml_matrix_get(&prediction, 0, 0));
+
+    tinyml_matrix_free(&prediction);
+    tinyml_matrix_free(&input);
+    tinyml_runtime_model_free(&model);
     tinyml_normalization_stats_free(&norm_stats);
+
     return 0;
 }

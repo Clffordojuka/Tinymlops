@@ -143,11 +143,14 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (!config.save_best_only) {
-        tinyml_runtime_model_save_checkpoint(&model, config.checkpoint_path);
-        tinyml_save_normalization_stats(config.normalization_path, &norm_stats);
+    if (config.save_best_only) {
+    if (!tinyml_runtime_model_save_checkpoint(&model, config.checkpoint_path)) {
+        fprintf(stderr, "Warning: failed to write checkpoint: %s\n", config.checkpoint_path);
     }
-
+    if (!tinyml_save_normalization_stats(config.normalization_path, &norm_stats)) {
+        fprintf(stderr, "Warning: failed to write normalization stats: %s\n", config.normalization_path);
+    }
+}
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
     printf("Model type: %s\n", config.model_type);

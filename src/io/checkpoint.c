@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "tinyml.h"
 
@@ -169,6 +170,94 @@ int tinyml_load_mlp_checkpoint(const char *path, TinyML_MLP *mlp) {
     }
 
     mlp->hidden_activation = (TinyML_Activation)hidden_activation;
+
+    fclose(fp);
+    return 1;
+}
+
+int tinyml_save_deep_mlp_checkpoint(const char *path, const TinyML_DeepMLP *mlp) {
+    FILE *fp = fopen(path, "w");
+    if (fp == NULL || mlp == NULL || mlp->layers == NULL) {
+        return 0;
+    }
+
+    fprintf(fp, "model_type=deep_mlp\n");
+    fprintf(fp, "hidden_activation=%d\n", (int)mlp->hidden_activation);
+    fprintf(fp, "num_layers=%zu\n", mlp->num_layers);
+
+    for (size_t i = 0; i < mlp->num_layers; ++i) {
+        char prefix[32];
+        snprintf(prefix, sizeof(prefix), "layer%zu", i);
+
+        if (!tinyml_write_dense_block(fp, prefix, &mlp->layers[i])) {
+            fclose(fp);
+            return 0;
+        }
+    }
+
+    fclose(fp);
+    return 1;
+}
+
+int tinyml_load_deep_mlp_checkpoint(const char *path, TinyML_DeepMLP *mlp) {
+    FILE *fp = fopen(path, "r");
+    char key[128];
+    char model_type[128];
+    int hidden_activation = 0;
+    size_t num_layers = 0;
+
+    if (fp == NULL || mlp == NULL) {
+        return 0;
+    }
+
+    mlp->layers = NULL;
+    mlp->num_layers = 0;
+    mlp->hidden_activation = TINYML_ACT_NONE;
+
+    if (fscanf(fp, "%127[^=]=%127s\n", key, model_type) != 2 ||
+        strcmp(key, "model_type") != 0 ||
+        strcmp(model_type, "deep_mlp") != 0) {
+        fclose(fp);
+        return 0;
+    }
+
+    if (fscanf(fp, "%127[^=]=%d\n", key, &hidden_activation) != 2 ||
+        strcmp(key, "hidden_activation") != 0) {
+        fclose(fp);
+        return 0;
+    }
+
+    if (fscanf(fp, "%127[^=]=%zu\n", key, &num_layers) != 2 ||
+        strcmp(key, "num_layers") != 0 ||
+        num_layers == 0) {
+        fclose(fp);
+        return 0;
+    }
+
+    mlp->layers = (TinyML_DenseLayer *)malloc(sizeof(TinyML_DenseLayer) * num_layers);
+    if (mlp->layers == NULL) {
+        fclose(fp);
+        return 0;
+    }
+
+    mlp->num_layers = num_layers;
+    mlp->hidden_activation = (TinyML_Activation)hidden_activation;
+
+    for (size_t i = 0; i < num_layers; ++i) {
+        char prefix[32];
+        snprintf(prefix, sizeof(prefix), "layer%zu", i);
+
+        if (!tinyml_read_dense_block(fp, prefix, &mlp->layers[i])) {
+            for (size_t j = 0; j < i; ++j) {
+                tinyml_dense_free(&mlp->layers[j]);
+            }
+            free(mlp->layers);
+            mlp->layers = NULL;
+            mlp->num_layers = 0;
+            fclose(fp);
+            return 0;
+        }
+    }
 
     fclose(fp);
     return 1;

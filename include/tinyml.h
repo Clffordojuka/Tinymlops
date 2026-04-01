@@ -41,6 +41,12 @@ typedef struct {
 } TinyML_MLP;
 
 typedef struct {
+    size_t num_layers;
+    TinyML_DenseLayer *layers;
+    TinyML_Activation hidden_activation;
+} TinyML_DeepMLP;
+
+typedef struct {
     size_t sample_count;
     size_t feature_count;
     TinyML_Matrix features;
@@ -57,6 +63,7 @@ typedef struct {
     float l2_lambda;
     char model_type[32];
     size_t hidden_dim;
+    char hidden_layers[128];
     char hidden_activation[32];
     char metrics_path[256];
     char checkpoint_path[256];
@@ -80,13 +87,15 @@ typedef struct {
 
 typedef enum {
     TINYML_MODEL_LINEAR = 0,
-    TINYML_MODEL_MLP = 1
+    TINYML_MODEL_MLP = 1,
+    TINYML_MODEL_DEEP_MLP = 2
 } TinyML_ModelKind;
 
 typedef struct {
     TinyML_ModelKind kind;
     TinyML_DenseLayer linear;
     TinyML_MLP mlp;
+    TinyML_DeepMLP deep_mlp;
 } TinyML_RuntimeModel;
 
 /* matrix */
@@ -127,6 +136,7 @@ void tinyml_dataset_split_three_way(
 /* config */
 TinyML_TrainConfig tinyml_default_train_config(void);
 int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config);
+size_t tinyml_parse_hidden_layers(const char *text, size_t *sizes, size_t max_sizes);
 
 /* dense layer */
 TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim);
@@ -237,6 +247,8 @@ int tinyml_save_dense_checkpoint(const char *path, const TinyML_DenseLayer *laye
 int tinyml_load_dense_checkpoint(const char *path, TinyML_DenseLayer *layer);
 int tinyml_save_mlp_checkpoint(const char *path, const TinyML_MLP *mlp);
 int tinyml_load_mlp_checkpoint(const char *path, TinyML_MLP *mlp);
+int tinyml_save_deep_mlp_checkpoint(const char *path, const TinyML_DeepMLP *mlp);
+int tinyml_load_deep_mlp_checkpoint(const char *path, TinyML_DeepMLP *mlp);
 
 /* evaluation */
 float tinyml_evaluate_dense(
@@ -259,8 +271,26 @@ TinyML_MLP tinyml_mlp_create(
 void tinyml_mlp_free(TinyML_MLP *mlp);
 TinyML_Matrix tinyml_mlp_forward(const TinyML_MLP *mlp, const TinyML_Matrix *input);
 
+TinyML_DeepMLP tinyml_deep_mlp_create(
+    size_t input_dim,
+    const size_t *hidden_sizes,
+    size_t hidden_count,
+    size_t output_dim,
+    TinyML_Activation hidden_activation
+);
+void tinyml_deep_mlp_free(TinyML_DeepMLP *mlp);
+TinyML_Matrix tinyml_deep_mlp_forward(const TinyML_DeepMLP *mlp, const TinyML_Matrix *input);
+
 float tinyml_train_step_mlp(
     TinyML_MLP *mlp,
+    const TinyML_Matrix *input,
+    const TinyML_Matrix *target,
+    float learning_rate,
+    float l2_lambda
+);
+
+float tinyml_train_step_deep_mlp(
+    TinyML_DeepMLP *mlp,
     const TinyML_Matrix *input,
     const TinyML_Matrix *target,
     float learning_rate,
@@ -272,7 +302,13 @@ float tinyml_evaluate_mlp(
     const TinyML_Dataset *dataset
 );
 
+float tinyml_evaluate_deep_mlp(
+    const TinyML_DeepMLP *mlp,
+    const TinyML_Dataset *dataset
+);
+
 float tinyml_predict_mlp_single(const TinyML_MLP *mlp, float x);
+float tinyml_predict_deep_mlp_single(const TinyML_DeepMLP *mlp, float x);
 
 /* normalization */
 TinyML_NormalizationStats tinyml_normalization_stats_create(size_t feature_count);

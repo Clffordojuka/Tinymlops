@@ -37,6 +37,18 @@ def parse_dense_block(data: dict, prefix: str) -> dict:
     }
 
 
+def activation_name_from_value(raw_value: str | None) -> str:
+    mapping = {
+        "0": "none",
+        "1": "relu",
+        "2": "tanh",
+        "3": "linear",
+    }
+    if raw_value is None:
+        return "unknown"
+    return mapping.get(str(raw_value), "unknown")
+
+
 def parse_checkpoint(path: Path) -> dict:
     data = parse_key_value_file(path)
     model_type = data.get("model_type", "dense")
@@ -48,6 +60,7 @@ def parse_checkpoint(path: Path) -> dict:
             "architecture": {
                 "input_dim": dense["input_dim"],
                 "hidden_dim": 0,
+                "hidden_activation": "none",
                 "output_dim": dense["output_dim"],
             },
             "parameters": {
@@ -59,12 +72,14 @@ def parse_checkpoint(path: Path) -> dict:
     if model_type == "mlp":
         hidden = parse_dense_block(data, "hidden")
         output = parse_dense_block(data, "output")
+        hidden_activation = activation_name_from_value(data.get("hidden_activation"))
+
         return {
             "model_type": "mlp",
             "architecture": {
                 "input_dim": hidden["input_dim"],
                 "hidden_dim": hidden["output_dim"],
-                #"hidden_activation": hidden["activation"],
+                "hidden_activation": hidden_activation,
                 "output_dim": output["output_dim"],
             },
             "parameters": {

@@ -78,6 +78,7 @@ def log_run(config_path: str) -> None:
 
         mlflow.log_param("input_dim", architecture.get("input_dim"))
         mlflow.log_param("output_dim", architecture.get("output_dim"))
+        mlflow.log_param("architecture_hidden_activation", architecture.get("hidden_activation"))
 
         if architecture.get("hidden_dim") is not None:
             mlflow.log_param("architecture_hidden_dim", architecture.get("hidden_dim"))

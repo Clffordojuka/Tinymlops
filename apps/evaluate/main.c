@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 #include "tinyml.h"
 
 int main(int argc, char **argv) {
@@ -50,92 +49,48 @@ int main(int argc, char **argv) {
     tinyml_apply_normalization(&val_dataset, &norm_stats);
     tinyml_apply_normalization(&test_dataset, &norm_stats);
 
+    TinyML_RuntimeModel model;
+    if (!tinyml_runtime_model_load_checkpoint(&model, &config, config.checkpoint_path)) {
+        fprintf(stderr, "Failed to load checkpoint: %s\n", config.checkpoint_path);
+        tinyml_normalization_stats_free(&norm_stats);
+        tinyml_dataset_free(&dataset);
+        tinyml_dataset_free(&train_dataset);
+        tinyml_dataset_free(&val_dataset);
+        tinyml_dataset_free(&test_dataset);
+        return 1;
+    }
+
+    float eval_loss = tinyml_runtime_model_evaluate(&model, &test_dataset);
+    float prediction_x4 = 0.0f;
+
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
     printf("Checkpoint: %s\n", config.checkpoint_path);
+    printf("Model type: %s\n", config.model_type);
+    printf("Test loss: %.6f\n", eval_loss);
 
-    if (strcmp(config.model_type, "mlp") == 0) {
-        TinyML_MLP mlp;
-        if (!tinyml_load_mlp_checkpoint(config.checkpoint_path, &mlp)) {
-            fprintf(stderr, "Failed to load MLP checkpoint: %s\n", config.checkpoint_path);
-            tinyml_normalization_stats_free(&norm_stats);
-            tinyml_dataset_free(&dataset);
-            tinyml_dataset_free(&train_dataset);
-            tinyml_dataset_free(&val_dataset);
-            tinyml_dataset_free(&test_dataset);
-            return 1;
-        }
+    if (test_dataset.feature_count == 1) {
+        float normalized_x4 = tinyml_normalize_single_value(4.0f, norm_stats.mean[0], norm_stats.std[0]);
+        prediction_x4 = tinyml_runtime_model_predict_single(&model, normalized_x4);
 
-        float eval_loss = tinyml_evaluate_mlp(&mlp, &test_dataset);
-        float prediction_x4 = 0.0f;
-
-        printf("Model type: mlp\n");
-        printf("Test loss: %.6f\n", eval_loss);
-
-        if (test_dataset.feature_count == 1) {
-            float normalized_x4 = tinyml_normalize_single_value(4.0f, norm_stats.mean[0], norm_stats.std[0]);
-            prediction_x4 = tinyml_predict_mlp_single(&mlp, normalized_x4);
-            printf("Prediction for x=4.0: %.6f\n", prediction_x4);
-            printf("Normalized x=4.0: %.6f\n", normalized_x4);
-        } else {
-            printf("Sample prediction skipped: dataset has %zu features.\n", test_dataset.feature_count);
-        }
-
-        if (!tinyml_write_eval_metrics_json(
-                config.eval_metrics_path,
-                eval_loss,
-                prediction_x4,
-                tinyml_dense_parameter_count(&mlp.hidden) + tinyml_dense_parameter_count(&mlp.output),
-                tinyml_dense_weight_l2_norm(&mlp.hidden) + tinyml_dense_weight_l2_norm(&mlp.output),
-                tinyml_dense_max_abs_weight(&mlp.hidden) > tinyml_dense_max_abs_weight(&mlp.output)
-                    ? tinyml_dense_max_abs_weight(&mlp.hidden)
-                    : tinyml_dense_max_abs_weight(&mlp.output),
-                tinyml_dense_bias_l2_norm(&mlp.hidden) + tinyml_dense_bias_l2_norm(&mlp.output))) {
-            fprintf(stderr, "Warning: failed to write eval metrics file.\n");
-        }
-
-        tinyml_mlp_free(&mlp);
+        printf("Prediction for x=4.0: %.6f\n", prediction_x4);
+        printf("Normalized x=4.0: %.6f\n", normalized_x4);
     } else {
-        TinyML_DenseLayer layer;
-        if (!tinyml_load_dense_checkpoint(config.checkpoint_path, &layer)) {
-            fprintf(stderr, "Failed to load checkpoint: %s\n", config.checkpoint_path);
-            tinyml_normalization_stats_free(&norm_stats);
-            tinyml_dataset_free(&dataset);
-            tinyml_dataset_free(&train_dataset);
-            tinyml_dataset_free(&val_dataset);
-            tinyml_dataset_free(&test_dataset);
-            return 1;
-        }
-
-        float eval_loss = tinyml_evaluate_dense(&layer, &test_dataset);
-        float prediction_x4 = 0.0f;
-
-        printf("Model type: linear\n");
-        printf("Test loss: %.6f\n", eval_loss);
-
-        if (test_dataset.feature_count == 1) {
-            float normalized_x4 = tinyml_normalize_single_value(4.0f, norm_stats.mean[0], norm_stats.std[0]);
-            prediction_x4 = tinyml_predict_dense_single(&layer, normalized_x4);
-            printf("Prediction for x=4.0: %.6f\n", prediction_x4);
-            printf("Normalized x=4.0: %.6f\n", normalized_x4);
-        } else {
-            printf("Sample prediction skipped: dataset has %zu features.\n", test_dataset.feature_count);
-        }
-
-        if (!tinyml_write_eval_metrics_json(
-                config.eval_metrics_path,
-                eval_loss,
-                prediction_x4,
-                tinyml_dense_parameter_count(&layer),
-                tinyml_dense_weight_l2_norm(&layer),
-                tinyml_dense_max_abs_weight(&layer),
-                tinyml_dense_bias_l2_norm(&layer))) {
-            fprintf(stderr, "Warning: failed to write eval metrics file.\n");
-        }
-
-        tinyml_dense_free(&layer);
+        printf("Sample prediction skipped: dataset has %zu features.\n", test_dataset.feature_count);
     }
 
+    if (!tinyml_write_eval_metrics_json(
+            config.eval_metrics_path,
+            eval_loss,
+            prediction_x4,
+            tinyml_runtime_model_parameter_count(&model),
+            tinyml_runtime_model_weight_l2_norm(&model),
+            tinyml_runtime_model_max_abs_weight(&model),
+            tinyml_runtime_model_bias_l2_norm(&model))) {
+        fprintf(stderr, "Warning: failed to write eval metrics file.\n");
+    }
+
+    tinyml_runtime_model_free(&model);
     tinyml_normalization_stats_free(&norm_stats);
     tinyml_dataset_free(&dataset);
     tinyml_dataset_free(&train_dataset);

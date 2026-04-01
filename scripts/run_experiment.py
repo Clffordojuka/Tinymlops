@@ -85,6 +85,7 @@ def print_model_params(model_params: dict) -> None:
     print(f"Model type: {model_type}")
     print(f"Model input_dim: {architecture.get('input_dim')}")
     print(f"Model hidden_dim: {architecture.get('hidden_dim')}")
+    print(f"Model hidden_activation: {architecture.get('hidden_activation')}")
     print(f"Model output_dim: {architecture.get('output_dim')}")
 
     if model_type == "mlp":
