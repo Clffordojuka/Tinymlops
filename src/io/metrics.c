@@ -12,7 +12,9 @@ int tinyml_write_training_metrics_json(
     float l2_lambda,
     const char *model_type,
     size_t hidden_dim,
+    const char *hidden_layers,
     const char *hidden_activation,
+    size_t num_layers,
     size_t batch_size,
     float train_loss,
     float val_loss,
@@ -45,7 +47,9 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "  \"l2_lambda\": %.6f,\n", l2_lambda);
     fprintf(fp, "  \"model_type\": \"%s\",\n", model_type);
     fprintf(fp, "  \"hidden_dim\": %zu,\n", hidden_dim);
+    fprintf(fp, "  \"hidden_layers\": \"%s\",\n", hidden_layers);
     fprintf(fp, "  \"hidden_activation\": \"%s\",\n", hidden_activation);
+    fprintf(fp, "  \"num_layers\": %zu,\n", num_layers);
     fprintf(fp, "  \"batch_size\": %zu,\n", batch_size);
     fprintf(fp, "  \"train_loss\": %.6f,\n", train_loss);
     fprintf(fp, "  \"val_loss\": %.6f,\n", val_loss);
