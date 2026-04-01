@@ -60,8 +60,10 @@ def parse_checkpoint(path: Path) -> dict:
             "architecture": {
                 "input_dim": dense["input_dim"],
                 "hidden_dim": 0,
+                "hidden_layers": [],
                 "hidden_activation": "none",
                 "output_dim": dense["output_dim"],
+                "num_layers": 1,
             },
             "parameters": {
                 "weights": dense["weights"],
@@ -79,14 +81,50 @@ def parse_checkpoint(path: Path) -> dict:
             "architecture": {
                 "input_dim": hidden["input_dim"],
                 "hidden_dim": hidden["output_dim"],
+                "hidden_layers": [hidden["output_dim"]],
                 "hidden_activation": hidden_activation,
                 "output_dim": output["output_dim"],
+                "num_layers": 2,
             },
             "parameters": {
                 "hidden_weights": hidden["weights"],
                 "hidden_bias": hidden["bias"],
                 "output_weights": output["weights"],
                 "output_bias": output["bias"],
+            },
+        }
+
+    if model_type == "deep_mlp":
+        hidden_activation = activation_name_from_value(data.get("hidden_activation"))
+        num_layers = int(data["num_layers"])
+
+        layers = []
+        hidden_layers = []
+
+        for i in range(num_layers):
+            layer = parse_dense_block(data, f"layer{i}")
+            layers.append({
+                "input_dim": layer["input_dim"],
+                "output_dim": layer["output_dim"],
+                "weights": layer["weights"],
+                "bias": layer["bias"],
+            })
+
+            if i < num_layers - 1:
+                hidden_layers.append(layer["output_dim"])
+
+        return {
+            "model_type": "deep_mlp",
+            "architecture": {
+                "input_dim": layers[0]["input_dim"],
+                "hidden_dim": hidden_layers[0] if hidden_layers else 0,
+                "hidden_layers": hidden_layers,
+                "hidden_activation": hidden_activation,
+                "output_dim": layers[-1]["output_dim"],
+                "num_layers": num_layers,
+            },
+            "parameters": {
+                "layers": layers,
             },
         }
 

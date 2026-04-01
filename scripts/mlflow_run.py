@@ -64,6 +64,7 @@ def log_run(config_path: str) -> None:
 
         mlflow.log_param("model_type", train_metrics.get("model_type"))
         mlflow.log_param("hidden_dim", train_metrics.get("hidden_dim"))
+        mlflow.log_param("hidden_layers", train_metrics.get("hidden_layers"))
         mlflow.log_param("hidden_activation", train_metrics.get("hidden_activation"))
         mlflow.log_param("epochs", train_metrics.get("epochs"))
         mlflow.log_param("learning_rate", train_metrics.get("learning_rate"))
@@ -78,10 +79,10 @@ def log_run(config_path: str) -> None:
 
         mlflow.log_param("input_dim", architecture.get("input_dim"))
         mlflow.log_param("output_dim", architecture.get("output_dim"))
+        mlflow.log_param("architecture_hidden_dim", architecture.get("hidden_dim"))
+        mlflow.log_param("architecture_hidden_layers", architecture.get("hidden_layers"))
         mlflow.log_param("architecture_hidden_activation", architecture.get("hidden_activation"))
-
-        if architecture.get("hidden_dim") is not None:
-            mlflow.log_param("architecture_hidden_dim", architecture.get("hidden_dim"))
+        mlflow.log_param("architecture_num_layers", architecture.get("num_layers"))
 
         mlflow.log_metric("train_loss", train_metrics.get("train_loss"))
         mlflow.log_metric("val_loss", train_metrics.get("val_loss"))
@@ -101,8 +102,11 @@ def log_run(config_path: str) -> None:
         mlflow.set_tag("model_type", train_metrics.get("model_type", "unknown"))
         mlflow.set_tag("architecture", model_params.get("model_type", "unknown"))
 
-        if model_params.get("model_type") == "mlp":
+        model_type = model_params.get("model_type")
+
+        if model_type == "mlp":
             mlflow.set_tag("has_hidden_layer", "true")
+            mlflow.set_tag("has_multiple_hidden_layers", "false")
             mlflow.log_param("exported_hidden_dim", architecture.get("hidden_dim"))
             mlflow.log_param("hidden_weight_rows", len(parameters.get("hidden_weights", [])))
             mlflow.log_param(
@@ -114,8 +118,17 @@ def log_run(config_path: str) -> None:
                 "output_weight_cols",
                 len(parameters.get("output_weights", [[]])[0]) if parameters.get("output_weights") else 0
             )
+        elif model_type == "deep_mlp":
+            mlflow.set_tag("has_hidden_layer", "true")
+            mlflow.set_tag("has_multiple_hidden_layers", "true")
+            layers = parameters.get("layers", [])
+            mlflow.log_param("exported_num_layers", len(layers))
+            for i, layer in enumerate(layers):
+                mlflow.log_param(f"layer_{i}_input_dim", layer.get("input_dim"))
+                mlflow.log_param(f"layer_{i}_output_dim", layer.get("output_dim"))
         else:
             mlflow.set_tag("has_hidden_layer", "false")
+            mlflow.set_tag("has_multiple_hidden_layers", "false")
             mlflow.log_param("weight_rows", len(parameters.get("weights", [])))
             mlflow.log_param(
                 "weight_cols",

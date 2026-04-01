@@ -1,5 +1,5 @@
 train:
-  config_path: configs/experiments/mlp_tanh.cfg
+  config_path: configs/experiments/deep_mlp_relu.cfg
 
 evaluate:
-  config_path: configs/experiments/mlp_tanh.cfg
+  config_path: configs/experiments/deep_mlp_relu.cfg

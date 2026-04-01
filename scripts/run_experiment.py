@@ -85,14 +85,18 @@ def print_model_params(model_params: dict) -> None:
     print(f"Model type: {model_type}")
     print(f"Model input_dim: {architecture.get('input_dim')}")
     print(f"Model hidden_dim: {architecture.get('hidden_dim')}")
+    print(f"Model hidden_layers: {architecture.get('hidden_layers')}")
     print(f"Model hidden_activation: {architecture.get('hidden_activation')}")
     print(f"Model output_dim: {architecture.get('output_dim')}")
+    print(f"Model num_layers: {architecture.get('num_layers')}")
 
     if model_type == "mlp":
         print(f"Hidden weights: {parameters.get('hidden_weights')}")
         print(f"Hidden bias: {parameters.get('hidden_bias')}")
         print(f"Output weights: {parameters.get('output_weights')}")
         print(f"Output bias: {parameters.get('output_bias')}")
+    elif model_type == "deep_mlp":
+        print(f"Layers: {parameters.get('layers')}")
     else:
         print(f"Weights: {parameters.get('weights')}")
         print(f"Bias: {parameters.get('bias')}")
@@ -111,6 +115,7 @@ def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict, mod
     print(f"L2 lambda: {train_metrics.get('l2_lambda')}")
     print(f"Model type: {train_metrics.get('model_type')}")
     print(f"Hidden dim: {train_metrics.get('hidden_dim')}")
+    print(f"Hidden layers: {train_metrics.get('hidden_layers')}")
     print(f"Hidden activation: {train_metrics.get('hidden_activation')}")
     print(f"Final learning_rate: {train_metrics.get('final_learning_rate')}")
     print(f"Batch size: {train_metrics.get('batch_size')}")
