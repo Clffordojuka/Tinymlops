@@ -1,27 +1,37 @@
 # tinyml-ops
 
-A C-first machine learning systems project that combines a lightweight neural network core with reproducible training, experiment tracking, automated testing, and workflow-oriented MLOps practices.
+A C-first machine learning systems project that combines a lightweight neural-network core with reproducible training, experiment tracking, automated testing, and workflow-oriented MLOps practices.
 
 ## Overview
 
-`tinyml-ops` started as a small neural network implementation in C and evolved into a compact end-to-end MLOps workflow.
+`tinyml-ops` started as a small neural network implementation in C and has grown into a compact end-to-end ML systems project focused on transparency, reproducibility, and inspectable workflows.
 
-The project currently supports:
+The project now supports:
 
 - matrix operations
 - dense layer forward and backward propagation
-- ReLU activation
+- configurable hidden activations (`relu`, `tanh`, `linear`, `none`)
 - MSE loss
-- single-layer training with gradient updates
+- linear models
+- single-hidden-layer MLPs
+- deep MLPs with configurable hidden layer sizes
+- mini-batch training
+- learning-rate scheduling
+- L2 regularization
+- early stopping
 - CSV dataset loading
-- config-driven training
-- checkpoint save/load
-- evaluation and prediction apps
+- config-driven training and evaluation
+- train/validation/test dataset splitting
+- normalization fit/save/load
+- checkpoint save/load for linear, MLP, and deep MLP models
+- runtime model abstraction for train/evaluate/predict
 - DVC-based reproducible pipelines
 - experiment archiving and comparison
 - MLflow tracking
-- GitHub Actions CI
+- automated batch experiment execution
+- unit and integration testing
 - Docker-based reproducible execution
+- GitHub Actions CI
 
 ## Repository structure
 
@@ -32,7 +42,6 @@ tinyml-ops/
 ├── src/
 │   ├── core/
 │   ├── layers/
-│   ├── optim/
 │   ├── io/
 │   ├── data/
 │   └── utils/
@@ -69,6 +78,44 @@ tinyml-ops/
 ├── README.md
 └── .gitignore
 ````
+
+## Supported model types
+
+The framework currently supports three model families.
+
+### 1. Linear
+
+A single dense layer with no hidden layer.
+
+Example:
+
+```ini
+model_type=linear
+```
+
+### 2. MLP
+
+A single-hidden-layer neural network.
+
+Example:
+
+```ini
+model_type=mlp
+hidden_dim=8
+hidden_activation=relu
+```
+
+### 3. Deep MLP
+
+A multi-hidden-layer neural network with configurable hidden layer sizes.
+
+Example:
+
+```ini
+model_type=deep_mlp
+hidden_layers=16,8,4
+hidden_activation=tanh
+```
 
 ## Recommended environment
 
@@ -107,7 +154,7 @@ ctest --test-dir build-docker --output-on-failure
 
 ## Core applications
 
-The project currently provides three CLI applications:
+The project provides three CLI applications:
 
 * `train_app`
 * `evaluate_app`
@@ -115,10 +162,11 @@ The project currently provides three CLI applications:
 
 ### Train
 
-Trains the model from a config file and produces:
+Trains a model from a config file and produces:
 
 * checkpoint
 * training metrics
+* normalization statistics
 * console training logs
 
 ### Evaluate
@@ -126,37 +174,80 @@ Trains the model from a config file and produces:
 Loads a checkpoint and dataset, then reports:
 
 * evaluation loss
-* test prediction
-* loaded parameters
+* sample prediction
+* model architecture-aware metrics
 
 ### Predict
 
-Loads a checkpoint and predicts a value for a single input.
+Loads a checkpoint and predicts a value for one input sample.
 
 ## Configuration
 
 Training and evaluation are controlled through config files.
 
-Base config:
+### Base config
 
 ```text
 configs/base/train_linear.cfg
 ```
 
-Experiment configs:
+### Example experiment configs
 
 ```text
 configs/experiments/linear_fast.cfg
 configs/experiments/linear_long.cfg
+configs/experiments/mlp_relu_8.cfg
+configs/experiments/mlp_tanh_8.cfg
+configs/experiments/deep_mlp_8_4.cfg
+configs/experiments/deep_mlp_tanh_8_4.cfg
 ```
 
-These configs define values such as:
+Configs define values such as:
 
 * dataset path
 * epoch count
 * learning rate
+* learning-rate schedule
+* L2 regularization
+* model type
+* hidden dimension or hidden layer list
+* hidden activation
+* batch size
+* validation split
+* test split
 * metrics output path
 * checkpoint output path
+* normalization output path
+
+## Example config patterns
+
+### Linear
+
+```ini
+model_type=linear
+learning_rate=0.01
+epochs=200
+```
+
+### Single-hidden-layer MLP
+
+```ini
+model_type=mlp
+hidden_dim=8
+hidden_activation=relu
+learning_rate=0.005
+epochs=500
+```
+
+### Deep MLP
+
+```ini
+model_type=deep_mlp
+hidden_layers=8,4
+hidden_activation=relu
+learning_rate=0.005
+epochs=500
+```
 
 ## Training
 
@@ -166,44 +257,60 @@ Train from a config file inside Docker:
 ./build-docker/apps/train_app configs/experiments/linear_long.cfg
 ```
 
+or:
+
+```bash
+./build-docker/apps/train_app configs/experiments/deep_mlp_8_4.cfg
+```
+
 Typical output includes:
 
-* epoch-by-epoch loss
-* final prediction for a sample input
-* learned weight and bias
+* epoch-by-epoch training and validation loss
+* learning-rate updates
+* best epoch
+* early stopping status
+* sample prediction for a reference input
+* model type and architecture summary
 
 ## Evaluation
 
 Evaluate a trained checkpoint:
 
 ```bash
-./build-docker/apps/evaluate_app configs/experiments/linear_long.cfg
+./build-docker/apps/evaluate_app configs/experiments/deep_mlp_8_4.cfg
 ```
 
 Typical output includes:
 
-* evaluation loss
-* prediction for `x=4.0`
-* loaded weight and bias
+* test loss
+* sample prediction
+* model-type-aware evaluation metrics
 
 ## Prediction
 
-Run inference for a single input value:
+Run inference for a single input sample:
 
 ```bash
-./build-docker/apps/predict_app configs/base/train_linear.cfg 4.0
+./build-docker/apps/predict_app configs/experiments/deep_mlp_8_4.cfg 4.0
+```
+
+For multi-feature models:
+
+```bash
+./build-docker/apps/predict_app <config_path> <x1> <x2> ...
 ```
 
 Example output includes:
 
-* input value
+* input values
+* normalized inputs
 * predicted output
 * checkpoint path
-* model weight and bias
+* model type
 
 ## Dataset handling
 
-The current project uses a small CSV regression dataset.
+The current project uses compact CSV regression datasets.
 
 Example sample file:
 
@@ -211,13 +318,13 @@ Example sample file:
 data/samples/linear.csv
 ```
 
-Current dataset support is intentionally simple:
+Current dataset support includes:
 
-* one feature column
-* one target column
 * numeric CSV parsing
-* no missing-value handling
-* no batching abstraction yet
+* train/validation/test splitting
+* deterministic shuffling with seed
+* normalization fit on training split only
+* normalization reuse for evaluation and prediction
 
 ## DVC pipeline
 
@@ -234,16 +341,17 @@ This pipeline tracks:
 
 * config-driven stage execution
 * checkpoint output
+* normalization output
 * training metrics
 * evaluation metrics
 
 ## Experiment runner
 
-Use the experiment runner to automate config switching, DVC reproduction, and archiving:
+Use the experiment runner to automate config switching, DVC reproduction, export, and archiving:
 
 ```bash
-python scripts/run_experiment.py configs/experiments/linear_fast.cfg
 python scripts/run_experiment.py configs/experiments/linear_long.cfg
+python scripts/run_experiment.py configs/experiments/deep_mlp_8_4.cfg
 ```
 
 This script:
@@ -251,10 +359,34 @@ This script:
 * updates `params.yaml`
 * runs `dvc repro`
 * reads train and eval metrics
+* exports model parameters
 * archives train metrics into `metrics/archive/`
 * archives eval metrics into `metrics/archive/`
 * archives checkpoints into `models/registry/`
+* archives exported model parameters into `models/exported/`
 * prints a concise summary
+
+## Batch experiment runner
+
+Run multiple experiment configs in one command:
+
+```bash
+python scripts/run_experiment_batch.py configs/experiments
+```
+
+With MLflow logging enabled:
+
+```bash
+python scripts/run_experiment_batch.py configs/experiments --mlflow
+```
+
+The batch runner:
+
+* discovers `.cfg` files
+* runs experiments sequentially
+* optionally logs runs to MLflow
+* updates experiment comparison outputs
+* writes a batch summary
 
 ## Compare experiments
 
@@ -272,38 +404,13 @@ results/experiment_summary.csv
 
 and prints a ranked comparison of archived experiments.
 
-## Current experiment status
-
-The project currently includes at least two tracked experiment configurations:
-
-* `linear_fast`
-* `linear_long`
-
-So far, `linear_long` performs better, with lower training and evaluation loss and a prediction closer to the target linear relationship.
-
-Example comparison summary:
-
-* `linear_fast`
-
-  * fewer epochs
-  * faster run
-  * higher loss
-  * rougher fit
-
-* `linear_long`
-
-  * more epochs
-  * lower loss
-  * better fit
-  * better prediction accuracy
-
 ## MLflow tracking
 
 Log experiment runs to MLflow:
 
 ```bash
-python scripts/mlflow_run.py configs/experiments/linear_fast.cfg
 python scripts/mlflow_run.py configs/experiments/linear_long.cfg
+python scripts/mlflow_run.py configs/experiments/deep_mlp_8_4.cfg
 ```
 
 Start the MLflow UI:
@@ -322,40 +429,32 @@ In the MLflow UI, look under the `tinyml-ops` experiment to inspect:
 
 * run parameters
 * run metrics
+* model architecture metadata
 * logged artifacts
 * archived outputs
 
-## Continuous integration
-
-GitHub Actions workflows are included to validate:
-
-* configure and build
-* test execution
-* DVC pipeline execution
-
-These workflows live in:
-
-```text
-.github/workflows/
-```
-
 ## Testing
 
-The project currently includes unit and integration coverage for:
+The project includes unit and integration coverage for:
 
-* smoke test
+* smoke tests
 * matrix operations
 * dense layer forward pass
 * activation behavior
 * loss computation
 * model abstraction
 * single-step training
-* multi-epoch linear fit
+* multi-epoch fitting
 * dataset loading
 * config loading
+* hidden-layer parsing
 * checkpoint save/load
+* MLP checkpoint save/load
+* deep MLP checkpoint save/load
 * evaluation behavior
 * prediction behavior
+* deep MLP forward behavior
+* deep MLP training-step behavior
 
 Run tests inside Docker:
 
@@ -364,8 +463,6 @@ ctest --test-dir build-docker --output-on-failure
 ```
 
 ## Artifacts produced by the workflow
-
-The current workflow can generate:
 
 ### Metrics
 
@@ -384,25 +481,44 @@ The current workflow can generate:
 
 * `models/registry/*`
 
+### Exported model parameters
+
+* `models/exported/model_params.json`
+* `models/exported/*`
+
 ### Reports
 
 * `results/experiment_summary.csv`
+* `results/batch_summary.json`
+
+## Continuous integration
+
+GitHub Actions workflows are included to validate:
+
+* configure and build
+* test execution
+* pipeline execution
+
+These workflows live in:
+
+```text
+.github/workflows/
+```
 
 ## Current limitations
 
-This project is intentionally small in scope for clarity and inspectability.
+This project is still intentionally compact in scope for clarity and inspectability.
 
 Current limitations include:
 
-* single-feature regression workflow
-* single dense layer training path
+* regression-oriented workflow
+* MSE-loss-focused training path
 * simple CSV parsing
-* basic checkpoint format
 * local MLflow setup
 * local DVC setup
 * Docker-first execution path
-* no advanced normalization pipeline yet
-* no multi-layer experiment workflow yet
+* no optimizer choices beyond the current training implementation
+* no classification losses yet
 * no remote artifact storage yet
 
 These constraints are deliberate so the system remains easy to inspect, debug, and extend.
@@ -411,20 +527,21 @@ These constraints are deliberate so the system remains easy to inspect, debug, a
 
 Planned next steps include:
 
+* optimizer upgrades such as Adam
+* improved weight initialization
 * richer dataset handling
-* broader model support
-* improved checkpoint and artifact handling
-* architecture and workflow documentation in `docs/`
-* DVC remote storage
-* improved experiment management
-* stronger model/version promotion workflow
-* broader CI and deployment workflow
+* classification support
+* remote DVC storage
+* stronger experiment management
+* improved reporting and architecture comparison
+* broader CI and deployment workflows
+* more detailed design documentation in `docs/`
 
 ## Project goals
 
 This project is designed as both:
 
-* a learning-oriented systems implementation in C
+* a learning-oriented ML systems implementation in C
 * a compact portfolio-grade MLOps workflow
 
 It prioritizes:
@@ -452,20 +569,24 @@ cmake --build build-docker
 ctest --test-dir build-docker --output-on-failure
 python -m dvc repro
 python scripts/run_experiment.py configs/experiments/linear_long.cfg
+python scripts/run_experiment_batch.py configs/experiments --mlflow
 python scripts/compare_experiments.py
 ```
 
 ## Status
 
-The project is currently at a strong early-stage MLOps milestone:
+The project is currently at a strong compact-ML-systems milestone:
 
 * core ML logic works
+* linear, MLP, and deep MLP models work
 * reproducible training works
 * evaluation and prediction work
 * experiments can be compared
-* metrics and checkpoints are tracked
-* CI is green
+* architecture metadata is tracked
+* metrics and checkpoints are archived
+* CI is working
 * Docker execution is working
 * MLflow tracking is integrated
+* batch experiment execution is working
 
----
+```

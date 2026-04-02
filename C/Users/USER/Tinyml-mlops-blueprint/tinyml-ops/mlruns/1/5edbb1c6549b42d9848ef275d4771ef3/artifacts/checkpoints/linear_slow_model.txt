@@ -1,0 +1,5 @@
+model_type=dense
+dense_input_dim=1
+dense_output_dim=1
+dense_weight_0_0=2.494356
+dense_bias_0=4.666475
