@@ -66,6 +66,7 @@ def log_run(config_path: str) -> None:
         mlflow.log_param("hidden_dim", train_metrics.get("hidden_dim"))
         mlflow.log_param("hidden_layers", train_metrics.get("hidden_layers"))
         mlflow.log_param("hidden_activation", train_metrics.get("hidden_activation"))
+        mlflow.log_param("num_layers", train_metrics.get("num_layers"))
         mlflow.log_param("epochs", train_metrics.get("epochs"))
         mlflow.log_param("learning_rate", train_metrics.get("learning_rate"))
         mlflow.log_param("lr_schedule", train_metrics.get("lr_schedule"))

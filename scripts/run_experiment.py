@@ -117,6 +117,7 @@ def print_summary(config_path: str, train_metrics: dict, eval_metrics: dict, mod
     print(f"Hidden dim: {train_metrics.get('hidden_dim')}")
     print(f"Hidden layers: {train_metrics.get('hidden_layers')}")
     print(f"Hidden activation: {train_metrics.get('hidden_activation')}")
+    print(f"Num layers: {train_metrics.get('num_layers')}")
     print(f"Final learning_rate: {train_metrics.get('final_learning_rate')}")
     print(f"Batch size: {train_metrics.get('batch_size')}")
     print(f"Validation split: {train_metrics.get('validation_split')}")

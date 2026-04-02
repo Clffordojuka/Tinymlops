@@ -36,6 +36,7 @@ def collect_experiments() -> list[dict]:
             "hidden_dim": train.get("hidden_dim"),
             "hidden_layers": train.get("hidden_layers"),
             "hidden_activation": train.get("hidden_activation"),
+            "num_layers": train.get("num_layers"),
             "epochs": train.get("epochs"),
             "learning_rate": train.get("learning_rate"),
             "lr_schedule": train.get("lr_schedule"),
@@ -67,6 +68,7 @@ def write_summary(rows: list[dict]) -> None:
         "hidden_dim",
         "hidden_layers",
         "hidden_activation",
+        "num_layers",
         "epochs",
         "learning_rate",
         "lr_schedule",
@@ -104,6 +106,7 @@ def print_summary(rows: list[dict]) -> None:
             f"hidden_dim={row['hidden_dim']}, "
             f"hidden_layers={row['hidden_layers']}, "
             f"hidden_activation={row['hidden_activation']}, "
+            f"num_layers={row['num_layers']}, "
             f"epochs={row['epochs']}, "
             f"lr={row['learning_rate']}, "
             f"schedule={row['lr_schedule']}, "
@@ -126,6 +129,7 @@ def print_summary(rows: list[dict]) -> None:
         f"(model={best['model_type']}, "
         f"hidden_dim={best['hidden_dim']}, "
         f"hidden_layers={best['hidden_layers']}, "
+        f"num_layers={best['num_layers']}, "
         f"eval_loss={best['eval_loss']}, "
         f"train_loss={best['train_loss']}, "
         f"val_loss={best['val_loss']})"

@@ -140,3 +140,23 @@ add_executable(test_checkpoint_mlp
 )
 target_link_libraries(test_checkpoint_mlp PRIVATE tinyml_core)
 add_test(NAME checkpoint_mlp_test COMMAND test_checkpoint_mlp)
+
+add_executable(test_hidden_layers_parse unit/test_hidden_layers_parse.c)
+target_link_libraries(test_hidden_layers_parse tinyml_core)
+add_test(NAME hidden_layers_parse_test COMMAND test_hidden_layers_parse)
+
+add_executable(test_deep_mlp unit/test_deep_mlp.c)
+target_link_libraries(test_deep_mlp tinyml_core)
+add_test(NAME deep_mlp_test COMMAND test_deep_mlp)
+
+add_executable(test_deep_mlp_train_step unit/test_deep_mlp_train_step.c)
+target_link_libraries(test_deep_mlp_train_step tinyml_core)
+add_test(NAME deep_mlp_train_step_test COMMAND test_deep_mlp_train_step)
+
+add_executable(test_checkpoint_deep_mlp unit/test_checkpoint_deep_mlp.c)
+target_link_libraries(test_checkpoint_deep_mlp tinyml_core)
+add_test(NAME checkpoint_deep_mlp_test COMMAND test_checkpoint_deep_mlp)
+
+add_executable(test_deep_mlp_forward integration/test_deep_mlp_forward.c)
+target_link_libraries(test_deep_mlp_forward tinyml_core)
+add_test(NAME deep_mlp_forward_test COMMAND test_deep_mlp_forward)
