@@ -1,7 +1,8 @@
 #include <assert.h>
 #include "tinyml.h"
 
-int main(void) {
+int main(void)
+{
     TinyML_DenseLayer layer = tinyml_dense_create(1, 1);
 
     TinyML_Matrix inputs = tinyml_matrix_create(3, 1);
@@ -28,8 +29,19 @@ int main(void) {
     const int epochs = 200;
     const float learning_rate = 0.01f;
 
-    for (int epoch = 0; epoch < epochs; ++epoch) {
-        tinyml_train_epoch_dense(&layer, &inputs, &targets, 3, learning_rate, 0.0f);
+    for (int epoch = 0; epoch < epochs; ++epoch)
+    {
+        tinyml_train_epoch_dense(
+            &layer,
+            &inputs,
+            &targets,
+            3,
+            learning_rate,
+            0.0f,
+            TINYML_OPT_SGD,
+            0.9f,
+            0.999f,
+            0.000001f);
     }
 
     TinyML_Matrix pred_after = tinyml_dense_forward(&layer, &test_input);

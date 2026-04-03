@@ -15,11 +15,22 @@ typedef struct {
     float *data;
 } TinyML_Matrix;
 
+typedef enum {
+    TINYML_OPT_SGD = 0,
+    TINYML_OPT_ADAM = 1
+} TinyML_OptimizerType;
+
 typedef struct {
     size_t input_dim;
     size_t output_dim;
     TinyML_Matrix weights;
     TinyML_Matrix bias;
+
+    TinyML_Matrix adam_m_weights;
+    TinyML_Matrix adam_v_weights;
+    TinyML_Matrix adam_m_bias;
+    TinyML_Matrix adam_v_bias;
+    unsigned long adam_t;
 } TinyML_DenseLayer;
 
 typedef enum {
@@ -57,6 +68,10 @@ typedef struct {
     char data_path[256];
     int epochs;
     float learning_rate;
+    char optimizer[32];
+    float adam_beta1;
+    float adam_beta2;
+    float adam_epsilon;
     char lr_schedule[32];
     int lr_step_size;
     float lr_decay;
@@ -135,6 +150,7 @@ void tinyml_dataset_split_three_way(
 
 /* config */
 TinyML_TrainConfig tinyml_default_train_config(void);
+TinyML_OptimizerType tinyml_optimizer_from_string(const char *name);
 int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config);
 size_t tinyml_parse_hidden_layers(const char *text, size_t *sizes, size_t max_sizes);
 
@@ -147,7 +163,11 @@ TinyML_Matrix tinyml_dense_backward(
     const TinyML_Matrix *input,
     const TinyML_Matrix *grad_output,
     float learning_rate,
-    float l2_lambda
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon
 );
 
 /* activations */
@@ -176,7 +196,11 @@ float tinyml_train_step_dense(
     const TinyML_Matrix *input,
     const TinyML_Matrix *target,
     float learning_rate,
-    float l2_lambda
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon
 );
 
 float tinyml_train_batch_dense(
@@ -184,7 +208,11 @@ float tinyml_train_batch_dense(
     const TinyML_Matrix *inputs,
     const TinyML_Matrix *targets,
     float learning_rate,
-    float l2_lambda
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon
 );
 
 float tinyml_train_epoch_dense(
@@ -193,7 +221,11 @@ float tinyml_train_epoch_dense(
     const TinyML_Matrix *targets,
     size_t sample_count,
     float learning_rate,
-    float l2_lambda
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon
 );
 
 /* metrics */
@@ -207,6 +239,10 @@ int tinyml_write_training_metrics_json(
     int epochs,
     float learning_rate,
     float final_learning_rate,
+    const char *optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon,
     const char *lr_schedule,
     int lr_step_size,
     float lr_decay,
@@ -288,7 +324,11 @@ float tinyml_train_step_mlp(
     const TinyML_Matrix *input,
     const TinyML_Matrix *target,
     float learning_rate,
-    float l2_lambda
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon
 );
 
 float tinyml_train_step_deep_mlp(
@@ -296,7 +336,11 @@ float tinyml_train_step_deep_mlp(
     const TinyML_Matrix *input,
     const TinyML_Matrix *target,
     float learning_rate,
-    float l2_lambda
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon
 );
 
 float tinyml_evaluate_mlp(
@@ -342,7 +386,11 @@ float tinyml_runtime_model_train_step(
     const TinyML_Matrix *input,
     const TinyML_Matrix *target,
     float learning_rate,
-    float l2_lambda
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon
 );
 
 float tinyml_runtime_model_evaluate(

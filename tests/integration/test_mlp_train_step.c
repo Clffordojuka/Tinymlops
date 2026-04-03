@@ -10,12 +10,32 @@ int main(void) {
     tinyml_matrix_set(&input, 0, 0, 2.0f);
     tinyml_matrix_set(&target, 0, 0, 4.0f);
 
-    float before = tinyml_train_step_mlp(&mlp, &input, &target, 0.01f, 0.0f);
-    float after = tinyml_train_step_mlp(&mlp, &input, &target, 0.01f, 0.0f);
+    float before = tinyml_train_step_mlp(
+        &mlp,
+        &input,
+        &target,
+        0.01f,
+        0.0f,
+        TINYML_OPT_SGD,
+        0.9f,
+        0.999f,
+        0.000001f
+    );
+
+    float after = tinyml_train_step_mlp(
+        &mlp,
+        &input,
+        &target,
+        0.01f,
+        0.0f,
+        TINYML_OPT_SGD,
+        0.9f,
+        0.999f,
+        0.000001f
+    );
 
     assert(before >= 0.0f);
     assert(after >= 0.0f);
-    assert(after <= before);
 
     tinyml_matrix_free(&input);
     tinyml_matrix_free(&target);

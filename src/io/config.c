@@ -40,6 +40,16 @@ size_t tinyml_parse_hidden_layers(const char *text, size_t *sizes, size_t max_si
     return count;
 }
 
+TinyML_OptimizerType tinyml_optimizer_from_string(const char *name)
+{
+    if (name != NULL && strcmp(name, "adam") == 0)
+    {
+        return TINYML_OPT_ADAM;
+    }
+
+    return TINYML_OPT_SGD;
+}
+
 TinyML_TrainConfig tinyml_default_train_config(void)
 {
     TinyML_TrainConfig config;
@@ -67,6 +77,10 @@ TinyML_TrainConfig tinyml_default_train_config(void)
     config.hidden_dim = 8;
     snprintf(config.hidden_activation, sizeof(config.hidden_activation), "relu");
     config.hidden_layers[0] = '\0';
+    snprintf(config.optimizer, sizeof(config.optimizer), "sgd");
+    config.adam_beta1 = 0.9f;
+    config.adam_beta2 = 0.999f;
+    config.adam_epsilon = 0.000001f;
 
     return config;
 }
@@ -194,9 +208,24 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config)
             {
                 snprintf(config->hidden_layers, sizeof(config->hidden_layers), "%.127s", value);
             }
+            else if (strcmp(key, "optimizer") == 0)
+            {
+                snprintf(config->optimizer, sizeof(config->optimizer), "%.31s", value);
+            }
+            else if (strcmp(key, "adam_beta1") == 0)
+            {
+                config->adam_beta1 = (float)atof(value);
+            }
+            else if (strcmp(key, "adam_beta2") == 0)
+            {
+                config->adam_beta2 = (float)atof(value);
+            }
+            else if (strcmp(key, "adam_epsilon") == 0)
+            {
+                config->adam_epsilon = (float)atof(value);
+            }
         }
     }
-
     fclose(fp);
     return 1;
 }

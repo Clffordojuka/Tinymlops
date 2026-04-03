@@ -73,6 +73,8 @@ int main(int argc, char **argv)
     tinyml_apply_normalization(&train_dataset, &norm_stats);
     tinyml_apply_normalization(&val_dataset, &norm_stats);
 
+    TinyML_OptimizerType optimizer = tinyml_optimizer_from_string(config.optimizer);
+
     TinyML_RuntimeModel model;
     if (!tinyml_runtime_model_init(&model, &config, train_dataset.feature_count))
     {
@@ -120,7 +122,11 @@ int main(int argc, char **argv)
                     &input,
                     &target,
                     current_learning_rate,
-                    config.l2_lambda);
+                    config.l2_lambda,
+                    optimizer,
+                    config.adam_beta1,
+                    config.adam_beta2,
+                    config.adam_epsilon);
                 sample_updates++;
 
                 tinyml_matrix_free(&input);
@@ -137,10 +143,10 @@ int main(int argc, char **argv)
             best_epoch = epoch + 1;
             epochs_without_improvement = 0;
 
-            if (config.save_best_only)
+            if (!config.save_best_only)
             {
-                tinyml_runtime_model_save_checkpoint(&model, config.checkpoint_path);
-                tinyml_save_normalization_stats(config.normalization_path, &norm_stats);
+                if (!tinyml_runtime_model_save_checkpoint(&model, config.checkpoint_path))
+                    tinyml_save_normalization_stats(config.normalization_path, &norm_stats);
             }
         }
         else
@@ -179,6 +185,10 @@ int main(int argc, char **argv)
     printf("Hidden dim: %zu\n", strcmp(config.model_type, "mlp") == 0 ? config.hidden_dim : 0);
     printf("Hidden layers: %s\n", strcmp(config.model_type, "deep_mlp") == 0 ? config.hidden_layers : (strcmp(config.model_type, "mlp") == 0 ? config.hidden_layers : ""));
     printf("Hidden activation: %s\n", (strcmp(config.model_type, "mlp") == 0 || strcmp(config.model_type, "deep_mlp") == 0) ? config.hidden_activation : "none");
+    printf("Optimizer: %s\n", config.optimizer);
+    printf("Adam beta1: %.6f\n", config.adam_beta1);
+    printf("Adam beta2: %.6f\n", config.adam_beta2);
+    printf("Adam epsilon: %.6f\n", config.adam_epsilon);
     printf("Best epoch: %d\n", best_epoch);
     printf("Best val loss: %.6f\n", best_val_loss);
     printf("Stopped early: %d\n", stopped_early);
@@ -222,6 +232,10 @@ int main(int argc, char **argv)
             config.epochs,
             config.learning_rate,
             final_learning_rate,
+            config.optimizer,
+            config.adam_beta1,
+            config.adam_beta2,
+            config.adam_epsilon,
             config.lr_schedule,
             config.lr_step_size,
             config.lr_decay,
@@ -247,6 +261,7 @@ int main(int argc, char **argv)
             config.patience,
             config.min_delta,
             config.save_best_only))
+
     {
         fprintf(stderr, "Warning: failed to write metrics file: %s\n", config.metrics_path);
     }

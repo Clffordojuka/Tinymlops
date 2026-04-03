@@ -6,6 +6,10 @@ int tinyml_write_training_metrics_json(
     int epochs,
     float learning_rate,
     float final_learning_rate,
+    const char *optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon,
     const char *lr_schedule,
     int lr_step_size,
     float lr_decay,
@@ -51,6 +55,10 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "  \"hidden_activation\": \"%s\",\n", hidden_activation);
     fprintf(fp, "  \"num_layers\": %zu,\n", num_layers);
     fprintf(fp, "  \"batch_size\": %zu,\n", batch_size);
+    fprintf(fp, "  \"optimizer\": \"%s\",\n", optimizer);
+    fprintf(fp, "  \"adam_beta1\": %.6f,\n", adam_beta1);
+    fprintf(fp, "  \"adam_beta2\": %.6f,\n", adam_beta2);
+    fprintf(fp, "  \"adam_epsilon\": %.6f,\n", adam_epsilon);
     fprintf(fp, "  \"train_loss\": %.6f,\n", train_loss);
     fprintf(fp, "  \"val_loss\": %.6f,\n", val_loss);
     fprintf(fp, "  \"validation_split\": %.6f,\n", validation_split);

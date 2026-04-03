@@ -103,18 +103,49 @@ float tinyml_runtime_model_train_step(
     const TinyML_Matrix *input,
     const TinyML_Matrix *target,
     float learning_rate,
-    float l2_lambda)
+    float l2_lambda,
+    TinyML_OptimizerType optimizer,
+    float adam_beta1,
+    float adam_beta2,
+    float adam_epsilon)
 {
     if (model->kind == TINYML_MODEL_MLP)
     {
-        return tinyml_train_step_mlp(&model->mlp, input, target, learning_rate, l2_lambda);
+        return tinyml_train_step_mlp(
+            &model->mlp,
+            input,
+            target,
+            learning_rate,
+            l2_lambda,
+            optimizer,
+            adam_beta1,
+            adam_beta2,
+            adam_epsilon);
     }
     if (model->kind == TINYML_MODEL_DEEP_MLP)
     {
-        return tinyml_train_step_deep_mlp(&model->deep_mlp, input, target, learning_rate, l2_lambda);
+        return tinyml_train_step_deep_mlp(
+            &model->deep_mlp,
+            input,
+            target,
+            learning_rate,
+            l2_lambda,
+            optimizer,
+            adam_beta1,
+            adam_beta2,
+            adam_epsilon);
     }
 
-    return tinyml_train_step_dense(&model->linear, input, target, learning_rate, l2_lambda);
+    return tinyml_train_step_dense(
+        &model->linear,
+        input,
+        target,
+        learning_rate,
+        l2_lambda,
+        optimizer,
+        adam_beta1,
+        adam_beta2,
+        adam_epsilon);
 }
 
 float tinyml_runtime_model_evaluate(

@@ -16,8 +16,8 @@ int main(void) {
     tinyml_matrix_set(&layer.weights, 0, 0, 0.0f);
     tinyml_matrix_set(&layer.bias, 0, 0, 0.0f);
 
-    float before = tinyml_train_batch_dense(&layer, &inputs, &targets, 0.01f, 0.0f);
-    float after = tinyml_train_batch_dense(&layer, &inputs, &targets, 0.01f, 0.0f);
+    float before = tinyml_train_batch_dense(&layer, &inputs, &targets, 0.01f, 0.0f, TINYML_OPT_SGD, 0.9f, 0.999f, 0.000001f);
+    float after = tinyml_train_batch_dense(&layer, &inputs, &targets, 0.01f, 0.0f, TINYML_OPT_SGD, 0.9f, 0.999f, 0.000001f);
 
     assert(before >= 0.0f);
     assert(after >= 0.0f);
