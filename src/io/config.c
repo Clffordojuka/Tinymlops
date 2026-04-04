@@ -50,6 +50,20 @@ TinyML_OptimizerType tinyml_optimizer_from_string(const char *name)
     return TINYML_OPT_SGD;
 }
 
+TinyML_WeightInitType tinyml_weight_init_from_string(const char *name)
+{
+    if (name != NULL && strcmp(name, "he") == 0)
+    {
+        return TINYML_INIT_HE;
+    }
+    if (name != NULL && strcmp(name, "xavier") == 0)
+    {
+        return TINYML_INIT_XAVIER;
+    }
+
+    return TINYML_INIT_ZEROS;
+}
+
 TinyML_TrainConfig tinyml_default_train_config(void)
 {
     TinyML_TrainConfig config;
@@ -73,6 +87,7 @@ TinyML_TrainConfig tinyml_default_train_config(void)
     config.lr_step_size = 50;
     config.lr_decay = 0.5f;
     config.l2_lambda = 0.0f;
+    snprintf(config.weight_init, sizeof(config.weight_init), "zeros");
     snprintf(config.model_type, sizeof(config.model_type), "linear");
     config.hidden_dim = 8;
     snprintf(config.hidden_activation, sizeof(config.hidden_activation), "relu");
@@ -192,6 +207,10 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config)
             {
                 config->l2_lambda = (float)atof(value);
             }
+            else if (strcmp(key, "weight_init") == 0)
+            {
+                snprintf(config->weight_init, sizeof(config->weight_init), "%.31s", value);
+            }
             else if (strcmp(key, "model_type") == 0)
             {
                 snprintf(config->model_type, sizeof(config->model_type), "%.31s", value);
@@ -226,6 +245,7 @@ int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config)
             }
         }
     }
+
     fclose(fp);
     return 1;
 }

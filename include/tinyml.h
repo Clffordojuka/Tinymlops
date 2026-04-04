@@ -20,6 +20,12 @@ typedef enum {
     TINYML_OPT_ADAM = 1
 } TinyML_OptimizerType;
 
+typedef enum {
+    TINYML_INIT_ZEROS = 0,
+    TINYML_INIT_XAVIER = 1,
+    TINYML_INIT_HE = 2
+} TinyML_WeightInitType;
+
 typedef struct {
     size_t input_dim;
     size_t output_dim;
@@ -76,6 +82,7 @@ typedef struct {
     int lr_step_size;
     float lr_decay;
     float l2_lambda;
+    char weight_init[32];
     char model_type[32];
     size_t hidden_dim;
     char hidden_layers[128];
@@ -151,12 +158,17 @@ void tinyml_dataset_split_three_way(
 /* config */
 TinyML_TrainConfig tinyml_default_train_config(void);
 TinyML_OptimizerType tinyml_optimizer_from_string(const char *name);
+TinyML_WeightInitType tinyml_weight_init_from_string(const char *name);
 int tinyml_load_train_config(const char *path, TinyML_TrainConfig *config);
 size_t tinyml_parse_hidden_layers(const char *text, size_t *sizes, size_t max_sizes);
 
 /* dense layer */
 TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim);
 void tinyml_dense_free(TinyML_DenseLayer *layer);
+void tinyml_dense_init_zeros(TinyML_DenseLayer *layer);
+void tinyml_dense_init_xavier(TinyML_DenseLayer *layer);
+void tinyml_dense_init_he(TinyML_DenseLayer *layer);
+void tinyml_dense_apply_weight_init(TinyML_DenseLayer *layer, TinyML_WeightInitType init_type);
 TinyML_Matrix tinyml_dense_forward(const TinyML_DenseLayer *layer, const TinyML_Matrix *input);
 TinyML_Matrix tinyml_dense_backward(
     TinyML_DenseLayer *layer,
@@ -247,6 +259,7 @@ int tinyml_write_training_metrics_json(
     int lr_step_size,
     float lr_decay,
     float l2_lambda,
+    const char *weight_init,
     const char *model_type,
     size_t hidden_dim,
     const char *hidden_layers,

@@ -182,6 +182,7 @@ int main(int argc, char **argv)
     printf("Config: %s\n", config_path);
     printf("Dataset: %s\n", config.data_path);
     printf("Model type: %s\n", config.model_type);
+    printf("Weight init: %s\n", config.weight_init);
     printf("Hidden dim: %zu\n", strcmp(config.model_type, "mlp") == 0 ? config.hidden_dim : 0);
     printf("Hidden layers: %s\n", strcmp(config.model_type, "deep_mlp") == 0 ? config.hidden_layers : (strcmp(config.model_type, "mlp") == 0 ? config.hidden_layers : ""));
     printf("Hidden activation: %s\n", (strcmp(config.model_type, "mlp") == 0 || strcmp(config.model_type, "deep_mlp") == 0) ? config.hidden_activation : "none");
@@ -240,6 +241,7 @@ int main(int argc, char **argv)
             config.lr_step_size,
             config.lr_decay,
             config.l2_lambda,
+            config.weight_init,
             config.model_type,
             metrics_hidden_dim,
             metrics_hidden_layers,

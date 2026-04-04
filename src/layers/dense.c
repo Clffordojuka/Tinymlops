@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdlib.h>
 #include "tinyml.h"
 
 static float tinyml_pow_int(float base, unsigned long exp) {
@@ -7,6 +8,11 @@ static float tinyml_pow_int(float base, unsigned long exp) {
         result *= base;
     }
     return result;
+}
+
+static float tinyml_random_uniform(float min_value, float max_value) {
+    float t = (float)rand() / (float)RAND_MAX;
+    return min_value + (max_value - min_value) * t;
 }
 
 TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim) {
@@ -22,6 +28,8 @@ TinyML_DenseLayer tinyml_dense_create(size_t input_dim, size_t output_dim) {
     layer.adam_v_bias = tinyml_matrix_create(1, output_dim);
     layer.adam_t = 0;
 
+    tinyml_matrix_fill(&layer.weights, 0.0f);
+    tinyml_matrix_fill(&layer.bias, 0.0f);
     tinyml_matrix_fill(&layer.adam_m_weights, 0.0f);
     tinyml_matrix_fill(&layer.adam_v_weights, 0.0f);
     tinyml_matrix_fill(&layer.adam_m_bias, 0.0f);
@@ -44,6 +52,57 @@ void tinyml_dense_free(TinyML_DenseLayer *layer) {
     layer->input_dim = 0;
     layer->output_dim = 0;
     layer->adam_t = 0;
+}
+
+void tinyml_dense_init_zeros(TinyML_DenseLayer *layer) {
+    if (layer == NULL) {
+        return;
+    }
+
+    tinyml_matrix_fill(&layer->weights, 0.0f);
+    tinyml_matrix_fill(&layer->bias, 0.0f);
+}
+
+void tinyml_dense_init_xavier(TinyML_DenseLayer *layer) {
+    if (layer == NULL || layer->input_dim == 0 || layer->output_dim == 0) {
+        return;
+    }
+
+    float limit = sqrtf(6.0f / (float)(layer->input_dim + layer->output_dim));
+
+    for (size_t i = 0; i < layer->input_dim; ++i) {
+        for (size_t o = 0; o < layer->output_dim; ++o) {
+            tinyml_matrix_set(&layer->weights, i, o, tinyml_random_uniform(-limit, limit));
+        }
+    }
+
+    tinyml_matrix_fill(&layer->bias, 0.0f);
+}
+
+void tinyml_dense_init_he(TinyML_DenseLayer *layer) {
+    if (layer == NULL || layer->input_dim == 0) {
+        return;
+    }
+
+    float limit = sqrtf(6.0f / (float)layer->input_dim);
+
+    for (size_t i = 0; i < layer->input_dim; ++i) {
+        for (size_t o = 0; o < layer->output_dim; ++o) {
+            tinyml_matrix_set(&layer->weights, i, o, tinyml_random_uniform(-limit, limit));
+        }
+    }
+
+    tinyml_matrix_fill(&layer->bias, 0.0f);
+}
+
+void tinyml_dense_apply_weight_init(TinyML_DenseLayer *layer, TinyML_WeightInitType init_type) {
+    if (init_type == TINYML_INIT_HE) {
+        tinyml_dense_init_he(layer);
+    } else if (init_type == TINYML_INIT_XAVIER) {
+        tinyml_dense_init_xavier(layer);
+    } else {
+        tinyml_dense_init_zeros(layer);
+    }
 }
 
 TinyML_Matrix tinyml_dense_forward(const TinyML_DenseLayer *layer, const TinyML_Matrix *input) {

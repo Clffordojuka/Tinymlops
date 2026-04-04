@@ -14,6 +14,7 @@ int tinyml_write_training_metrics_json(
     int lr_step_size,
     float lr_decay,
     float l2_lambda,
+    const char *weight_init,
     const char *model_type,
     size_t hidden_dim,
     const char *hidden_layers,
@@ -45,20 +46,21 @@ int tinyml_write_training_metrics_json(
     fprintf(fp, "  \"epochs\": %d,\n", epochs);
     fprintf(fp, "  \"learning_rate\": %.6f,\n", learning_rate);
     fprintf(fp, "  \"final_learning_rate\": %.6f,\n", final_learning_rate);
+    fprintf(fp, "  \"optimizer\": \"%s\",\n", optimizer);
+    fprintf(fp, "  \"adam_beta1\": %.6f,\n", adam_beta1);
+    fprintf(fp, "  \"adam_beta2\": %.6f,\n", adam_beta2);
+    fprintf(fp, "  \"adam_epsilon\": %.6f,\n", adam_epsilon);
     fprintf(fp, "  \"lr_schedule\": \"%s\",\n", lr_schedule);
     fprintf(fp, "  \"lr_step_size\": %d,\n", lr_step_size);
     fprintf(fp, "  \"lr_decay\": %.6f,\n", lr_decay);
     fprintf(fp, "  \"l2_lambda\": %.6f,\n", l2_lambda);
+    fprintf(fp, "  \"weight_init\": \"%s\",\n", weight_init);
     fprintf(fp, "  \"model_type\": \"%s\",\n", model_type);
     fprintf(fp, "  \"hidden_dim\": %zu,\n", hidden_dim);
     fprintf(fp, "  \"hidden_layers\": \"%s\",\n", hidden_layers);
     fprintf(fp, "  \"hidden_activation\": \"%s\",\n", hidden_activation);
     fprintf(fp, "  \"num_layers\": %zu,\n", num_layers);
     fprintf(fp, "  \"batch_size\": %zu,\n", batch_size);
-    fprintf(fp, "  \"optimizer\": \"%s\",\n", optimizer);
-    fprintf(fp, "  \"adam_beta1\": %.6f,\n", adam_beta1);
-    fprintf(fp, "  \"adam_beta2\": %.6f,\n", adam_beta2);
-    fprintf(fp, "  \"adam_epsilon\": %.6f,\n", adam_epsilon);
     fprintf(fp, "  \"train_loss\": %.6f,\n", train_loss);
     fprintf(fp, "  \"val_loss\": %.6f,\n", val_loss);
     fprintf(fp, "  \"validation_split\": %.6f,\n", validation_split);

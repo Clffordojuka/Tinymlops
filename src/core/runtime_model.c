@@ -11,6 +11,20 @@ static int tinyml_config_is_deep_mlp(const TinyML_TrainConfig *config)
     return strcmp(config->model_type, "deep_mlp") == 0;
 }
 
+static void tinyml_apply_init_to_mlp(TinyML_MLP *mlp, TinyML_WeightInitType init_type)
+{
+    tinyml_dense_apply_weight_init(&mlp->hidden, init_type);
+    tinyml_dense_apply_weight_init(&mlp->output, init_type);
+}
+
+static void tinyml_apply_init_to_deep_mlp(TinyML_DeepMLP *mlp, TinyML_WeightInitType init_type)
+{
+    for (size_t i = 0; i < mlp->num_layers; ++i)
+    {
+        tinyml_dense_apply_weight_init(&mlp->layers[i], init_type);
+    }
+}
+
 int tinyml_runtime_model_init(
     TinyML_RuntimeModel *model,
     const TinyML_TrainConfig *config,
@@ -20,6 +34,8 @@ int tinyml_runtime_model_init(
     {
         return 0;
     }
+
+    TinyML_WeightInitType init_type = tinyml_weight_init_from_string(config->weight_init);
 
     if (tinyml_config_is_deep_mlp(config))
     {
@@ -42,20 +58,30 @@ int tinyml_runtime_model_init(
             hidden_count,
             1,
             hidden_activation);
-        return model->deep_mlp.layers != NULL;
+
+        if (model->deep_mlp.layers == NULL)
+        {
+            return 0;
+        }
+
+        tinyml_apply_init_to_deep_mlp(&model->deep_mlp, init_type);
+        return 1;
     }
 
     if (tinyml_config_is_mlp(config))
     {
         size_t hidden_dim = config->hidden_dim > 0 ? config->hidden_dim : 8;
         TinyML_Activation hidden_activation = tinyml_activation_from_string(config->hidden_activation);
+
         model->kind = TINYML_MODEL_MLP;
         model->mlp = tinyml_mlp_create(input_dim, hidden_dim, 1, hidden_activation);
+        tinyml_apply_init_to_mlp(&model->mlp, init_type);
     }
     else
     {
         model->kind = TINYML_MODEL_LINEAR;
         model->linear = tinyml_dense_create(input_dim, 1);
+        tinyml_dense_apply_weight_init(&model->linear, init_type);
     }
 
     return 1;
