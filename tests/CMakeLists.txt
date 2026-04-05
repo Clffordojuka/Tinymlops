@@ -160,3 +160,15 @@ add_test(NAME checkpoint_deep_mlp_test COMMAND test_checkpoint_deep_mlp)
 add_executable(test_deep_mlp_forward integration/test_deep_mlp_forward.c)
 target_link_libraries(test_deep_mlp_forward tinyml_core)
 add_test(NAME deep_mlp_forward_test COMMAND test_deep_mlp_forward)
+
+add_executable(test_dataset_split_three_way
+    unit/test_dataset_split_three_way.c
+)
+target_link_libraries(test_dataset_split_three_way PRIVATE tinyml_core)
+add_test(NAME dataset_split_three_way_test COMMAND test_dataset_split_three_way)
+
+add_executable(test_eval_empty_dataset
+    unit/test_eval_empty_dataset.c
+)
+target_link_libraries(test_eval_empty_dataset PRIVATE tinyml_core)
+add_test(NAME eval_empty_dataset_test COMMAND test_eval_empty_dataset)

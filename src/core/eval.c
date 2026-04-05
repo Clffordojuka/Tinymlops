@@ -1,11 +1,18 @@
+#include <stdio.h>
 #include "tinyml.h"
 
 float tinyml_evaluate_dense(
     const TinyML_DenseLayer *layer,
     const TinyML_Dataset *dataset
 ) {
+    if (layer == NULL || dataset == NULL) {
+        fprintf(stderr, "tinyml_evaluate_dense: null input.\n");
+        return -1.0f;
+    }
+
     if (dataset->sample_count == 0) {
-        return 0.0f;
+        fprintf(stderr, "tinyml_evaluate_dense: dataset is empty.\n");
+        return -1.0f;
     }
 
     TinyML_Matrix input = tinyml_matrix_create(1, dataset->feature_count);
@@ -47,8 +54,14 @@ float tinyml_evaluate_mlp(
     const TinyML_MLP *mlp,
     const TinyML_Dataset *dataset
 ) {
+    if (mlp == NULL || dataset == NULL) {
+        fprintf(stderr, "tinyml_evaluate_mlp: null input.\n");
+        return -1.0f;
+    }
+
     if (dataset->sample_count == 0) {
-        return 0.0f;
+        fprintf(stderr, "tinyml_evaluate_mlp: dataset is empty.\n");
+        return -1.0f;
     }
 
     TinyML_Matrix input = tinyml_matrix_create(1, dataset->feature_count);
@@ -90,8 +103,14 @@ float tinyml_evaluate_deep_mlp(
     const TinyML_DeepMLP *mlp,
     const TinyML_Dataset *dataset
 ) {
+    if (mlp == NULL || dataset == NULL) {
+        fprintf(stderr, "tinyml_evaluate_deep_mlp: null input.\n");
+        return -1.0f;
+    }
+
     if (dataset->sample_count == 0) {
-        return 0.0f;
+        fprintf(stderr, "tinyml_evaluate_deep_mlp: dataset is empty.\n");
+        return -1.0f;
     }
 
     TinyML_Matrix input = tinyml_matrix_create(1, dataset->feature_count);

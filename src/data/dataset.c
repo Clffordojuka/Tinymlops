@@ -69,6 +69,33 @@ void tinyml_dataset_split_three_way(
         return;
     }
 
+    train_dataset->sample_count = 0;
+    train_dataset->feature_count = 0;
+    train_dataset->features.rows = 0;
+    train_dataset->features.cols = 0;
+    train_dataset->features.data = NULL;
+    train_dataset->targets.rows = 0;
+    train_dataset->targets.cols = 0;
+    train_dataset->targets.data = NULL;
+
+    val_dataset->sample_count = 0;
+    val_dataset->feature_count = 0;
+    val_dataset->features.rows = 0;
+    val_dataset->features.cols = 0;
+    val_dataset->features.data = NULL;
+    val_dataset->targets.rows = 0;
+    val_dataset->targets.cols = 0;
+    val_dataset->targets.data = NULL;
+
+    test_dataset->sample_count = 0;
+    test_dataset->feature_count = 0;
+    test_dataset->features.rows = 0;
+    test_dataset->features.cols = 0;
+    test_dataset->features.data = NULL;
+    test_dataset->targets.rows = 0;
+    test_dataset->targets.cols = 0;
+    test_dataset->targets.data = NULL;
+
     if (validation_split < 0.0f) {
         validation_split = 0.0f;
     }
@@ -82,18 +109,48 @@ void tinyml_dataset_split_three_way(
     }
 
     size_t total = dataset->sample_count;
+    if (total == 0) {
+        return;
+    }
+
     size_t val_count = (size_t)(total * validation_split);
     size_t test_count = (size_t)(total * test_split);
+
+    if (validation_split > 0.0f && val_count == 0 && total >= 3) {
+        val_count = 1;
+    }
+    if (test_split > 0.0f && test_count == 0 && total >= 3) {
+        test_count = 1;
+    }
+
+    if (val_count + test_count >= total) {
+        if (test_count > 0) {
+            test_count--;
+        }
+        if (val_count + test_count >= total && val_count > 0) {
+            val_count--;
+        }
+    }
+
     size_t train_count = total - val_count - test_count;
 
-    *train_dataset = tinyml_dataset_create(train_count, dataset->feature_count);
-    *val_dataset = tinyml_dataset_create(val_count, dataset->feature_count);
-    *test_dataset = tinyml_dataset_create(test_count, dataset->feature_count);
+    if (train_count == 0 && total > 0) {
+        if (test_count > 0) {
+            test_count--;
+        } else if (val_count > 0) {
+            val_count--;
+        }
+        train_count = total - val_count - test_count;
+    }
 
     size_t *indices = (size_t *)malloc(total * sizeof(size_t));
     if (indices == NULL) {
         return;
     }
+
+    *train_dataset = tinyml_dataset_create(train_count, dataset->feature_count);
+    *val_dataset = tinyml_dataset_create(val_count, dataset->feature_count);
+    *test_dataset = tinyml_dataset_create(test_count, dataset->feature_count);
 
     for (size_t i = 0; i < total; ++i) {
         indices[i] = i;
@@ -123,6 +180,15 @@ void tinyml_dataset_split(
     TinyML_Dataset *val_dataset
 ) {
     TinyML_Dataset test_dataset;
+    test_dataset.sample_count = 0;
+    test_dataset.feature_count = 0;
+    test_dataset.features.rows = 0;
+    test_dataset.features.cols = 0;
+    test_dataset.features.data = NULL;
+    test_dataset.targets.rows = 0;
+    test_dataset.targets.cols = 0;
+    test_dataset.targets.data = NULL;
+
     tinyml_dataset_split_three_way(
         dataset,
         validation_split,
@@ -133,5 +199,6 @@ void tinyml_dataset_split(
         val_dataset,
         &test_dataset
     );
+
     tinyml_dataset_free(&test_dataset);
 }

@@ -60,3 +60,7 @@ add_test(checkpoint_deep_mlp_test "/workspace/build-docker/tests/test_checkpoint
 set_tests_properties(checkpoint_deep_mlp_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;158;add_test;/workspace/tests/CMakeLists.txt;0;")
 add_test(deep_mlp_forward_test "/workspace/build-docker/tests/test_deep_mlp_forward")
 set_tests_properties(deep_mlp_forward_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;162;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(dataset_split_three_way_test "/workspace/build-docker/tests/test_dataset_split_three_way")
+set_tests_properties(dataset_split_three_way_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;168;add_test;/workspace/tests/CMakeLists.txt;0;")
+add_test(eval_empty_dataset_test "/workspace/build-docker/tests/test_eval_empty_dataset")
+set_tests_properties(eval_empty_dataset_test PROPERTIES  _BACKTRACE_TRIPLES "/workspace/tests/CMakeLists.txt;174;add_test;/workspace/tests/CMakeLists.txt;0;")

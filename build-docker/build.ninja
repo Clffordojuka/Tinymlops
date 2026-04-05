@@ -1350,6 +1350,74 @@ build tests/test_deep_mlp_forward: C_EXECUTABLE_LINKER__test_deep_mlp_forward_ t
   TARGET_FILE = tests/test_deep_mlp_forward
   TARGET_PDB = test_deep_mlp_forward.dbg
 
+# =============================================================================
+# Object build statements for EXECUTABLE target test_dataset_split_three_way
+
+
+#############################################
+# Order-only phony target for test_dataset_split_three_way
+
+build cmake_object_order_depends_target_test_dataset_split_three_way: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_dataset_split_three_way.dir/unit/test_dataset_split_three_way.c.o: C_COMPILER__test_dataset_split_three_way_unscanned_ /workspace/tests/unit/test_dataset_split_three_way.c || cmake_object_order_depends_target_test_dataset_split_three_way
+  DEP_FILE = tests/CMakeFiles/test_dataset_split_three_way.dir/unit/test_dataset_split_three_way.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_dataset_split_three_way.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_dataset_split_three_way.dir/unit
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_dataset_split_three_way
+
+
+#############################################
+# Link the executable tests/test_dataset_split_three_way
+
+build tests/test_dataset_split_three_way: C_EXECUTABLE_LINKER__test_dataset_split_three_way_ tests/CMakeFiles/test_dataset_split_three_way.dir/unit/test_dataset_split_three_way.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_dataset_split_three_way.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_dataset_split_three_way.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_dataset_split_three_way.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_dataset_split_three_way
+  TARGET_PDB = test_dataset_split_three_way.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target test_eval_empty_dataset
+
+
+#############################################
+# Order-only phony target for test_eval_empty_dataset
+
+build cmake_object_order_depends_target_test_eval_empty_dataset: phony || cmake_object_order_depends_target_tinyml_core
+
+build tests/CMakeFiles/test_eval_empty_dataset.dir/unit/test_eval_empty_dataset.c.o: C_COMPILER__test_eval_empty_dataset_unscanned_ /workspace/tests/unit/test_eval_empty_dataset.c || cmake_object_order_depends_target_test_eval_empty_dataset
+  DEP_FILE = tests/CMakeFiles/test_eval_empty_dataset.dir/unit/test_eval_empty_dataset.c.o.d
+  FLAGS = -std=c99 -Wall -Wextra -Wpedantic
+  INCLUDES = -I/workspace/include
+  OBJECT_DIR = tests/CMakeFiles/test_eval_empty_dataset.dir
+  OBJECT_FILE_DIR = tests/CMakeFiles/test_eval_empty_dataset.dir/unit
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target test_eval_empty_dataset
+
+
+#############################################
+# Link the executable tests/test_eval_empty_dataset
+
+build tests/test_eval_empty_dataset: C_EXECUTABLE_LINKER__test_eval_empty_dataset_ tests/CMakeFiles/test_eval_empty_dataset.dir/unit/test_eval_empty_dataset.c.o | src/libtinyml_core.a || src/libtinyml_core.a
+  DEP_FILE = tests/CMakeFiles/test_eval_empty_dataset.dir/link.d
+  LINK_FLAGS = -Wl,--dependency-file=tests/CMakeFiles/test_eval_empty_dataset.dir/link.d
+  LINK_LIBRARIES = src/libtinyml_core.a  -lm
+  OBJECT_DIR = tests/CMakeFiles/test_eval_empty_dataset.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = tests/test_eval_empty_dataset
+  TARGET_PDB = test_eval_empty_dataset.dbg
+
 
 #############################################
 # Utility command for test
@@ -1414,6 +1482,8 @@ build test_dataset_multi: phony tests/test_dataset_multi
 
 build test_dataset_split: phony tests/test_dataset_split
 
+build test_dataset_split_three_way: phony tests/test_dataset_split_three_way
+
 build test_deep_mlp: phony tests/test_deep_mlp
 
 build test_deep_mlp_forward: phony tests/test_deep_mlp_forward
@@ -1421,6 +1491,8 @@ build test_deep_mlp_forward: phony tests/test_deep_mlp_forward
 build test_deep_mlp_train_step: phony tests/test_deep_mlp_train_step
 
 build test_dense: phony tests/test_dense
+
+build test_eval_empty_dataset: phony tests/test_eval_empty_dataset
 
 build test_evaluate: phony tests/test_evaluate
 
@@ -1483,7 +1555,7 @@ build src/all: phony src/libtinyml_core.a
 #############################################
 # Folder: /workspace/build-docker/tests
 
-build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi tests/test_batch_training tests/test_mlp tests/test_mlp_forward tests/test_mlp_train_step tests/test_checkpoint_mlp tests/test_hidden_layers_parse tests/test_deep_mlp tests/test_deep_mlp_train_step tests/test_checkpoint_deep_mlp tests/test_deep_mlp_forward
+build tests/all: phony tests/test_smoke tests/test_matrix tests/test_dense tests/test_activation tests/test_loss tests/test_model tests/test_training_step tests/test_linear_fit tests/test_dataset tests/test_config tests/test_checkpoint tests/test_evaluate tests/test_predict tests/test_dataset_split tests/test_normalization tests/test_dataset_multi tests/test_checkpoint_multi tests/test_predict_multi tests/test_batch_training tests/test_mlp tests/test_mlp_forward tests/test_mlp_train_step tests/test_checkpoint_mlp tests/test_hidden_layers_parse tests/test_deep_mlp tests/test_deep_mlp_train_step tests/test_checkpoint_deep_mlp tests/test_deep_mlp_forward tests/test_dataset_split_three_way tests/test_eval_empty_dataset
 
 # =============================================================================
 # Built-in targets
