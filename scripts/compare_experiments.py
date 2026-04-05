@@ -39,11 +39,16 @@ def collect_experiments() -> list[dict]:
             "num_layers": train.get("num_layers"),
             "epochs": train.get("epochs"),
             "learning_rate": train.get("learning_rate"),
+            "final_learning_rate": train.get("final_learning_rate"),
+            "optimizer": train.get("optimizer"),
+            "adam_beta1": train.get("adam_beta1"),
+            "adam_beta2": train.get("adam_beta2"),
+            "adam_epsilon": train.get("adam_epsilon"),
             "lr_schedule": train.get("lr_schedule"),
             "lr_step_size": train.get("lr_step_size"),
             "lr_decay": train.get("lr_decay"),
             "l2_lambda": train.get("l2_lambda"),
-            "final_learning_rate": train.get("final_learning_rate"),
+            "weight_init": train.get("weight_init"),
             "batch_size": train.get("batch_size"),
             "train_loss": train.get("train_loss"),
             "val_loss": train.get("val_loss"),
@@ -71,11 +76,16 @@ def write_summary(rows: list[dict]) -> None:
         "num_layers",
         "epochs",
         "learning_rate",
+        "final_learning_rate",
+        "optimizer",
+        "adam_beta1",
+        "adam_beta2",
+        "adam_epsilon",
         "lr_schedule",
         "lr_step_size",
         "lr_decay",
         "l2_lambda",
-        "final_learning_rate",
+        "weight_init",
         "batch_size",
         "train_loss",
         "val_loss",
@@ -109,8 +119,10 @@ def print_summary(rows: list[dict]) -> None:
             f"num_layers={row['num_layers']}, "
             f"epochs={row['epochs']}, "
             f"lr={row['learning_rate']}, "
-            f"schedule={row['lr_schedule']}, "
             f"final_lr={row['final_learning_rate']}, "
+            f"optimizer={row['optimizer']}, "
+            f"weight_init={row['weight_init']}, "
+            f"schedule={row['lr_schedule']}, "
             f"l2={row['l2_lambda']}, "
             f"batch_size={row['batch_size']}, "
             f"train_loss={row['train_loss']}, "
@@ -130,6 +142,8 @@ def print_summary(rows: list[dict]) -> None:
         f"hidden_dim={best['hidden_dim']}, "
         f"hidden_layers={best['hidden_layers']}, "
         f"num_layers={best['num_layers']}, "
+        f"optimizer={best['optimizer']}, "
+        f"weight_init={best['weight_init']}, "
         f"eval_loss={best['eval_loss']}, "
         f"train_loss={best['train_loss']}, "
         f"val_loss={best['val_loss']})"

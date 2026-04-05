@@ -1,7 +1,8 @@
 schema: '2.0'
 stages:
   train:
-    cmd: python scripts/train_entry.py configs/experiments/mlp_tanh.cfg
+    cmd: python scripts/train_entry.py 
+      configs/experiments/mlp_tanh_8_adam_xavier.cfg
     deps:
     - path: configs/base/train_linear.cfg
       hash: md5
@@ -30,18 +31,19 @@ stages:
       isexec: true
     params:
       params.yaml:
-        train.config_path: configs/experiments/mlp_tanh.cfg
+        train.config_path: configs/experiments/mlp_tanh_8_adam_xavier.cfg
     outs:
     - path: metrics/train_metrics.json
       hash: md5
-      md5: 09ed4c3135bc919d4b79a0b25515123c
-      size: 639
+      md5: ceb1ec8b4c244514353c7b52e814d4f5
+      size: 815
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: 3ff715b7707f5c7bad333ea1c9130ff9
-      size: 752
+      md5: 80eeaccf175c2d2fa78153829b5329b2
+      size: 976
   evaluate:
-    cmd: python scripts/evaluate_entry.py configs/experiments/mlp_tanh.cfg
+    cmd: python scripts/evaluate_entry.py 
+      configs/experiments/mlp_tanh_8_adam_xavier.cfg
     deps:
     - path: configs/base/train_linear.cfg
       hash: md5
@@ -65,8 +67,8 @@ stages:
       isexec: true
     - path: models/checkpoints/linear_model.txt
       hash: md5
-      md5: 3ff715b7707f5c7bad333ea1c9130ff9
-      size: 752
+      md5: 80eeaccf175c2d2fa78153829b5329b2
+      size: 976
     - path: scripts/evaluate_entry.py
       hash: md5
       md5: 4145f58dd64e682f6e374a4432220821
@@ -74,9 +76,9 @@ stages:
       isexec: true
     params:
       params.yaml:
-        evaluate.config_path: configs/experiments/mlp_tanh.cfg
+        evaluate.config_path: configs/experiments/mlp_tanh_8_adam_xavier.cfg
     outs:
     - path: metrics/eval_metrics.json
       hash: md5
-      md5: 8a8c1c8a76fd1455db0cf62eb30c4e1c
+      md5: 36dc21833275cf0e312c9844668bf633
       size: 170

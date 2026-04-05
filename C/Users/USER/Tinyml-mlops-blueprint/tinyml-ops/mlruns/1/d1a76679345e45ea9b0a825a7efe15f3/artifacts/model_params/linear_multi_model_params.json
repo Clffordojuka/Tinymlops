@@ -1,0 +1,24 @@
+{
+  "model_type": "linear",
+  "architecture": {
+    "input_dim": 2,
+    "hidden_dim": 0,
+    "hidden_layers": [],
+    "hidden_activation": "none",
+    "output_dim": 1,
+    "num_layers": 1
+  },
+  "parameters": {
+    "weights": [
+      [
+        2.232502
+      ],
+      [
+        2.123574
+      ]
+    ],
+    "bias": [
+      9.996786
+    ]
+  }
+}

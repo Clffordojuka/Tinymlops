@@ -1,0 +1,66 @@
+{
+  "model_type": "mlp",
+  "architecture": {
+    "input_dim": 1,
+    "hidden_dim": 8,
+    "hidden_layers": [
+      8
+    ],
+    "hidden_activation": "tanh",
+    "output_dim": 1,
+    "num_layers": 2
+  },
+  "parameters": {
+    "hidden_weights": [
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "hidden_bias": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "output_weights": [
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ],
+      [
+        0.0
+      ]
+    ],
+    "output_bias": [
+      0.196628
+    ]
+  }
+}

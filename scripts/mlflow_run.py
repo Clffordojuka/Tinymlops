@@ -67,12 +67,22 @@ def log_run(config_path: str) -> None:
         mlflow.log_param("hidden_layers", train_metrics.get("hidden_layers"))
         mlflow.log_param("hidden_activation", train_metrics.get("hidden_activation"))
         mlflow.log_param("num_layers", train_metrics.get("num_layers"))
+
         mlflow.log_param("epochs", train_metrics.get("epochs"))
         mlflow.log_param("learning_rate", train_metrics.get("learning_rate"))
+        mlflow.log_param("final_learning_rate", train_metrics.get("final_learning_rate"))
+
+        mlflow.log_param("optimizer", train_metrics.get("optimizer"))
+        mlflow.log_param("adam_beta1", train_metrics.get("adam_beta1"))
+        mlflow.log_param("adam_beta2", train_metrics.get("adam_beta2"))
+        mlflow.log_param("adam_epsilon", train_metrics.get("adam_epsilon"))
+
         mlflow.log_param("lr_schedule", train_metrics.get("lr_schedule"))
         mlflow.log_param("lr_step_size", train_metrics.get("lr_step_size"))
         mlflow.log_param("lr_decay", train_metrics.get("lr_decay"))
         mlflow.log_param("l2_lambda", train_metrics.get("l2_lambda"))
+        mlflow.log_param("weight_init", train_metrics.get("weight_init"))
+
         mlflow.log_param("batch_size", train_metrics.get("batch_size"))
         mlflow.log_param("validation_split", train_metrics.get("validation_split"))
         mlflow.log_param("shuffle", train_metrics.get("shuffle"))
@@ -93,7 +103,6 @@ def log_run(config_path: str) -> None:
         mlflow.log_metric("weight_l2_norm", eval_metrics.get("weight_l2_norm"))
         mlflow.log_metric("max_abs_weight", eval_metrics.get("max_abs_weight"))
         mlflow.log_metric("bias_l2_norm", eval_metrics.get("bias_l2_norm"))
-        mlflow.log_metric("final_learning_rate", train_metrics.get("final_learning_rate"))
 
         if train_metrics.get("best_val_loss") is not None:
             mlflow.log_metric("best_val_loss", train_metrics.get("best_val_loss"))
@@ -102,6 +111,8 @@ def log_run(config_path: str) -> None:
 
         mlflow.set_tag("model_type", train_metrics.get("model_type", "unknown"))
         mlflow.set_tag("architecture", model_params.get("model_type", "unknown"))
+        mlflow.set_tag("optimizer", str(train_metrics.get("optimizer", "unknown")))
+        mlflow.set_tag("weight_init", str(train_metrics.get("weight_init", "unknown")))
 
         model_type = model_params.get("model_type")
 
