@@ -1,0 +1,16 @@
+{
+  "timestamp_utc": "2026-04-06T13:43:53.688293Z",
+  "promoted_experiment": "mlp_tanh_8_adam_xavier",
+  "source_config": "configs/experiments/mlp_tanh_8_adam_xavier.cfg",
+  "promoted_config": "configs/experiments/best_default.cfg",
+  "eval_loss": "0.001151",
+  "train_loss": "6.557673",
+  "val_loss": "96.456558",
+  "model_type": "mlp",
+  "hidden_layers": "",
+  "hidden_activation": "tanh",
+  "optimizer": "adam",
+  "weight_init": "xavier",
+  "valid_run_count": 8,
+  "excluded_run_count": 13
+}

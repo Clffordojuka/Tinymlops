@@ -1,203 +1,190 @@
 import csv
-from collections import defaultdict
+import json
+import subprocess
+import sys
+from datetime import datetime
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = ROOT / "results"
 SUMMARY_CSV = RESULTS_DIR / "experiment_summary.csv"
-REPORT_MD = RESULTS_DIR / "benchmark_report.md"
+BATCH_SUMMARY_JSON = RESULTS_DIR / "batch_summary.json"
+BENCHMARK_REPORT_MD = RESULTS_DIR / "benchmark_report.md"
+PROMOTED_DEFAULT_JSON = RESULTS_DIR / "promoted_default.json"
+PROMOTED_DEFAULT_CFG = ROOT / "configs" / "experiments" / "best_default.cfg"
 
 
-def read_rows(path: Path) -> list[dict]:
-    if not path.exists():
-        raise FileNotFoundError(f"Missing summary file: {path}")
+def run_command(cmd: list[str]) -> None:
+    result = subprocess.run(cmd, cwd=ROOT, check=False)
+    if result.returncode != 0:
+        raise RuntimeError(f"Command failed: {' '.join(cmd)}")
 
-    with path.open("r", encoding="utf-8", newline="") as fp:
+
+def run_experiment(config_path: str) -> None:
+    print(f"\n=== Running experiment: {config_path} ===")
+    run_command(["python", "scripts/run_experiment.py", config_path])
+
+
+def compare_experiments() -> None:
+    print("\n=== Comparing experiments ===")
+    run_command(["python", "scripts/compare_experiments.py"])
+
+
+def generate_benchmark_report() -> None:
+    print("\n=== Generating benchmark report ===")
+    run_command(["python", "scripts/report_best_experiments.py"])
+
+
+def promote_best_config() -> None:
+    print("\n=== Promoting best config ===")
+    run_command(["python", "scripts/promote_best_config.py"])
+
+
+def log_to_mlflow(config_path: str) -> None:
+    print(f"\n=== Logging to MLflow: {config_path} ===")
+    run_command(["python", "scripts/mlflow_run.py", config_path])
+
+
+def collect_cfgs_from_directory(directory: Path) -> list[str]:
+    configs = sorted(str(path.relative_to(ROOT)) for path in directory.glob("*.cfg"))
+    if not configs:
+        raise ValueError(f"No .cfg files found in directory: {directory}")
+    return configs
+
+
+def normalize_config_paths(args: list[str]) -> list[str]:
+    configs: list[str] = []
+
+    for arg in args:
+        path = Path(arg)
+        abs_path = path if path.is_absolute() else (ROOT / path)
+
+        if abs_path.is_dir():
+            configs.extend(collect_cfgs_from_directory(abs_path))
+        elif abs_path.is_file() and abs_path.suffix == ".cfg":
+            configs.append(str(abs_path.relative_to(ROOT)))
+        else:
+            raise ValueError(f"Expected a .cfg file or directory, got: {arg}")
+
+    seen = set()
+    unique_configs: list[str] = []
+    for cfg in configs:
+        if cfg not in seen:
+            seen.add(cfg)
+            unique_configs.append(cfg)
+
+    return unique_configs
+
+
+def read_best_experiment() -> dict | None:
+    if not SUMMARY_CSV.exists():
+        return None
+
+    with SUMMARY_CSV.open("r", encoding="utf-8", newline="") as fp:
         reader = csv.DictReader(fp)
-        rows = list(reader)
+        for row in reader:
+            return row
 
-    return rows
+    return None
 
 
-def parse_float(value: str) -> float | None:
-    if value is None:
+def read_promoted_default() -> dict | None:
+    if not PROMOTED_DEFAULT_JSON.exists():
         return None
-    value = str(value).strip()
-    if value == "":
-        return None
-    try:
-        return float(value)
-    except ValueError:
-        return None
+    return json.loads(PROMOTED_DEFAULT_JSON.read_text(encoding="utf-8"))
 
 
-def normalize_text(value: str, default: str = "unknown") -> str:
-    if value is None:
-        return default
-    value = str(value).strip()
-    return value if value else default
-
-
-def valid_rows(rows: list[dict]) -> list[dict]:
-    cleaned = []
-
-    for row in rows:
-        eval_loss = parse_float(row.get("eval_loss"))
-        train_loss = parse_float(row.get("train_loss"))
-        val_loss = parse_float(row.get("val_loss"))
-
-        cleaned.append({
-            **row,
-            "_eval_loss": eval_loss,
-            "_train_loss": train_loss,
-            "_val_loss": val_loss,
-            "_model_type": normalize_text(row.get("model_type")),
-            "_hidden_activation": normalize_text(row.get("hidden_activation"), "none"),
-            "_optimizer": normalize_text(row.get("optimizer")),
-            "_weight_init": normalize_text(row.get("weight_init")),
-        })
-
-    cleaned = [r for r in cleaned if r["_eval_loss"] is not None and r["_eval_loss"] >= 0.0]
-    cleaned.sort(key=lambda r: r["_eval_loss"])
-    return cleaned
-
-
-def best_by_key(rows: list[dict], key: str) -> dict[str, dict]:
-    groups: dict[str, list[dict]] = defaultdict(list)
-    for row in rows:
-        groups[row[key]].append(row)
-
-    winners = {}
-    for group_name, group_rows in groups.items():
-        group_rows.sort(key=lambda r: r["_eval_loss"])
-        winners[group_name] = group_rows[0]
-
-    return winners
-
-
-def fmt_row(row: dict) -> str:
-    return (
-        f"{row.get('experiment')} | "
-        f"model={row.get('model_type')} | "
-        f"hidden_layers={row.get('hidden_layers')} | "
-        f"activation={row.get('hidden_activation')} | "
-        f"optimizer={row.get('optimizer')} | "
-        f"weight_init={row.get('weight_init')} | "
-        f"eval_loss={row.get('eval_loss')} | "
-        f"train_loss={row.get('train_loss')} | "
-        f"val_loss={row.get('val_loss')}"
-    )
-
-
-def markdown_table(rows: list[dict]) -> str:
-    lines = [
-        "| Rank | Experiment | Model | Hidden Layers | Activation | Optimizer | Weight Init | Eval Loss | Train Loss | Val Loss |",
-        "|---:|---|---|---|---|---|---|---:|---:|---:|",
-    ]
-
-    for idx, row in enumerate(rows, start=1):
-        lines.append(
-            f"| {idx} | {row.get('experiment')} | {row.get('model_type')} | "
-            f"{row.get('hidden_layers')} | {row.get('hidden_activation')} | "
-            f"{row.get('optimizer')} | {row.get('weight_init')} | "
-            f"{row.get('eval_loss')} | {row.get('train_loss')} | {row.get('val_loss')} |"
-        )
-
-    return "\n".join(lines)
-
-
-def write_report(rows: list[dict]) -> Path:
+def write_batch_summary(
+    configs: list[str],
+    successes: list[str],
+    failures: list[tuple[str, str]],
+    enable_mlflow: bool,
+) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    if not rows:
-        REPORT_MD.write_text(
-            "# Benchmark Report\n\nNo valid experiment rows found in experiment_summary.csv.\n",
-            encoding="utf-8",
-        )
-        return REPORT_MD
+    summary = {
+        "timestamp_utc": datetime.utcnow().isoformat() + "Z",
+        "mlflow_enabled": enable_mlflow,
+        "requested_configs": configs,
+        "successful_runs": successes,
+        "failed_runs": [
+            {"config": config, "error": error}
+            for config, error in failures
+        ],
+        "best_experiment": read_best_experiment(),
+        "comparison_csv": str(SUMMARY_CSV.relative_to(ROOT)) if SUMMARY_CSV.exists() else None,
+        "benchmark_report": str(BENCHMARK_REPORT_MD.relative_to(ROOT)) if BENCHMARK_REPORT_MD.exists() else None,
+        "promoted_default_config": str(PROMOTED_DEFAULT_CFG.relative_to(ROOT)) if PROMOTED_DEFAULT_CFG.exists() else None,
+        "promoted_default_metadata": read_promoted_default(),
+    }
 
-    best_overall = rows[0]
-    top5 = rows[:5]
-
-    best_models = best_by_key(rows, "_model_type")
-    best_activations = best_by_key(rows, "_hidden_activation")
-    best_optimizers = best_by_key(rows, "_optimizer")
-    best_inits = best_by_key(rows, "_weight_init")
-
-    report_lines = [
-        "# Benchmark Report",
-        "",
-        "## Best Overall Experiment",
-        "",
-        f"- **Experiment:** {best_overall.get('experiment')}",
-        f"- **Model Type:** {best_overall.get('model_type')}",
-        f"- **Hidden Layers:** {best_overall.get('hidden_layers')}",
-        f"- **Hidden Activation:** {best_overall.get('hidden_activation')}",
-        f"- **Optimizer:** {best_overall.get('optimizer')}",
-        f"- **Weight Init:** {best_overall.get('weight_init')}",
-        f"- **Eval Loss:** {best_overall.get('eval_loss')}",
-        f"- **Train Loss:** {best_overall.get('train_loss')}",
-        f"- **Val Loss:** {best_overall.get('val_loss')}",
-        "",
-        "## Top 5 Experiments",
-        "",
-        markdown_table(top5),
-        "",
-        "## Best by Model Type",
-        "",
-    ]
-
-    for key in sorted(best_models):
-        report_lines.append(f"- **{key}:** {fmt_row(best_models[key])}")
-
-    report_lines.extend([
-        "",
-        "## Best by Hidden Activation",
-        "",
-    ])
-
-    for key in sorted(best_activations):
-        report_lines.append(f"- **{key}:** {fmt_row(best_activations[key])}")
-
-    report_lines.extend([
-        "",
-        "## Best by Optimizer",
-        "",
-    ])
-
-    for key in sorted(best_optimizers):
-        report_lines.append(f"- **{key}:** {fmt_row(best_optimizers[key])}")
-
-    report_lines.extend([
-        "",
-        "## Best by Weight Initialization",
-        "",
-    ])
-
-    for key in sorted(best_inits):
-        report_lines.append(f"- **{key}:** {fmt_row(best_inits[key])}")
-
-    report_lines.extend([
-        "",
-        "## Recommended Default",
-        "",
-        f"The current recommended default configuration is **{best_overall.get('experiment')}**, "
-        f"because it achieved the lowest recorded eval loss of **{best_overall.get('eval_loss')}** "
-        f"among the benchmarked runs.",
-        "",
-    ])
-
-    REPORT_MD.write_text("\n".join(report_lines) + "\n", encoding="utf-8")
-    return REPORT_MD
+    BATCH_SUMMARY_JSON.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    print(f"\nBatch summary written to: {BATCH_SUMMARY_JSON.relative_to(ROOT)}")
 
 
 def main() -> int:
-    rows = read_rows(SUMMARY_CSV)
-    ranked_rows = valid_rows(rows)
-    report_path = write_report(ranked_rows)
-    print(f"Benchmark report written to: {report_path.relative_to(ROOT)}")
-    return 0
+    if len(sys.argv) < 2:
+        print(
+            "Usage: python scripts/run_experiment_batch.py "
+            "<config1.cfg|config_dir> <config2.cfg|config_dir> ... [--mlflow]"
+        )
+        return 1
+
+    raw_args = sys.argv[1:]
+    enable_mlflow = False
+
+    if "--mlflow" in raw_args:
+        enable_mlflow = True
+        raw_args = [arg for arg in raw_args if arg != "--mlflow"]
+
+    configs = normalize_config_paths(raw_args)
+
+    if not configs:
+        print("No config files provided.")
+        return 1
+
+    successes: list[str] = []
+    failures: list[tuple[str, str]] = []
+
+    for config_path in configs:
+        try:
+            run_experiment(config_path)
+            successes.append(config_path)
+
+            if enable_mlflow:
+                log_to_mlflow(config_path)
+
+        except Exception as exc:
+            failures.append((config_path, str(exc)))
+            print(f"\nFAILED: {config_path}")
+            print(exc)
+
+    if successes:
+        compare_experiments()
+        generate_benchmark_report()
+        promote_best_config()
+
+    write_batch_summary(configs, successes, failures, enable_mlflow)
+
+    print("\n=== Batch Summary ===")
+    print(f"Successful runs: {len(successes)}")
+    for config in successes:
+        print(f"  OK  - {config}")
+
+    print(f"Failed runs: {len(failures)}")
+    for config, error in failures:
+        print(f"  ERR - {config}")
+        print(f"        {error}")
+
+    if SUMMARY_CSV.exists():
+        print(f"\nComparison CSV: {SUMMARY_CSV.relative_to(ROOT)}")
+    if BENCHMARK_REPORT_MD.exists():
+        print(f"Benchmark report: {BENCHMARK_REPORT_MD.relative_to(ROOT)}")
+    if PROMOTED_DEFAULT_CFG.exists():
+        print(f"Promoted default config: {PROMOTED_DEFAULT_CFG.relative_to(ROOT)}")
+
+    return 0 if not failures else 2
 
 
 if __name__ == "__main__":

@@ -6,11 +6,13 @@ A C-first machine learning systems project that combines a lightweight neural-ne
 
 `tinyml-ops` started as a small neural network implementation in C and has grown into a compact end-to-end ML systems project focused on transparency, reproducibility, and inspectable workflows.
 
-The project now supports:
+The project currently supports:
 
 - matrix operations
 - dense layer forward and backward propagation
 - configurable hidden activations (`relu`, `tanh`, `linear`, `none`)
+- configurable optimizers (`sgd`, `adam`)
+- configurable weight initialization (`zeros`, `xavier`, `he`)
 - MSE loss
 - linear models
 - single-hidden-layer MLPs
@@ -27,6 +29,7 @@ The project now supports:
 - runtime model abstraction for train/evaluate/predict
 - DVC-based reproducible pipelines
 - experiment archiving and comparison
+- benchmark report generation
 - MLflow tracking
 - automated batch experiment execution
 - unit and integration testing
@@ -200,15 +203,37 @@ configs/experiments/mlp_relu_8.cfg
 configs/experiments/mlp_tanh_8.cfg
 configs/experiments/deep_mlp_8_4.cfg
 configs/experiments/deep_mlp_tanh_8_4.cfg
+configs/experiments/best_default.cfg
 ```
+
+### Recommended default configuration
+
+The current promoted default benchmark configuration is:
+
+```text
+configs/experiments/best_default.cfg
+```
+
+This config is intended to provide a stable, benchmark-backed default setup for training, evaluation, and demonstration.
+
+Current recommended setup:
+
+* model type: `mlp`
+* hidden dimension: `8`
+* hidden activation: `tanh`
+* optimizer: `adam`
+* weight initialization: `xavier`
 
 Configs define values such as:
 
 * dataset path
 * epoch count
 * learning rate
+* optimizer
+* Adam hyperparameters
 * learning-rate schedule
 * L2 regularization
+* weight initialization
 * model type
 * hidden dimension or hidden layer list
 * hidden activation
@@ -226,6 +251,8 @@ Configs define values such as:
 ```ini
 model_type=linear
 learning_rate=0.01
+optimizer=adam
+weight_init=zeros
 epochs=200
 ```
 
@@ -234,7 +261,9 @@ epochs=200
 ```ini
 model_type=mlp
 hidden_dim=8
-hidden_activation=relu
+hidden_activation=tanh
+optimizer=adam
+weight_init=xavier
 learning_rate=0.005
 epochs=500
 ```
@@ -245,6 +274,8 @@ epochs=500
 model_type=deep_mlp
 hidden_layers=8,4
 hidden_activation=relu
+optimizer=adam
+weight_init=he
 learning_rate=0.005
 epochs=500
 ```
@@ -271,6 +302,7 @@ Typical output includes:
 * early stopping status
 * sample prediction for a reference input
 * model type and architecture summary
+* optimizer and initialization summary
 
 ## Evaluation
 
@@ -283,6 +315,7 @@ Evaluate a trained checkpoint:
 Typical output includes:
 
 * test loss
+* split counts
 * sample prediction
 * model-type-aware evaluation metrics
 
@@ -323,6 +356,7 @@ Current dataset support includes:
 * numeric CSV parsing
 * train/validation/test splitting
 * deterministic shuffling with seed
+* split integrity safeguards for small datasets
 * normalization fit on training split only
 * normalization reuse for evaluation and prediction
 
@@ -386,6 +420,7 @@ The batch runner:
 * runs experiments sequentially
 * optionally logs runs to MLflow
 * updates experiment comparison outputs
+* generates a benchmark report
 * writes a batch summary
 
 ## Compare experiments
@@ -403,6 +438,31 @@ results/experiment_summary.csv
 ```
 
 and prints a ranked comparison of archived experiments.
+
+## Benchmark report
+
+Generate a benchmark summary from ranked experiment results:
+
+```bash
+python scripts/report_best_experiments.py
+```
+
+This writes:
+
+```text
+results/benchmark_report.md
+```
+
+The benchmark report highlights:
+
+* best overall valid experiment
+* top-ranked valid experiments
+* best result by model type
+* best result by activation
+* best result by optimizer
+* best result by weight initialization
+* excluded legacy or invalid runs
+* the current recommended default configuration
 
 ## MLflow tracking
 
@@ -430,6 +490,8 @@ In the MLflow UI, look under the `tinyml-ops` experiment to inspect:
 * run parameters
 * run metrics
 * model architecture metadata
+* optimizer metadata
+* initialization metadata
 * logged artifacts
 * archived outputs
 
@@ -448,6 +510,8 @@ The project includes unit and integration coverage for:
 * dataset loading
 * config loading
 * hidden-layer parsing
+* split integrity behavior
+* empty-evaluation handling
 * checkpoint save/load
 * MLP checkpoint save/load
 * deep MLP checkpoint save/load
@@ -490,6 +554,7 @@ ctest --test-dir build-docker --output-on-failure
 
 * `results/experiment_summary.csv`
 * `results/batch_summary.json`
+* `results/benchmark_report.md`
 
 ## Continuous integration
 
@@ -511,14 +576,13 @@ This project is still intentionally compact in scope for clarity and inspectabil
 
 Current limitations include:
 
-* regression-oriented workflow
-* MSE-loss-focused training path
+* regression-oriented workflow only
+* no classification losses yet
 * simple CSV parsing
 * local MLflow setup
 * local DVC setup
 * Docker-first execution path
-* no optimizer choices beyond the current training implementation
-* no classification losses yet
+* benchmark quality depends on experiment metadata consistency
 * no remote artifact storage yet
 
 These constraints are deliberate so the system remains easy to inspect, debug, and extend.
@@ -527,13 +591,11 @@ These constraints are deliberate so the system remains easy to inspect, debug, a
 
 Planned next steps include:
 
-* optimizer upgrades such as Adam
-* improved weight initialization
-* richer dataset handling
 * classification support
+* richer dataset handling
+* benchmark promotion automation
+* stronger experiment validation and result integrity checks
 * remote DVC storage
-* stronger experiment management
-* improved reporting and architecture comparison
 * broader CI and deployment workflows
 * more detailed design documentation in `docs/`
 
@@ -568,9 +630,10 @@ cmake -S . -B build-docker -G Ninja -DCMAKE_C_COMPILER=gcc
 cmake --build build-docker
 ctest --test-dir build-docker --output-on-failure
 python -m dvc repro
-python scripts/run_experiment.py configs/experiments/linear_long.cfg
+python scripts/run_experiment.py configs/experiments/best_default.cfg
 python scripts/run_experiment_batch.py configs/experiments --mlflow
 python scripts/compare_experiments.py
+python scripts/report_best_experiments.py
 ```
 
 ## Status
@@ -579,14 +642,20 @@ The project is currently at a strong compact-ML-systems milestone:
 
 * core ML logic works
 * linear, MLP, and deep MLP models work
+* configurable hidden activations work
+* configurable optimizers work
+* configurable weight initialization works
 * reproducible training works
 * evaluation and prediction work
+* train/validation/test splitting is supported
 * experiments can be compared
+* benchmark reports can be generated
 * architecture metadata is tracked
 * metrics and checkpoints are archived
 * CI is working
 * Docker execution is working
 * MLflow tracking is integrated
 * batch experiment execution is working
+* a benchmark-backed default config is available
 
 ```

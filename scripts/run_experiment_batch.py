@@ -1,159 +1,288 @@
 import csv
-import json
-import subprocess
-import sys
-from datetime import datetime
+from collections import defaultdict
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = ROOT / "results"
 SUMMARY_CSV = RESULTS_DIR / "experiment_summary.csv"
-BATCH_SUMMARY_JSON = RESULTS_DIR / "batch_summary.json"
+REPORT_MD = RESULTS_DIR / "benchmark_report.md"
 
 
-def run_command(cmd: list[str]) -> None:
-    result = subprocess.run(cmd, cwd=ROOT, check=False)
-    if result.returncode != 0:
-        raise RuntimeError(f"Command failed: {' '.join(cmd)}")
+def read_rows(path: Path) -> list[dict]:
+    if not path.exists():
+        raise FileNotFoundError(f"Missing summary file: {path}")
+
+    with path.open("r", encoding="utf-8", newline="") as fp:
+        reader = csv.DictReader(fp)
+        rows = list(reader)
+
+    return rows
 
 
-def run_experiment(config_path: str) -> None:
-    print(f"\n=== Running experiment: {config_path} ===")
-    run_command(["python", "scripts/run_experiment.py", config_path])
-
-
-def compare_experiments() -> None:
-    print("\n=== Comparing experiments ===")
-    run_command(["python", "scripts/compare_experiments.py"])
-
-
-def log_to_mlflow(config_path: str) -> None:
-    print(f"\n=== Logging to MLflow: {config_path} ===")
-    run_command(["python", "scripts/mlflow_run.py", config_path])
-
-
-def collect_cfgs_from_directory(directory: Path) -> list[str]:
-    configs = sorted(str(path.relative_to(ROOT)) for path in directory.glob("*.cfg"))
-    if not configs:
-        raise ValueError(f"No .cfg files found in directory: {directory}")
-    return configs
-
-
-def normalize_config_paths(args: list[str]) -> list[str]:
-    configs: list[str] = []
-
-    for arg in args:
-        path = Path(arg)
-        abs_path = path if path.is_absolute() else (ROOT / path)
-
-        if abs_path.is_dir():
-            configs.extend(collect_cfgs_from_directory(abs_path))
-        elif abs_path.is_file() and abs_path.suffix == ".cfg":
-            configs.append(str(abs_path.relative_to(ROOT)))
-        else:
-            raise ValueError(f"Expected a .cfg file or directory, got: {arg}")
-
-    # remove duplicates while preserving order
-    seen = set()
-    unique_configs: list[str] = []
-    for cfg in configs:
-        if cfg not in seen:
-            seen.add(cfg)
-            unique_configs.append(cfg)
-
-    return unique_configs
-
-
-def read_best_experiment() -> dict | None:
-    if not SUMMARY_CSV.exists():
+def parse_float(value: str) -> float | None:
+    if value is None:
+        return None
+    value = str(value).strip()
+    if value == "":
+        return None
+    try:
+        return float(value)
+    except ValueError:
         return None
 
-    with SUMMARY_CSV.open("r", encoding="utf-8", newline="") as fp:
-        reader = csv.DictReader(fp)
-        for row in reader:
-            return row
 
-    return None
+def normalize_text(value: str, default: str = "unknown") -> str:
+    if value is None:
+        return default
+    value = str(value).strip()
+    return value if value else default
 
 
-def write_batch_summary(
-    configs: list[str],
-    successes: list[str],
-    failures: list[tuple[str, str]],
-    enable_mlflow: bool,
-) -> None:
+def is_legacy_or_malformed_name(name: str) -> bool:
+    if not name:
+        return True
+
+    stripped = name.strip()
+    lowered = stripped.lower()
+    if lowered != stripped:
+        return True
+
+    suspicious = [
+        "unknown",
+    ]
+    for token in suspicious:
+        if token in stripped:
+            return True
+
+    return False
+
+
+def classify_rows(rows: list[dict]) -> tuple[list[dict], list[dict]]:
+    valid = []
+    excluded = []
+
+    for row in rows:
+        eval_loss = parse_float(row.get("eval_loss"))
+        train_loss = parse_float(row.get("train_loss"))
+        val_loss = parse_float(row.get("val_loss"))
+
+        model_type = normalize_text(row.get("model_type"))
+        hidden_activation = normalize_text(row.get("hidden_activation"), "none")
+        optimizer = normalize_text(row.get("optimizer"))
+        weight_init = normalize_text(row.get("weight_init"))
+        experiment = normalize_text(row.get("experiment"), "")
+
+        enriched = {
+            **row,
+            "_eval_loss": eval_loss,
+            "_train_loss": train_loss,
+            "_val_loss": val_loss,
+            "_model_type": model_type,
+            "_hidden_activation": hidden_activation,
+            "_optimizer": optimizer,
+            "_weight_init": weight_init,
+            "_experiment": experiment,
+            "_exclude_reason": "",
+        }
+
+        reason = None
+
+        if eval_loss is None or eval_loss < 0.0:
+            reason = "missing_or_invalid_eval_loss"
+        elif model_type == "unknown":
+            reason = "missing_model_type"
+        elif optimizer == "unknown":
+            reason = "missing_optimizer"
+        elif weight_init == "unknown":
+            reason = "missing_weight_init"
+        elif val_loss is None:
+            reason = "missing_val_loss"
+        elif model_type in {"mlp", "deep_mlp"} and hidden_activation == "none":
+            reason = "missing_hidden_activation"
+        elif model_type in {"mlp", "deep_mlp"} and eval_loss == 0.0 and val_loss == 0.0:
+            reason = "suspicious_zero_eval_and_val_loss"
+        elif is_legacy_or_malformed_name(experiment):
+            reason = "legacy_or_malformed_experiment_name"
+
+        if reason is None:
+            valid.append(enriched)
+        else:
+            enriched["_exclude_reason"] = reason
+            excluded.append(enriched)
+
+    valid.sort(key=lambda r: r["_eval_loss"])
+    excluded.sort(key=lambda r: (r["_exclude_reason"], r.get("experiment", "")))
+    return valid, excluded
+
+
+def best_by_key(rows: list[dict], key: str) -> dict[str, dict]:
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for row in rows:
+        groups[row[key]].append(row)
+
+    winners = {}
+    for group_name, group_rows in groups.items():
+        group_rows.sort(key=lambda r: r["_eval_loss"])
+        winners[group_name] = group_rows[0]
+
+    return winners
+
+
+def fmt_row(row: dict) -> str:
+    return (
+        f"{row.get('experiment')} | "
+        f"model={row.get('model_type')} | "
+        f"hidden_layers={row.get('hidden_layers')} | "
+        f"activation={row.get('hidden_activation')} | "
+        f"optimizer={row.get('optimizer')} | "
+        f"weight_init={row.get('weight_init')} | "
+        f"eval_loss={row.get('eval_loss')} | "
+        f"train_loss={row.get('train_loss')} | "
+        f"val_loss={row.get('val_loss')}"
+    )
+
+
+def markdown_table(rows: list[dict]) -> str:
+    lines = [
+        "| Rank | Experiment | Model | Hidden Layers | Activation | Optimizer | Weight Init | Eval Loss | Train Loss | Val Loss |",
+        "|---:|---|---|---|---|---|---|---:|---:|---:|",
+    ]
+
+    for idx, row in enumerate(rows, start=1):
+        lines.append(
+            f"| {idx} | {row.get('experiment')} | {row.get('model_type')} | "
+            f"{row.get('hidden_layers')} | {row.get('hidden_activation')} | "
+            f"{row.get('optimizer')} | {row.get('weight_init')} | "
+            f"{row.get('eval_loss')} | {row.get('train_loss')} | {row.get('val_loss')} |"
+        )
+
+    return "\n".join(lines)
+
+
+def excluded_table(rows: list[dict]) -> str:
+    if not rows:
+        return "_None_"
+
+    lines = [
+        "| Experiment | Reason | Model | Optimizer | Weight Init | Eval Loss | Val Loss |",
+        "|---|---|---|---|---|---:|---:|",
+    ]
+
+    for row in rows:
+        lines.append(
+            f"| {row.get('experiment')} | {row.get('_exclude_reason')} | "
+            f"{row.get('model_type')} | {row.get('optimizer')} | {row.get('weight_init')} | "
+            f"{row.get('eval_loss')} | {row.get('val_loss')} |"
+        )
+
+    return "\n".join(lines)
+
+
+def write_report(valid_rows: list[dict], excluded_rows: list[dict], total_rows: int) -> Path:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    summary = {
-        "timestamp_utc": datetime.utcnow().isoformat() + "Z",
-        "mlflow_enabled": enable_mlflow,
-        "requested_configs": configs,
-        "successful_runs": successes,
-        "failed_runs": [
-            {"config": config, "error": error}
-            for config, error in failures
-        ],
-        "best_experiment": read_best_experiment(),
-    }
+    if not valid_rows:
+        REPORT_MD.write_text(
+            "# Benchmark Report\n\n"
+            f"Found {total_rows} rows, but no valid comparable experiment rows remained after filtering.\n",
+            encoding="utf-8",
+        )
+        return REPORT_MD
 
-    BATCH_SUMMARY_JSON.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    print(f"\nBatch summary written to: {BATCH_SUMMARY_JSON.relative_to(ROOT)}")
+    best_overall = valid_rows[0]
+    top5 = valid_rows[:5]
+
+    best_models = best_by_key(valid_rows, "_model_type")
+    best_activations = best_by_key(valid_rows, "_hidden_activation")
+    best_optimizers = best_by_key(valid_rows, "_optimizer")
+    best_inits = best_by_key(valid_rows, "_weight_init")
+
+    report_lines = [
+        "# Benchmark Report",
+        "",
+        "## Benchmark Set Quality",
+        "",
+        f"- **Total rows found:** {total_rows}",
+        f"- **Valid comparable runs:** {len(valid_rows)}",
+        f"- **Excluded runs:** {len(excluded_rows)}",
+        "",
+        "## Best Overall Experiment",
+        "",
+        f"- **Experiment:** {best_overall.get('experiment')}",
+        f"- **Model Type:** {best_overall.get('model_type')}",
+        f"- **Hidden Layers:** {best_overall.get('hidden_layers')}",
+        f"- **Hidden Activation:** {best_overall.get('hidden_activation')}",
+        f"- **Optimizer:** {best_overall.get('optimizer')}",
+        f"- **Weight Init:** {best_overall.get('weight_init')}",
+        f"- **Eval Loss:** {best_overall.get('eval_loss')}",
+        f"- **Train Loss:** {best_overall.get('train_loss')}",
+        f"- **Val Loss:** {best_overall.get('val_loss')}",
+        "",
+        "## Top 5 Valid Experiments",
+        "",
+        markdown_table(top5),
+        "",
+        "## Best by Model Type",
+        "",
+    ]
+
+    for key in sorted(best_models):
+        report_lines.append(f"- **{key}:** {fmt_row(best_models[key])}")
+
+    report_lines.extend([
+        "",
+        "## Best by Hidden Activation",
+        "",
+    ])
+
+    for key in sorted(best_activations):
+        report_lines.append(f"- **{key}:** {fmt_row(best_activations[key])}")
+
+    report_lines.extend([
+        "",
+        "## Best by Optimizer",
+        "",
+    ])
+
+    for key in sorted(best_optimizers):
+        report_lines.append(f"- **{key}:** {fmt_row(best_optimizers[key])}")
+
+    report_lines.extend([
+        "",
+        "## Best by Weight Initialization",
+        "",
+    ])
+
+    for key in sorted(best_inits):
+        report_lines.append(f"- **{key}:** {fmt_row(best_inits[key])}")
+
+    report_lines.extend([
+        "",
+        "## Excluded Runs",
+        "",
+        excluded_table(excluded_rows),
+        "",
+        "## Recommended Default",
+        "",
+        f"The current recommended default configuration is **{best_overall.get('experiment')}**, "
+        f"because it is the best result among the **valid comparable runs** and achieved an eval loss of "
+        f"**{best_overall.get('eval_loss')}**.",
+        "",
+    ])
+
+    REPORT_MD.write_text("\n".join(report_lines) + "\n", encoding="utf-8")
+    return REPORT_MD
 
 
 def main() -> int:
-    if len(sys.argv) < 2:
-        print(
-            "Usage: python scripts/run_experiment_batch.py "
-            "<config1.cfg|config_dir> <config2.cfg|config_dir> ... [--mlflow]"
-        )
-        return 1
-
-    raw_args = sys.argv[1:]
-    enable_mlflow = False
-
-    if "--mlflow" in raw_args:
-        enable_mlflow = True
-        raw_args = [arg for arg in raw_args if arg != "--mlflow"]
-
-    configs = normalize_config_paths(raw_args)
-
-    if not configs:
-        print("No config files provided.")
-        return 1
-
-    successes: list[str] = []
-    failures: list[tuple[str, str]] = []
-
-    for config_path in configs:
-        try:
-            run_experiment(config_path)
-            successes.append(config_path)
-
-            if enable_mlflow:
-                log_to_mlflow(config_path)
-
-        except Exception as exc:
-            failures.append((config_path, str(exc)))
-            print(f"\nFAILED: {config_path}")
-            print(exc)
-
-    if successes:
-        compare_experiments()
-
-    write_batch_summary(configs, successes, failures, enable_mlflow)
-
-    print("\n=== Batch Summary ===")
-    print(f"Successful runs: {len(successes)}")
-    for config in successes:
-        print(f"  OK  - {config}")
-
-    print(f"Failed runs: {len(failures)}")
-    for config, error in failures:
-        print(f"  ERR - {config}")
-        print(f"        {error}")
-
-    return 0 if not failures else 2
+    rows = read_rows(SUMMARY_CSV)
+    valid, excluded = classify_rows(rows)
+    report_path = write_report(valid, excluded, len(rows))
+    print(f"Benchmark report written to: {report_path.relative_to(ROOT)}")
+    print(f"Valid runs: {len(valid)}")
+    print(f"Excluded runs: {len(excluded)}")
+    return 0
 
 
 if __name__ == "__main__":

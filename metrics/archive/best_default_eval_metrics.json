@@ -1,0 +1,8 @@
+{
+  "eval_loss": 0.001151,
+  "prediction_x4": 0.000000,
+  "parameter_count": 33,
+  "weight_l2_norm": 5.338130,
+  "max_abs_weight": 1.936538,
+  "bias_l2_norm": 4.934196
+}
