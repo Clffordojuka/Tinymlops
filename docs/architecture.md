@@ -1,309 +1,212 @@
-# tinyml-ops Architecture
+## `docs/architectures.md`
 
-## Purpose
+````markdown id="5fbey0"
+# Architectures
 
-`tinyml-ops` is a compact machine learning systems project that combines a small C-based learning core with reproducible workflow tooling.
+## Overview
 
-It is designed to show how a low-level ML implementation can be wrapped in practical MLOps structure without depending on large training frameworks.
+`tinyml-ops` v1 supports three regression model families built on the same C-based training and evaluation workflow:
 
-The project focuses on:
+- linear models
+- single-hidden-layer MLPs
+- deep MLPs
 
-- transparency
-- reproducibility
-- experiment tracking
-- workflow automation
-- incremental system design
+These architectures are designed to stay compact, inspectable, and reproducible while still allowing meaningful experimentation across depth, activation, optimizer choice, and weight initialization.
 
-## System overview
+## Design goals
 
-At a high level, the project has two layers:
+The architecture layer in `tinyml-ops` was built around a few core goals:
 
-### 1. ML core layer
-The C code implements the learning system itself.
+- keep the implementation small enough to fully inspect
+- support incremental architectural growth from linear to deep models
+- expose architecture choices through config files rather than source edits
+- make training, evaluation, and prediction work through a shared runtime interface
 
-This layer includes:
+## 1. Linear model
 
-- matrix operations
-- dense layer forward pass
-- dense layer backward pass
-- ReLU activation
-- MSE loss
-- SGD-style weight updates
-- checkpoint save/load
-- CSV data loading
+The linear model is the simplest supported architecture.
 
-### 2. Workflow layer
-The surrounding tooling turns the ML core into a reproducible experiment workflow.
+It consists of:
 
-This layer includes:
+- a single dense layer
+- no hidden layer
+- a direct mapping from input features to one output
 
-- config files
-- train / evaluate / predict applications
-- DVC pipeline orchestration
-- experiment runner scripts
-- experiment comparison reporting
-- MLflow tracking
-- Docker execution
-- GitHub Actions CI
+This model is useful as:
 
-## Core components
+- a baseline
+- a debugging reference
+- a sanity-check architecture for the data pipeline
 
-### C library
-The reusable ML core lives under:
+### Example config pattern
 
-```text
-include/
-src/
+```ini id="sxn6e7"
+model_type=linear
+optimizer=adam
+weight_init=zeros
 ````
 
-Key responsibilities:
+## 2. Single-hidden-layer MLP
 
-* represent matrices and simple models
-* run forward and backward passes
-* update parameters
-* load datasets
-* save and load checkpoints
-* compute losses and evaluation metrics
+The MLP adds one hidden layer between input and output.
 
-### Applications
+It supports:
 
-#### `train_app`
+* configurable hidden dimension
+* configurable hidden activation
+* configurable optimizer
+* configurable weight initialization
 
-Responsibilities:
+This is the main intermediate architecture in the project and serves as the default balance between simplicity and expressiveness.
 
-* load training config
-* load dataset
-* train model
-* write checkpoint
-* write training metrics
+### Example config pattern
 
-#### `evaluate_app`
-
-Responsibilities:
-
-* load config
-* load dataset
-* load checkpoint
-* compute evaluation loss
-* write evaluation metrics
-
-#### `predict_app`
-
-Responsibilities:
-
-* load config
-* load checkpoint
-* run single-value inference
-* print prediction results
-
-## Workflow architecture
-
-The system currently follows this flow:
-
-```text
-config file
-   ↓
-train_app
-   ↓
-checkpoint + train_metrics.json
-   ↓
-evaluate_app
-   ↓
-eval_metrics.json
-   ↓
-run_experiment.py
-   ↓
-archived metrics + archived checkpoint
-   ↓
-compare_experiments.py
-   ↓
-experiment_summary.csv
-   ↓
-mlflow_run.py
-   ↓
-MLflow experiment tracking
+```ini id="w5drmr"
+model_type=mlp
+hidden_dim=8
+hidden_activation=tanh
+optimizer=adam
+weight_init=xavier
 ```
 
-## Artifact flow
+### Typical use cases
 
-### Input artifacts
+* stronger nonlinear baseline
+* activation comparisons
+* optimizer comparisons
+* weight initialization comparisons
 
-* config files
-* CSV dataset
-* DVC params
+## 3. Deep MLP
 
-### Intermediate artifacts
+The deep MLP extends the MLP design to multiple hidden layers.
 
-* active checkpoint
-* active training metrics
-* active evaluation metrics
+It supports:
 
-### Archived artifacts
+* configurable hidden layer sizes
+* configurable hidden activation
+* configurable optimizer
+* configurable weight initialization
 
-* archived train metrics
-* archived eval metrics
-* archived model checkpoints
+### Example config pattern
 
-### Report artifacts
+```ini id="lb3pa0"
+model_type=deep_mlp
+hidden_layers=16,8
+hidden_activation=relu
+optimizer=adam
+weight_init=he
+```
 
-* experiment summary CSV
-* MLflow logged artifacts
+### Typical use cases
 
-## DVC pipeline role
+* architecture sweeps
+* depth comparisons
+* hidden-layer-size experiments
+* activation and initialization interaction studies
 
-DVC is responsible for reproducible execution of the main workflow stages.
+## Hidden activations
 
-The pipeline currently orchestrates:
+The project supports the following hidden activation settings:
 
+* `relu`
+* `tanh`
+* `linear`
+* `none`
+
+In practice for v1:
+
+* `relu` is most natural with `he` initialization
+* `tanh` is most natural with `xavier` initialization
+
+## Runtime model abstraction
+
+A major architectural feature in v1 is the runtime model abstraction.
+
+This layer allows the CLI applications to handle multiple architecture families through one interface for:
+
+* initialization
 * training
 * evaluation
+* prediction
+* checkpoint load/save
 
-DVC tracks:
+This means the application layer does not need to duplicate architecture-specific branching everywhere.
 
-* params
-* stage dependencies
-* stage outputs
-* metrics files
-* lock state
+## Weight initialization support
 
-This makes it possible to rerun the workflow in a controlled and repeatable way.
+Architectures in v1 support configurable initialization:
 
-## MLflow role
+* `zeros`
+* `xavier`
+* `he`
 
-MLflow sits on top of the reproducible workflow and provides experiment tracking.
+These initialization choices are applied during model creation and tracked through experiment metadata, benchmark reports, and MLflow.
 
-It records:
+## Optimizer support
 
-* experiment name
-* config path
-* training parameters
-* train and eval metrics
-* archived metric files
-* archived checkpoint artifacts
+Architectures can currently be trained with:
 
-MLflow is used here as the experiment history and inspection layer, while DVC remains the reproducibility layer.
+* SGD
+* Adam
 
-## Docker role
+This makes architecture comparison more meaningful, since the project can now compare not just model family and depth, but also optimization strategy.
 
-Docker is the recommended execution environment.
+## Current recommended default architecture
 
-It solves the main portability issue encountered during setup:
+The promoted v1 default architecture is:
 
-* native Windows GCC builds were inconsistent
-* Linux container builds were stable
+* model type: `mlp`
+* hidden dimension: `8`
+* hidden activation: `tanh`
+* optimizer: `adam`
+* weight initialization: `xavier`
 
-Docker is therefore treated as the canonical runtime for:
+This default was selected from the valid benchmarked experiment set and promoted into:
 
-* build
-* test
-* DVC repro
-* experiment execution
-* experiment comparison
-
-## GitHub Actions role
-
-GitHub Actions provides automated validation for the repository.
-
-The workflows currently verify:
-
-* project configure/build
-* test suite execution
-* DVC pipeline execution
-
-This protects the repo from regressions and keeps the workflow reproducible in CI.
-
-## Current experiment model
-
-The current project supports a simple regression workflow based on:
-
-* one input feature
-* one output target
-* one dense layer
-* MSE loss
-* simple gradient descent updates
-
-This makes the system intentionally small and easy to inspect.
-
-## Current strengths
-
-The project already demonstrates:
-
-* low-level model implementation in C
-* config-driven workflows
-* reproducible pipelines
-* archived experiment history
-* experiment comparison
-* tracked metrics and artifacts
-* CI validation
-* Docker portability
-
-## Current limitations
-
-The system is still intentionally narrow in scope.
-
-Known limitations include:
-
-* single-feature regression only
-* single-layer training path
-* simple checkpoint format
-* simple CSV parser
-* no batching abstraction
-* no normalization pipeline
-* no richer model registry workflow
-* no remote artifact storage yet
-
-## Extension points
-
-The architecture is intentionally modular so future work can extend it in several directions.
-
-### ML core extensions
-
-* deeper networks
-* additional activations
-* additional losses
-* optimizers beyond simple SGD
-* normalization support
-
-### Data extensions
-
-* multi-column datasets
-* train/validation/test split support
-* preprocessing pipeline
-* feature scaling and persistence
-
-### Workflow extensions
-
-* richer experiment catalog
-* remote DVC storage
-* better model promotion flow
-* deployment-oriented packaging
-* richer reporting
-
-## Design philosophy
-
-The project deliberately avoids large abstractions too early.
-
-Instead, it follows a staged approach:
-
-1. make the core logic work
-2. test it
-3. make it reproducible
-4. make experiments comparable
-5. make the workflow portable
-6. layer in tracking and CI
-
-This keeps the system understandable while still showing real MLOps practices.
-
-## Current status
-
-At the current milestone, `tinyml-ops` is a functioning compact ML systems project with:
-
-* a working C learning core
-* reproducible DVC pipelines
-* experiment archiving
-* comparison reporting
-* MLflow integration
-* Docker-based execution
-* CI validation
-
+```text id="tiib3v"
+configs/experiments/best_default.cfg
 ```
+
+## Architectural tradeoffs in v1
+
+### Linear
+
+Strengths:
+
+* easiest to debug
+* smallest parameter count
+* cleanest baseline
+
+Limitations:
+
+* limited nonlinear capacity
+
+### MLP
+
+Strengths:
+
+* stronger nonlinear modeling
+* compact and stable
+* good benchmark default
+
+Limitations:
+
+* less expressive than deeper networks
+
+### Deep MLP
+
+Strengths:
+
+* more capacity
+* more architecture flexibility
+
+Limitations:
+
+* more sensitive to initialization and optimization
+* harder to benchmark reliably without stronger experiment controls
+
+## Summary
+
+The architecture design in `tinyml-ops` v1 provides a clean progression from linear regression to deeper configurable neural networks while preserving transparency, reproducibility, and a shared runtime workflow.
+
+````
